@@ -70,7 +70,7 @@ var UserController = function () {
                     var tokenObj = {
                         userId: userObj.userId
                     };
-                    token = _jsonwebtoken2.default.sign(tokenObj, (0, _const2.default)().secret, { expiresIn: '24h' });
+                    token = _jsonwebtoken2.default.sign(tokenObj, (0, process.env.JWT_SECRET, { expiresIn: '24h' });
                     return token;
                 }).then(function (token) {
                     var finalOutput = {
