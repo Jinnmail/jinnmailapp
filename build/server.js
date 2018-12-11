@@ -28,7 +28,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var cores = _os2.default.cpus().length;
 var app = _http2.default.createServer(_app2.default);
-app.listen(process.env.PORT);
+app.listen(process.env.PORT || 9000);
 app.on('error', error);
 app.on('listening', connected);
 

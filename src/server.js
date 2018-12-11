@@ -7,7 +7,7 @@ import os from 'os'
 
 const cores = os.cpus().length
 const app = http.createServer(server)
-app.listen(process.env.PORT)
+app.listen(process.env.PORT || 9000)
 app.on('error', error)
 app.on('listening', connected)
 
