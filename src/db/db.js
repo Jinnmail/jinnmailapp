@@ -4,10 +4,10 @@ import logger from '../utils/logger'
 
 class Mongoose {
     constructor() {
-        mongoose.connect(cred().db.mongodb.url, {
+        mongoose.connect(process.env.DB_HOST, {
             auth: {
-                user: cred().db.mongodb.username,
-                password: cred().db.mongodb.password,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
             },
             useNewUrlParser: true,
             //these parameters will change in production 

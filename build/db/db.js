@@ -17,10 +17,10 @@ var mongoose = require('mongoose');
 var Mongoose = function Mongoose() {
     _classCallCheck(this, Mongoose);
 
-    mongoose.connect((0, _const2.default)().db.mongodb.url, {
+    mongoose.connect(process.env.DB_HOST, {
         auth: {
-            user: (0, _const2.default)().db.mongodb.username,
-            password: (0, _const2.default)().db.mongodb.password
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD
         },
         useNewUrlParser: true,
         //these parameters will change in production 
