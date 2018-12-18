@@ -22,7 +22,11 @@ class server {
   constructor() {
     this.app = express();
     this.config();
-    this.routes()
+    this.routes();
+    process.on('unhandledRejection', (reason, p) => {
+      console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+      // application specific logging, throwing an error, or other logic here
+    });
   }
 
   config() {

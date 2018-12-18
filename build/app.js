@@ -60,6 +60,10 @@ var server = function () {
     this.app = (0, _express2.default)();
     this.config();
     this.routes();
+    process.on('unhandledRejection', function (reason, p) {
+      console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+      // application specific logging, throwing an error, or other logic here
+    });
   }
 
   _createClass(server, [{

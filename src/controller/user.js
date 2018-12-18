@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
 import cred from '../config/const'
 import uuidv3 from 'uuid/v3';
-// import logger from '../utils/logger';
+import * as mail from '../services/mail';
+import { callbackify } from 'util';
 
 class UserController {
 
@@ -65,17 +66,26 @@ class UserController {
 
     register(data) {
         return new Promise((resolve, reject) => {
-            let newUser = new userModel();
-            newUser.email = data.email;
-            newUser.password = data.password;
-            newUser.userId = uuidv4();
-            newUser.save((err, savedUser) => {
-                if (err) {
-                    reject({ code: 500, msg: err });
+            userModel.findOne({ email: data.email }).then((user) => {
+                console.log(user)
+                if (user) {
+                    reject({ code: 500, msg: 'err' });
                 } else {
-                    resolve(savedUser);
+                    let newUser = new userModel();
+                    newUser.email = data.email;
+                    newUser.password = data.password;
+                    newUser.userId = uuidv4();
+                    newUser.save((err, savedUser) => {
+                        if (err) {
+                            reject({ code: 500, msg: err });
+                        } else {
+                            mail.email_sender([data.email]);
+                            resolve(savedUser);
+                        }
+                    })
                 }
             })
+
         })
     }
 

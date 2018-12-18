@@ -33,7 +33,7 @@ app.on('error', error);
 app.on('listening', connected);
 
 function connected() {
-    _logger2.default.info(' started at ' + new Date());
+    _logger2.default.info(' started at ' + new Date() + ', PID: ' + process.pid + ' at ' + (0, _const2.default)().port);
 }
 
 function error() {

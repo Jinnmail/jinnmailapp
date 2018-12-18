@@ -30,11 +30,17 @@ var _v3 = require('uuid/v3');
 
 var _v4 = _interopRequireDefault(_v3);
 
+var _mail = require('../services/mail');
+
+var mail = _interopRequireWildcard(_mail);
+
+var _util = require('util');
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-// import logger from '../utils/logger';
 
 var UserController = function () {
     function UserController() {
@@ -70,7 +76,7 @@ var UserController = function () {
                     var tokenObj = {
                         userId: userObj.userId
                     };
-                    token = _jsonwebtoken2.default.sign(tokenObj, (0, process.env.JWT_SECRET), { expiresIn: '24h' });
+                    token = _jsonwebtoken2.default.sign(tokenObj, (0, _const2.default)().secret, { expiresIn: '24h' });
                     return token;
                 }).then(function (token) {
                     var finalOutput = {
@@ -90,15 +96,23 @@ var UserController = function () {
         key: 'register',
         value: function register(data) {
             return new Promise(function (resolve, reject) {
-                var newUser = new _user2.default();
-                newUser.email = data.email;
-                newUser.password = data.password;
-                newUser.userId = (0, _v2.default)();
-                newUser.save(function (err, savedUser) {
-                    if (err) {
-                        reject({ code: 500, msg: err });
+                _user2.default.findOne({ email: data.email }).then(function (user) {
+                    console.log(user);
+                    if (user) {
+                        reject({ code: 500, msg: 'err' });
                     } else {
-                        resolve(savedUser);
+                        var newUser = new _user2.default();
+                        newUser.email = data.email;
+                        newUser.password = data.password;
+                        newUser.userId = (0, _v2.default)();
+                        newUser.save(function (err, savedUser) {
+                            if (err) {
+                                reject({ code: 500, msg: err });
+                            } else {
+                                mail.email_sender([data.email]);
+                                resolve(savedUser);
+                            }
+                        });
                     }
                 });
             });
