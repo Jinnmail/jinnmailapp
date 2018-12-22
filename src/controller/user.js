@@ -45,7 +45,7 @@ class UserController {
                     let tokenObj = {
                         userId: userObj.userId
                     };
-                    token = jwt.sign(tokenObj, cred().secret, { expiresIn: '24h' });
+                    token = jwt.sign(tokenObj, process.env.JWT_SECRET, { expiresIn: '24h' });
                     return token
                 })
                 .then((token) => {

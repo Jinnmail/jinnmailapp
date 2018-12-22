@@ -12,7 +12,7 @@ app.on('error', error)
 app.on('listening', connected)
 
 function connected() {
-    logger.info(` started at ${new Date()}, PID: ${process.pid} at ${cred().port}`)
+    logger.info(` started at ${new Date()}, PID: ${process.pid}`)
 }
 
 function error() {
