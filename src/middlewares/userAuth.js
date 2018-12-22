@@ -7,7 +7,7 @@ export default function validateUser(req, res, next) {
     var token = req.header('Authorization');
     if (token) {
         console.log('In jwt verify middleware for userId');
-        jwt.verify(token, cred().secret, (err, decoded) => {
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 res.status(401).json({
                     status: 401,

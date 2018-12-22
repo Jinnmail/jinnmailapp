@@ -22,7 +22,7 @@ function validateUser(req, res, next) {
     var token = req.header('Authorization');
     if (token) {
         console.log('In jwt verify middleware for userId');
-        jwt.verify(token, (0, _const2.default)().secret, function (err, decoded) {
+        jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
             if (err) {
                 res.status(401).json({
                     status: 401,
