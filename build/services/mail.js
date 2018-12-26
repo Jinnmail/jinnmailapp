@@ -21,7 +21,7 @@ function email_sender(toEmails) {
         // Add to email
         var toEmail = new _sendgrid.mail.Email(toEmails[i]);
         // HTML Content
-        var content = new _sendgrid.mail.Content('text/html', 'welcome to jinnmail');
+        var content = new _sendgrid.mail.Content('text/html', 'welcome to jinnmail, verification code is ' + Math.floor(100000 + Math.random() * 900000));
         var mail = new _sendgrid.mail.Mail(senderEmail, 'jinnmail', toEmail, content);
         var request = sg.emptyRequest({
             method: 'POST',
