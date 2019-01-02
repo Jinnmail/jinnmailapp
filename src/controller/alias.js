@@ -33,28 +33,54 @@ class AliasController {
         console.log(data);
         return new Promise((resolve, reject) => {
             let domain = this.getDomain(data.url);
-            let token = this.randomString(6);
-            let email_address = domain + '.' + token + '@jinnmail.com'
-            aliasModel.findOne({ alias: email_address }).then((isAvail) => {
-                if (isAvail) {
-                    reject({ code: 403, msg: 'Not available' })
-                } else {
-                    data.aliasId = uuidv4();
-                    data.alias = email_address;
-                    data.refferedUrl = data.url;
-                    let alias = new aliasModel(data);
-                    alias.save((err, saved) => {
-                        console.log(err)
-                        if (err) {
-                            reject({ code: 500, msg: 'something went wrong' })
-                        } else {
-                            resolve(saved)
-                        }
-                    })
-                }
-            }).catch((err) => {
-                reject({ code: 500, msg: 'something went wrong' })
-            })
+            let source = data.source;
+            if (source === 'cust'){
+                
+                let email_address = domain + '@jinnmail.com'
+                aliasModel.findOne({ alias: email_address }).then((isAvail) => {
+                    if (isAvail) {
+                        reject({ code: 403, msg: 'Not available' })
+                    } else {
+                        data.aliasId = uuidv4();
+                        data.alias = email_address;
+                        data.refferedUrl = data.url;
+                        let alias = new aliasModel(data);
+                        alias.save((err, saved) => {
+                            console.log(err)
+                            if (err) {
+                                reject({ code: 500, msg: 'something went wrong' })
+                            } else {
+                                resolve(saved)
+                            }
+                        })
+                    }
+                }).catch((err) => {
+                    reject({ code: 500, msg: 'something went wrong' })
+                })
+            } else {
+                let token = this.randomString(6);
+                let email_address = domain + '.' + token + '@jinnmail.com'
+                aliasModel.findOne({ alias: email_address }).then((isAvail) => {
+                    if (isAvail) {
+                        reject({ code: 403, msg: 'Not available' })
+                    } else {
+                        data.aliasId = uuidv4();
+                        data.alias = email_address;
+                        data.refferedUrl = data.url;
+                        let alias = new aliasModel(data);
+                        alias.save((err, saved) => {
+                            console.log(err)
+                            if (err) {
+                                reject({ code: 500, msg: 'something went wrong' })
+                            } else {
+                                resolve(saved)
+                            }
+                        })
+                    }
+                }).catch((err) => {
+                    reject({ code: 500, msg: 'something went wrong' })
+                })
+            }
         });
     }
 

@@ -111,28 +111,54 @@ var AliasController = function () {
             console.log(data);
             return new Promise(function (resolve, reject) {
                 var domain = _this2.getDomain(data.url);
-                var token = _this2.randomString(6);
-                var email_address = domain + '.' + token + '@jinnmail.com';
-                _alias2.default.findOne({ alias: email_address }).then(function (isAvail) {
-                    if (isAvail) {
-                        reject({ code: 403, msg: 'Not available' });
-                    } else {
-                        data.aliasId = (0, _v2.default)();
-                        data.alias = email_address;
-                        data.refferedUrl = data.url;
-                        var alias = new _alias2.default(data);
-                        alias.save(function (err, saved) {
-                            console.log(err);
-                            if (err) {
-                                reject({ code: 500, msg: 'something went wrong' });
-                            } else {
-                                resolve(saved);
-                            }
-                        });
-                    }
-                }).catch(function (err) {
-                    reject({ code: 500, msg: 'something went wrong' });
-                });
+                var source = data.source;
+                if (source === 'cust') {
+
+                    var email_address = domain + '@jinnmail.com';
+                    _alias2.default.findOne({ alias: email_address }).then(function (isAvail) {
+                        if (isAvail) {
+                            reject({ code: 403, msg: 'Not available' });
+                        } else {
+                            data.aliasId = (0, _v2.default)();
+                            data.alias = email_address;
+                            data.refferedUrl = data.url;
+                            var alias = new _alias2.default(data);
+                            alias.save(function (err, saved) {
+                                console.log(err);
+                                if (err) {
+                                    reject({ code: 500, msg: 'something went wrong' });
+                                } else {
+                                    resolve(saved);
+                                }
+                            });
+                        }
+                    }).catch(function (err) {
+                        reject({ code: 500, msg: 'something went wrong' });
+                    });
+                } else {
+                    var token = _this2.randomString(6);
+                    var _email_address = domain + '.' + token + '@jinnmail.com';
+                    _alias2.default.findOne({ alias: _email_address }).then(function (isAvail) {
+                        if (isAvail) {
+                            reject({ code: 403, msg: 'Not available' });
+                        } else {
+                            data.aliasId = (0, _v2.default)();
+                            data.alias = _email_address;
+                            data.refferedUrl = data.url;
+                            var alias = new _alias2.default(data);
+                            alias.save(function (err, saved) {
+                                console.log(err);
+                                if (err) {
+                                    reject({ code: 500, msg: 'something went wrong' });
+                                } else {
+                                    resolve(saved);
+                                }
+                            });
+                        }
+                    }).catch(function (err) {
+                        reject({ code: 500, msg: 'something went wrong' });
+                    });
+                }
             });
         }
     }, {

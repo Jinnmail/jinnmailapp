@@ -21,6 +21,21 @@ const userSchema = mongoose.Schema({
             return v.length >= 8;
         }, 'Password min length is 8 chars']
     },
+    verificationCode: {
+        type: String
+        
+    },
+    verified : {
+        type: Boolean,
+        default:false
+    },
+    resetPasswordToken:{
+        type: String,
+        default:null
+    },
+    resetPasswordExpires:{
+        type: Date
+    },
     created: {
         type: Date,
         default: Date.now

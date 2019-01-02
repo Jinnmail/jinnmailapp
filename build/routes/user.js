@@ -76,11 +76,35 @@ var UserRoute = function () {
             });
         }
     }, {
+        key: 'codeVerification',
+        value: function codeVerification(req, res) {
+
+            _user2.default.codeVerification(req.body).then(function (data) {
+                _reqRes2.default.responseHandler('', data, res); //Handle Response
+            }).catch(function (err) {
+                _reqRes2.default.httpErrorHandler(err, res);
+                res.end();
+            });
+        }
+    }, {
+        key: 'forgetPassword',
+        value: function forgetPassword(req, res) {
+
+            _user2.default.forgetPassword(req.body).then(function (data) {
+                _reqRes2.default.responseHandler('', data, res); //Handle Response
+            }).catch(function (err) {
+                _reqRes2.default.httpErrorHandler(err, res);
+                res.end();
+            });
+        }
+    }, {
         key: 'routes',
         value: function routes() {
             this.router.post('/', validator.registerValidator, this.register);
             this.router.post('/session', validator.loginValidator, this.login);
             this.router.post('/reset/password', _userAuth2.default, this.resetPassword);
+            this.router.post('/code/verify', this.codeVerification);
+            this.router.post('/forgot/password', this.forgetPassword);
         }
     }]);
 

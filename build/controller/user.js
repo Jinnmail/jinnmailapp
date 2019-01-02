@@ -36,6 +36,14 @@ var mail = _interopRequireWildcard(_mail);
 
 var _util = require('util');
 
+var _async = require('async');
+
+var _async2 = _interopRequireDefault(_async);
+
+var _btoa = require('btoa');
+
+var _btoa2 = _interopRequireDefault(_btoa);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -56,6 +64,9 @@ var UserController = function () {
 
                 _user2.default.findOne({ email: data.email }).then(function (userData) {
                     if (userData) {
+                        if (!userData.verified) {
+                            reject({ code: 403, msg: 'user not verified' });
+                        }
                         userObj = userData;
                         return new Promise(function (resolve, reject) {
                             _bcryptNodejs2.default.compare(data.password.toString(), userData.password, function (err, isMatch) {
@@ -76,7 +87,7 @@ var UserController = function () {
                     var tokenObj = {
                         userId: userObj.userId
                     };
-                    token = _jsonwebtoken2.default.sign(tokenObj, process.env.JWT_SECRET,{});
+                    token = _jsonwebtoken2.default.sign(tokenObj, process.env.JWT_SECRET, { expiresIn: '24h' });
                     return token;
                 }).then(function (token) {
                     var finalOutput = {
@@ -105,11 +116,12 @@ var UserController = function () {
                         newUser.email = data.email;
                         newUser.password = data.password;
                         newUser.userId = (0, _v2.default)();
+                        newUser.verificationCode = Math.floor(100000 + Math.random() * 900000);
                         newUser.save(function (err, savedUser) {
                             if (err) {
                                 reject({ code: 500, msg: err });
                             } else {
-                                mail.email_sender([data.email]);
+                                mail.email_sender([data.email], newUser.verificationCode);
                                 resolve(savedUser);
                             }
                         });
@@ -154,6 +166,52 @@ var UserController = function () {
                     });
                 }).catch(function (err) {
                     reject({ code: 500, msg: err });
+                });
+            });
+        }
+    }, {
+        key: 'codeVerification',
+        value: function codeVerification(data) {
+            return new Promise(function (resolve, reject) {
+                _user2.default.findOne({ email: data.email }, { verificationCode: 1 }).then(function (code) {
+                    if (data.code === code.verificationCode) {
+                        _user2.default.findOneAndUpdate({ email: data.email }, { verified: true }).then(function (ok) {
+                            console.log(ok);
+                            resolve('ok');
+                        });
+                    } else {
+                        reject({ code: 401, msg: 'invalid code.' });
+                    }
+                });
+            });
+        }
+    }, {
+        key: 'forgetPassword',
+        value: function forgetPassword(data) {
+            return new Promise(function (resolve, reject) {
+                _async2.default.waterfall([function (done) {
+
+                    var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
+                    done(null, token);
+                }, function (token, done) {
+                    _user2.default.findOne({ email: data.email }, function (err, user) {
+                        if (!user) {
+                            reject({ code: 403, 'msg': 'No account with that email address exists.' });
+                        }
+
+                        _user2.default.findOneAndUpdate({ email: data.email }, { $set: { resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000 } }, function (err, obj) {
+                            done(err, token, user);
+                        });
+                    });
+                }, function (token, user, done) {
+
+                    var text = 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' + 'Please click on the following link:\n\n' + '<a href=' + process.env.DASHBOARD_URL + 'forgetpassword.html?t=' + (0, _btoa2.default)(token) + '&e=' + (0, _btoa2.default)(data.email) + '>click here</a>\n\n' + 'If you did not request this, please ignore this email and your password will remain unchanged.\n';
+
+                    mail.forget_mail([data.email], text);
+                    resolve('email is sent');
+                }], function (err) {
+                    console.log(err);
+                    if (err) reject({ code: 500, msg: 'something went wrong.' });
                 });
             });
         }

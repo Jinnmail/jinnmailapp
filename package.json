@@ -16,6 +16,7 @@
     "@sendgrid/mail": "^6.3.1",
     "async": "^2.6.1",
     "bcrypt-nodejs": "0.0.3",
+    "btoa": "^1.2.1",
     "bunyan": "^1.8.12",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.4",
@@ -43,5 +44,8 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.9.0"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

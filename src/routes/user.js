@@ -47,10 +47,34 @@ class UserRoute {
             })
     }
 
+    codeVerification(req,res){
+        
+        user.codeVerification(req.body)
+            .then((data) => {
+                reqRes.responseHandler('', data, res); //Handle Response
+            }).catch((err) => {
+                reqRes.httpErrorHandler(err, res)
+                res.end()
+            })
+    }
+
+    forgetPassword(req,res){
+         
+        user.forgetPassword(req.body)
+            .then((data) => {
+                reqRes.responseHandler('', data, res); //Handle Response
+            }).catch((err) => {
+                reqRes.httpErrorHandler(err, res)
+                res.end()
+            })
+    }
+
     routes() {
         this.router.post('/', validator.registerValidator, this.register);
         this.router.post('/session', validator.loginValidator, this.login);
         this.router.post('/reset/password', userAuth, this.resetPassword);
+        this.router.post('/code/verify', this.codeVerification);
+        this.router.post('/forgot/password', this.forgetPassword);
     }
 }
 export default new UserRoute().router
