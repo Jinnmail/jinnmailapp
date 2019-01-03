@@ -98,6 +98,16 @@ var UserRoute = function () {
             });
         }
     }, {
+        key: 'resetPasswordChange',
+        value: function resetPasswordChange(req, res) {
+            _user2.default.resetPasswordChange(req.body).then(function (data) {
+                _reqRes2.default.responseHandler('', data, res);
+            }).catch(function (err) {
+                _reqRes2.default.httpErrorHandler(err, res);
+                res.end();
+            });
+        }
+    }, {
         key: 'routes',
         value: function routes() {
             this.router.post('/', validator.registerValidator, this.register);
@@ -105,6 +115,7 @@ var UserRoute = function () {
             this.router.post('/reset/password', _userAuth2.default, this.resetPassword);
             this.router.post('/code/verify', this.codeVerification);
             this.router.post('/forgot/password', this.forgetPassword);
+            this.router.post('/forgot/password/reset', this.resetPasswordChange);
         }
     }]);
 

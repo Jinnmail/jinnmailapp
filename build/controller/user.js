@@ -50,6 +50,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var SALT_WORK_FACTOR = 10;
+
 var UserController = function () {
     function UserController() {
         _classCallCheck(this, UserController);
@@ -190,7 +192,6 @@ var UserController = function () {
         value: function forgetPassword(data) {
             return new Promise(function (resolve, reject) {
                 _async2.default.waterfall([function (done) {
-
                     var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
                     done(null, token);
                 }, function (token, done) {
@@ -198,7 +199,6 @@ var UserController = function () {
                         if (!user) {
                             reject({ code: 403, 'msg': 'No account with that email address exists.' });
                         }
-
                         _user2.default.findOneAndUpdate({ email: data.email }, { $set: { resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000 } }, function (err, obj) {
                             done(err, token, user);
                         });
@@ -213,6 +213,52 @@ var UserController = function () {
                     console.log(err);
                     if (err) reject({ code: 500, msg: 'something went wrong.' });
                 });
+            });
+        }
+    }, {
+        key: 'resetPasswordChange',
+        value: function resetPasswordChange(data) {
+            return new Promise(function (resolve, reject) {
+                if (data.password) {
+                    _user2.default.findOne({
+                        email: data.email,
+                        resetPasswordExpires: {
+                            $gt: Date.now()
+                        }
+                    }, function (err, obj) {
+                        if (err) {
+                            reject({ code: 500, msg: 'something went wrong' });
+                        } else {
+                            if (obj == null) {
+                                reject({ code: 403, msg: 'Password reset token is invalid or has expired.' });
+                            } else {
+                                _user2.default.findOne({ email: data.email }, function (err, obj) {
+                                    if (err) reject({ code: 500, msg: 'something went wrong.' });else {
+                                        if (obj.resetPasswordToken === data.token) {
+                                            _bcryptNodejs2.default.genSalt(SALT_WORK_FACTOR, function (err, salt) {
+                                                if (err) reject({ code: 500, msg: 'something went wrong.' });
+                                                _bcryptNodejs2.default.hash(data.password, salt, null, function (err, hash) {
+                                                    if (err) reject({ code: 500, msg: 'something went wrong.' });
+                                                    _user2.default.findOneAndUpdate({ email: data.email }, { $set: { password: hash, resetPasswordToken: null } }, function (err, obj) {
+                                                        if (err) {
+                                                            reject({ code: 500, msg: "something went wrong." });
+                                                        } else {
+                                                            resolve("Password Changed.");
+                                                        }
+                                                    });
+                                                });
+                                            });
+                                        } else {
+                                            reject({ code: 500, msg: 'Link Expired' });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    reject({ code: 422, msg: 'new password is required.' });
+                }
             });
         }
     }]);

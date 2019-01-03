@@ -9,6 +9,8 @@ import { callbackify } from 'util';
 import async from 'async';
 import btoa from 'btoa'
 
+let SALT_WORK_FACTOR = 10;
+
 class UserController {
 
     constructor() {
@@ -161,11 +163,8 @@ class UserController {
         return new Promise((resolve,reject)=>{
             async.waterfall([
                 function (done) {
-                  
-        
-                        var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
-                        done(null, token);
-                    
+                    var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
+                    done(null, token);                    
                 },
                 function (token, done) {
                     userModel.findOne({ email: data.email }, function (err, user) {
@@ -173,11 +172,9 @@ class UserController {
                             reject({ code: 403, 'msg': 'No account with that email address exists.' });
         
                         }
-        
-                       
-                                userModel.findOneAndUpdate({ email: data.email }, { $set: { resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000 } }, function (err, obj) {
-                                    done(err, token, user);
-                                })
+                        userModel.findOneAndUpdate({ email: data.email }, { $set: { resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000 } }, function (err, obj) {
+                            done(err, token, user);
+                        })
                       
                     });
                 },
@@ -198,6 +195,56 @@ class UserController {
                 if (err) reject({ code: 500, msg: 'something went wrong.' })
             });
         })
+    }
+    resetPasswordChange(data) {
+        return new Promise((resolve, reject) => {
+            if (data.password) {
+                userModel.findOne({ 
+                        email: data.email, 
+                        resetPasswordExpires: { 
+                            $gt: Date.now() 
+                        } 
+                    }, 
+                    (err, obj) => {
+                    if (err){
+                        reject({ code: 500, msg: 'something went wrong' });
+                    }
+                    else {
+                        if (obj == null) {
+                            reject({ code: 403, msg: 'Password reset token is invalid or has expired.' });
+                        } else {
+                            userModel.findOne({ email: data.email }, (err, obj) => {
+                                if (err) reject({ code: 500, msg: 'something went wrong.' })
+                                else {
+                                    if(obj.resetPasswordToken === data.token){
+                                        bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
+                                            if (err)
+                                                reject({ code: 500, msg: 'something went wrong.' })
+                                            bcrypt.hash(data.password, salt, null, (err, hash) => {
+                                                if (err)
+                                                    reject({ code: 500, msg: 'something went wrong.' });
+                                                userModel.findOneAndUpdate({email: data.email}, { $set: { password: hash, resetPasswordToken: null}}, (err, obj) => {
+                                                    if(err){
+                                                        reject({ code: 500, msg: "something went wrong."})
+                                                    }else{
+                                                        resolve("Password Changed.")
+                                                    }
+                                                })
+                                                
+                                            });
+                                        });
+                                    } else{
+                                        reject({ code: 500, msg: 'Link Expired' })
+                                    }
+                                }
+                            })
+                        }
+                    }
+                })
+            } else {
+                reject({ code: 422, msg: 'new password is required.' })
+            }
+        })    
     }
 }
 

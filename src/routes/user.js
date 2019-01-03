@@ -69,12 +69,24 @@ class UserRoute {
             })
     }
 
+    resetPasswordChange(req,res){
+        user.resetPasswordChange(req.body)
+            .then( data => {
+                reqRes.responseHandler('',data, res);
+            })
+            .catch( err => {
+                reqRes.httpErrorHandler(err, res);
+                res.end();
+            });
+    }
+
     routes() {
         this.router.post('/', validator.registerValidator, this.register);
         this.router.post('/session', validator.loginValidator, this.login);
         this.router.post('/reset/password', userAuth, this.resetPassword);
         this.router.post('/code/verify', this.codeVerification);
         this.router.post('/forgot/password', this.forgetPassword);
+        this.router.post('/forgot/password/reset', this.resetPasswordChange);
     }
 }
 export default new UserRoute().router
