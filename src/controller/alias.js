@@ -6,6 +6,8 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
 import cred from '../config/const';
 import uuidv3 from 'uuid/v3';
+import request from 'request';
+var URL = require('url').URL;
 
 // import logger from '../utils/logger';
 
@@ -32,10 +34,12 @@ class AliasController {
     registerAlias(data) {
         console.log(data);
         return new Promise((resolve, reject) => {
-            let domain = this.getDomain(data.url);
+            
             let source = data.source;
-            if (source === 'cust'){
-                
+            if (source === 'cust') {
+                let myCustUrl = new URL(data.url);
+                let str = myCustUrl.hostname;
+                let domain = str.substr(0, str.lastIndexOf('.'));
                 let email_address = domain + '@jinnmail.com'
                 aliasModel.findOne({ alias: email_address }).then((isAvail) => {
                     if (isAvail) {
@@ -50,7 +54,11 @@ class AliasController {
                             if (err) {
                                 reject({ code: 500, msg: 'something went wrong' })
                             } else {
-                                resolve(saved)
+                                this.registerUserOnMailServer(saved, domain ).then((data) => {
+                                    resolve(saved)
+                                }).catch((err) => {
+                                    reject({ code: 500, msg: 'something went wrong' })
+                                })
                             }
                         })
                     }
@@ -58,6 +66,7 @@ class AliasController {
                     reject({ code: 500, msg: 'something went wrong' })
                 })
             } else {
+                let domain = this.getDomain(data.url);
                 let token = this.randomString(6);
                 let email_address = domain + '.' + token + '@jinnmail.com'
                 aliasModel.findOne({ alias: email_address }).then((isAvail) => {
@@ -73,7 +82,12 @@ class AliasController {
                             if (err) {
                                 reject({ code: 500, msg: 'something went wrong' })
                             } else {
-                                resolve(saved)
+                                this.registerUserOnMailServer(saved, domain + '.' + token).then((data) => {
+                                    resolve(saved)
+                                }).catch((err) => {
+                                    reject({ code: 500, msg: 'something went wrong' })
+                                })
+
                             }
                         })
                     }
@@ -122,6 +136,8 @@ class AliasController {
 
     //parsing domain name 
     getHostName = (url) => {
+        url = url.includes('http')?url:'http://'+url;
+        //console.log(url,"url129")
         var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
         if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
             return match[2];
@@ -164,6 +180,47 @@ class AliasController {
 
         return domain.split('.')[0];
     }
+
+
+
+    registerUserOnMailServer(data, username) {
+        return new Promise((resolve, reject) => {
+            //console.log(data)
+            userModel.findOne({ userId: data.userId }, { email: 1 }).then((userInfo) => {
+                let postData = {
+                    "username": username,
+                    "password": process.env.EMAIL_PASSWORD,
+                    "targets": [userInfo.email],
+                    "disabledScopes": []
+                }
+
+                let url = process.env.EMAIL_SERVER + 'users'
+                let options = {
+                    method: 'post',
+                    body: postData,
+                    json: true,
+                    url: url
+                };
+                request(options, function (err, res, body) {
+                    if (err) {
+                        console.error('error posting json: ', err)
+                        throw err
+                    }
+                    var headers = res.headers
+                    var statusCode = res.statusCode
+                    console.log('headers: ', headers)
+                    console.log('statusCode: ', statusCode)
+                    console.log('body: ', body)
+                    resolve('ok')
+                })
+            }).catch((err) => {
+                reject(err);
+            })
+
+        })
+    }
+
+
 
 
 }

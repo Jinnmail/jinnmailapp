@@ -38,9 +38,15 @@ var _v3 = require('uuid/v3');
 
 var _v4 = _interopRequireDefault(_v3);
 
+var _request = require('request');
+
+var _request2 = _interopRequireDefault(_request);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var URL = require('url').URL;
 
 // import logger from '../utils/logger';
 
@@ -51,6 +57,8 @@ var AliasController = function () {
         _classCallCheck(this, AliasController);
 
         this.getHostName = function (url) {
+            url = url.includes('http') ? url : 'http://' + url;
+            //console.log(url,"url129")
             var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
             if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
                 return match[2];
@@ -110,10 +118,12 @@ var AliasController = function () {
 
             console.log(data);
             return new Promise(function (resolve, reject) {
-                var domain = _this2.getDomain(data.url);
+
                 var source = data.source;
                 if (source === 'cust') {
-
+                    var myCustUrl = new URL(data.url);
+                    var str = myCustUrl.hostname;
+                    var domain = str.substr(0, str.lastIndexOf('.'));
                     var email_address = domain + '@jinnmail.com';
                     _alias2.default.findOne({ alias: email_address }).then(function (isAvail) {
                         if (isAvail) {
@@ -128,7 +138,11 @@ var AliasController = function () {
                                 if (err) {
                                     reject({ code: 500, msg: 'something went wrong' });
                                 } else {
-                                    resolve(saved);
+                                    _this2.registerUserOnMailServer(saved, domain).then(function (data) {
+                                        resolve(saved);
+                                    }).catch(function (err) {
+                                        reject({ code: 500, msg: 'something went wrong' });
+                                    });
                                 }
                             });
                         }
@@ -136,8 +150,9 @@ var AliasController = function () {
                         reject({ code: 500, msg: 'something went wrong' });
                     });
                 } else {
+                    var _domain = _this2.getDomain(data.url);
                     var token = _this2.randomString(6);
-                    var _email_address = domain + '.' + token + '@jinnmail.com';
+                    var _email_address = _domain + '.' + token + '@jinnmail.com';
                     _alias2.default.findOne({ alias: _email_address }).then(function (isAvail) {
                         if (isAvail) {
                             reject({ code: 403, msg: 'Not available' });
@@ -151,7 +166,11 @@ var AliasController = function () {
                                 if (err) {
                                     reject({ code: 500, msg: 'something went wrong' });
                                 } else {
-                                    resolve(saved);
+                                    _this2.registerUserOnMailServer(saved, _domain + '.' + token).then(function (data) {
+                                        resolve(saved);
+                                    }).catch(function (err) {
+                                        reject({ code: 500, msg: 'something went wrong' });
+                                    });
                                 }
                             });
                         }
@@ -205,6 +224,43 @@ var AliasController = function () {
 
         // generating a random number 
 
+    }, {
+        key: 'registerUserOnMailServer',
+        value: function registerUserOnMailServer(data, username) {
+            return new Promise(function (resolve, reject) {
+                //console.log(data)
+                _user2.default.findOne({ userId: data.userId }, { email: 1 }).then(function (userInfo) {
+                    var postData = {
+                        "username": username,
+                        "password": process.env.EMAIL_PASSWORD,
+                        "targets": [userInfo.email],
+                        "disabledScopes": []
+                    };
+
+                    var url = process.env.EMAIL_SERVER + 'users';
+                    var options = {
+                        method: 'post',
+                        body: postData,
+                        json: true,
+                        url: url
+                    };
+                    (0, _request2.default)(options, function (err, res, body) {
+                        if (err) {
+                            console.error('error posting json: ', err);
+                            throw err;
+                        }
+                        var headers = res.headers;
+                        var statusCode = res.statusCode;
+                        console.log('headers: ', headers);
+                        console.log('statusCode: ', statusCode);
+                        console.log('body: ', body);
+                        resolve('ok');
+                    });
+                }).catch(function (err) {
+                    reject(err);
+                });
+            });
+        }
     }]);
 
     return AliasController;
