@@ -51,7 +51,7 @@ function email_sender(toEmails, code) {
 function forget_mail(toEmails, msg) {
     for (var i = 0; i < toEmails.length; i += 1) {
         // Add from emails
-        var senderEmail = new _sendgrid.mail.Email('support@flipkart.com');
+        var senderEmail = new _sendgrid.mail.Email('support@jinnmail.com');
         // Add to email
         var toEmail = new _sendgrid.mail.Email(toEmails[i]);
         // HTML Content

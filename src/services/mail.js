@@ -44,7 +44,7 @@ export function forget_mail(
 ) {
     for (let i = 0; i < toEmails.length; i += 1){
         // Add from emails
-        const senderEmail = new helper.Email('support@flipkart.com');
+        const senderEmail = new helper.Email('support@jinnmail.com');
         // Add to email
         const toEmail = new helper.Email(toEmails[i]);
         // HTML Content
