@@ -191,7 +191,7 @@ class AliasController {
                 let postData = {
                     "username": username,
                     "password": process.env.EMAIL_PASSWORD,
-                    "targets": [userInfo.email],
+                    "targets": [],
                     "disabledScopes": []
                 }
 
