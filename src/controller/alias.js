@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt-nodejs';
 import cred from '../config/const';
 import uuidv3 from 'uuid/v3';
 import request from 'request';
+import { PromiseProvider } from 'mongoose';
 var URL = require('url').URL;
 
 // import logger from '../utils/logger';
@@ -34,7 +35,7 @@ class AliasController {
     registerAlias(data) {
         console.log(data);
         return new Promise((resolve, reject) => {
-            
+
             let source = data.source;
             if (source === 'cust') {
                 let myCustUrl = new URL(data.url);
@@ -54,7 +55,7 @@ class AliasController {
                             if (err) {
                                 reject({ code: 500, msg: 'something went wrong' })
                             } else {
-                                this.registerUserOnMailServer(saved, domain ).then((data) => {
+                                this.registerUserOnMailServer(saved, domain).then((data) => {
                                     resolve(saved)
                                 }).catch((err) => {
                                     reject({ code: 500, msg: 'something went wrong' })
@@ -136,7 +137,7 @@ class AliasController {
 
     //parsing domain name 
     getHostName = (url) => {
-        url = url.includes('http')?url:'http://'+url;
+        url = url.includes('http') ? url : 'http://' + url;
         //console.log(url,"url129")
         var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
         if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
@@ -218,6 +219,39 @@ class AliasController {
             })
 
         })
+    }
+
+    getAliasUser(data) {
+        return new Promise((resolve, reject) => {
+            let alias = data.query.alias;
+            console.log(alias)
+            aliasModel.aggregate([
+                {
+                    $match: {
+                        alias: alias
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: 'userId',
+                        as: 'userInfo'
+                    }
+                },
+                {
+                    $unwind: "$userInfo"
+                },
+                {
+                    $project:{
+                        email:'$userInfo.email'
+                    }
+                }
+            ]).then((info) => {
+                resolve(info)
+            })
+        })
+
     }
 
 
