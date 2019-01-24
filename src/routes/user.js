@@ -58,6 +58,17 @@ class UserRoute {
             })
     }
 
+    resendCode(req, res){
+        
+        user.resendCode(req.body)
+            .then((data) => {
+                reqRes.responseHandler('', data, res); //Handle Response
+            }).catch((err) => {
+                reqRes.httpErrorHandler(err, res)
+                res.end()
+            })
+    }
+
     forgetPassword(req,res){
          
         user.forgetPassword(req.body)
@@ -85,6 +96,7 @@ class UserRoute {
         this.router.post('/session', validator.loginValidator, this.login);
         this.router.post('/reset/password', userAuth, this.resetPassword);
         this.router.post('/code/verify', this.codeVerification);
+        this.router.post('/code/resend', this.resendCode);
         this.router.post('/forgot/password', this.forgetPassword);
         this.router.post('/forgot/password/reset', this.resetPasswordChange);
     }

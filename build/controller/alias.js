@@ -182,14 +182,61 @@ var AliasController = function () {
                 }
             });
         }
+
+        // getRegisteredAlias(data) {
+        //     return new Promise((resolve, reject) => {
+        //         aliasModel.find({ userId: data.userId }).sort({ created: -1 }).then((aliases) => {
+        //             resolve(aliases)
+        //         }).catch((err) => {
+        //             reject({ code: 500, msg: 'something went wrong' });
+        //         })
+        //     })
+
+        // }
+
+
     }, {
         key: 'getRegisteredAlias',
         value: function getRegisteredAlias(data) {
             return new Promise(function (resolve, reject) {
-                _alias2.default.find({ userId: data.userId }).sort({ created: -1 }).then(function (aliases) {
-                    resolve(aliases);
+                // aliasModel.find({ userId: data.userId }).sort({ created: -1 }).then((aliases) => {
+                //     resolve(aliases)
+                // }).catch((err) => {
+                //     reject({ code: 500, msg: 'something went wrong' });
+                // })
+                _alias2.default.aggregate([{
+                    $match: {
+                        "userId": data.userId
+                    }
+                }, {
+                    $lookup: {
+                        "from": "users",
+                        "localField": "userId",
+                        "foreignField": "userId",
+                        "as": "Details"
+                    }
+                }, {
+                    $unwind: "$Details"
+                }, {
+                    $project: {
+                        "aliasId": 1,
+                        "userId": 1,
+                        "alias": 1,
+                        "refferedUrl": 1,
+                        "status": 1,
+                        "created": 1,
+                        "email": "$Details.email"
+                    }
+                }, {
+                    $sort: {
+                        "created": -1
+                    }
+                }]).then(function (result) {
+                    // console.log("Result is: "+ (result)?JSON.stringify(result):"0");  
+                    resolve(result);
+                    // console.log(val[0].user[0].email);
                 }).catch(function (err) {
-                    reject({ code: 500, msg: 'something went wrong' });
+                    reject({ code: 500, msg: err });
                 });
             });
         }

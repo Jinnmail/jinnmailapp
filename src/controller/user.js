@@ -52,7 +52,7 @@ class UserController {
                     let tokenObj = {
                         userId: userObj.userId
                     };
-                    token = jwt.sign(tokenObj, process.env.JWT_SECRET, { expiresIn: '24h' });
+                    token = jwt.sign(tokenObj, process.env.JWT_SECRET);
                     return token
                 })
                 .then((token) => {
@@ -146,16 +146,29 @@ class UserController {
     }
     codeVerification(data){
         return new Promise((resolve,reject)=>{
-        userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
-            if(data.code===code.verificationCode){
-                userModel.findOneAndUpdate({email:data.email},{verified:true}).then((ok)=>{
-                    console.log(ok);
-                    resolve('ok')
-                })
-            }else{
-                reject({code:401,msg:'invalid code.'})
-            }
+            userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
+                if(data.code===code.verificationCode){
+                    userModel.findOneAndUpdate({email:data.email},{verified:true}).then((ok)=>{
+                        console.log(ok);
+                        resolve('ok')
+                    })
+                }else{
+                    reject({code:401,msg:'invalid code.'})
+                }
+            })
         })
+    }
+
+    resendCode(data){
+        return new Promise((resolve,reject)=>{
+            userModel.findOne({email:data.email})
+                    .then((code)=>{
+                        mail.email_sender([data.email], code.verificationCode);
+                        resolve('ok');
+                    })
+                    .catch(err => {
+                        reject({code:401,msg:'invalid code.'})
+                    })
         })
     }
 

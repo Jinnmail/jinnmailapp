@@ -89,7 +89,7 @@ var UserController = function () {
                     var tokenObj = {
                         userId: userObj.userId
                     };
-                    token = _jsonwebtoken2.default.sign(tokenObj, process.env.JWT_SECRET, { expiresIn: '24h' });
+                    token = _jsonwebtoken2.default.sign(tokenObj, process.env.JWT_SECRET);
                     return token;
                 }).then(function (token) {
                     var finalOutput = {
@@ -184,6 +184,18 @@ var UserController = function () {
                     } else {
                         reject({ code: 401, msg: 'invalid code.' });
                     }
+                });
+            });
+        }
+    }, {
+        key: 'resendCode',
+        value: function resendCode(data) {
+            return new Promise(function (resolve, reject) {
+                _user2.default.findOne({ email: data.email }).then(function (code) {
+                    mail.email_sender([data.email], code.verificationCode);
+                    resolve('ok');
+                }).catch(function (err) {
+                    reject({ code: 401, msg: 'invalid code.' });
                 });
             });
         }

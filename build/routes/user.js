@@ -87,6 +87,17 @@ var UserRoute = function () {
             });
         }
     }, {
+        key: 'resendCode',
+        value: function resendCode(req, res) {
+
+            _user2.default.resendCode(req.body).then(function (data) {
+                _reqRes2.default.responseHandler('', data, res); //Handle Response
+            }).catch(function (err) {
+                _reqRes2.default.httpErrorHandler(err, res);
+                res.end();
+            });
+        }
+    }, {
         key: 'forgetPassword',
         value: function forgetPassword(req, res) {
 
@@ -114,6 +125,7 @@ var UserRoute = function () {
             this.router.post('/session', validator.loginValidator, this.login);
             this.router.post('/reset/password', _userAuth2.default, this.resetPassword);
             this.router.post('/code/verify', this.codeVerification);
+            this.router.post('/code/resend', this.resendCode);
             this.router.post('/forgot/password', this.forgetPassword);
             this.router.post('/forgot/password/reset', this.resetPasswordChange);
         }
