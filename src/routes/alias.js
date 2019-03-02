@@ -71,12 +71,24 @@ class AliasRoute {
         })
     }
 
+    getAliasUser(req,res) {
+        alias.getAliasUser(req)
+            .then((data) => {
+                reqRes.responseHandler('fetched successfully', data, res);
+            }).catch((err) => {
+                reqRes.httpErrorHandler(err, res);
+                res.end();
+            })
+    }
+        
+
     routes() {
         this.router.post('/', userAuth, this.registerAlias);
         this.router.get('/', userAuth, this.getRegisteredAlias);
         this.router.post('/avail', userAuth, this.checkAvailability);
         this.router.put('/status', userAuth, this.changeAliasStatus);
         this.router.delete('/:aliasId', userAuth, this.deleteAlias);
+        this.router.get('/linkedUser', this.getAliasUser)
     }
 }
 export default new AliasRoute().router

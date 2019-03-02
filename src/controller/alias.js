@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt-nodejs';
 import cred from '../config/const';
 import uuidv3 from 'uuid/v3';
 import request from 'request';
+import { PromiseProvider } from 'mongoose';
 var URL = require('url').URL;
 
 // import logger from '../utils/logger';
@@ -263,7 +264,39 @@ class AliasController {
         })
     }
 
+    getAliasUser(data) {
+        return new Promise((resolve, reject) => {
+            let alias = data.query.alias;
+            console.log(alias)
+            aliasModel.aggregate([
+                {
+                    $match: {
+                        alias: alias
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: 'userId',
+                        as: 'userInfo'
+                    }
+                },
+                {
+                    $unwind: "$userInfo"
+                },
+                {
+                    $project:{
+                        email:'$userInfo.email'
+                    }
+                }
+            ]).then((info) => {
+                resolve(info)
+            })
+        })
 
+    }
+        
 
 
 }
