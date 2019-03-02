@@ -38,6 +38,9 @@ var aliasSchema = _db2.default.Schema({
     created: {
         type: Date,
         default: Date.now
+    },
+    mailCount: {
+        type: Number
     }
 });
 

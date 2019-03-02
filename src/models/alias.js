@@ -28,6 +28,9 @@ const aliasSchema = mongoose.Schema({
     created: {
         type: Date,
         default: Date.now
+    },
+    mailCount:{
+        type: Number
     }
 });
 

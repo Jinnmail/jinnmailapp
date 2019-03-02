@@ -42,8 +42,6 @@ var _request = require('request');
 
 var _request2 = _interopRequireDefault(_request);
 
-var _mongoose = require('mongoose');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -133,6 +131,7 @@ var AliasController = function () {
                         } else {
                             data.aliasId = (0, _v2.default)();
                             data.alias = email_address;
+                            data.mailCount = 0;
                             data.refferedUrl = data.url;
                             var alias = new _alias2.default(data);
                             alias.save(function (err, saved) {
@@ -161,6 +160,7 @@ var AliasController = function () {
                         } else {
                             data.aliasId = (0, _v2.default)();
                             data.alias = _email_address;
+                            data.mailCount = 0;
                             data.refferedUrl = data.url;
                             var alias = new _alias2.default(data);
                             alias.save(function (err, saved) {
@@ -182,19 +182,6 @@ var AliasController = function () {
                 }
             });
         }
-
-        // getRegisteredAlias(data) {
-        //     return new Promise((resolve, reject) => {
-        //         aliasModel.find({ userId: data.userId }).sort({ created: -1 }).then((aliases) => {
-        //             resolve(aliases)
-        //         }).catch((err) => {
-        //             reject({ code: 500, msg: 'something went wrong' });
-        //         })
-        //     })
-
-        // }
-
-
     }, {
         key: 'getRegisteredAlias',
         value: function getRegisteredAlias(data) {
@@ -225,6 +212,7 @@ var AliasController = function () {
                         "refferedUrl": 1,
                         "status": 1,
                         "created": 1,
+                        "mailCount": 1,
                         "email": "$Details.email"
                     }
                 }, {
@@ -232,7 +220,7 @@ var AliasController = function () {
                         "created": -1
                     }
                 }]).then(function (result) {
-                    // console.log("Result is: "+ (result)?JSON.stringify(result):"0");  
+                    console.log("Result is: " + result ? JSON.stringify(result) : "0");
                     resolve(result);
                     // console.log(val[0].user[0].email);
                 }).catch(function (err) {
@@ -282,7 +270,7 @@ var AliasController = function () {
                     var postData = {
                         "username": username,
                         "password": process.env.EMAIL_PASSWORD,
-                        "targets": [],
+                        "targets": [userInfo.email],
                         "disabledScopes": []
                     };
 
@@ -307,34 +295,6 @@ var AliasController = function () {
                     });
                 }).catch(function (err) {
                     reject(err);
-                });
-            });
-        }
-    }, {
-        key: 'getAliasUser',
-        value: function getAliasUser(data) {
-            return new Promise(function (resolve, reject) {
-                var alias = data.query.alias;
-                console.log(alias);
-                _alias2.default.aggregate([{
-                    $match: {
-                        alias: alias
-                    }
-                }, {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'userId',
-                        foreignField: 'userId',
-                        as: 'userInfo'
-                    }
-                }, {
-                    $unwind: "$userInfo"
-                }, {
-                    $project: {
-                        email: '$userInfo.email'
-                    }
-                }]).then(function (info) {
-                    resolve(info);
                 });
             });
         }

@@ -99,17 +99,6 @@ var AliasRoute = function () {
             });
         }
     }, {
-        key: 'getAliasUser',
-        value: function getAliasUser(req, res) {
-
-            _alias2.default.getAliasUser(req).then(function (data) {
-                _reqRes2.default.responseHandler('fetched successfully', data, res);
-            }).catch(function (err) {
-                _reqRes2.default.httpErrorHandler(err, res);
-                res.end();
-            });
-        }
-    }, {
         key: 'routes',
         value: function routes() {
             this.router.post('/', _userAuth2.default, this.registerAlias);
@@ -117,7 +106,6 @@ var AliasRoute = function () {
             this.router.post('/avail', _userAuth2.default, this.checkAvailability);
             this.router.put('/status', _userAuth2.default, this.changeAliasStatus);
             this.router.delete('/:aliasId', _userAuth2.default, this.deleteAlias);
-            this.router.get('/linkedUser', this.getAliasUser);
         }
     }]);
 

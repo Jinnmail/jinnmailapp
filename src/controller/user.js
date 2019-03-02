@@ -52,7 +52,7 @@ class UserController {
                     let tokenObj = {
                         userId: userObj.userId
                     };
-                    token = jwt.sign(tokenObj, process.env.JWT_SECRET);
+                    token = jwt.sign(tokenObj, process.env.JWT_SECRET, { expiresIn: '24h' });
                     return token
                 })
                 .then((token) => {
@@ -79,14 +79,16 @@ class UserController {
                     reject({ code: 500, msg: 'err' });
                 } else {
                     let newUser = new userModel();
+                    newUser.userId = uuidv4();
                     newUser.email = data.email;
                     newUser.password = data.password;
-                    newUser.userId = uuidv4();
                     newUser.verificationCode = Math.floor(100000 + Math.random() * 900000);
                     newUser.save((err, savedUser) => {
                         if (err) {
                             reject({ code: 500, msg: err });
                         } else {
+                            console.log("New User:"+newUser);
+                            console.log("Saved User:"+savedUser);
                             mail.email_sender([data.email], newUser.verificationCode);
                             resolve(savedUser);
                         }
@@ -144,6 +146,7 @@ class UserController {
         })
 
     }
+
     codeVerification(data){
         return new Promise((resolve,reject)=>{
             userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
@@ -163,6 +166,7 @@ class UserController {
         return new Promise((resolve,reject)=>{
             userModel.findOne({email:data.email})
                     .then((code)=>{
+                        console.log("CODE:"+code.verificationCode)
                         mail.email_sender([data.email], code.verificationCode);
                         resolve('ok');
                     })

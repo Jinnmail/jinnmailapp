@@ -5,9 +5,11 @@ export function email_sender(
     toEmails,
     code
 ) {
+    console.log(code);
+    
     for (let i = 0; i < toEmails.length; i += 1) {
         // Add from emails
-        const senderEmail = new helper.Email('support@jinnmail.com');
+        const senderEmail = new helper.Email('george@jinnmail.com');
         // Add to email
         const toEmail = new helper.Email(toEmails[i]);
         // HTML Content
@@ -42,9 +44,9 @@ export function forget_mail(
     toEmails,
     msg
 ) {
-    for (let i = 0; i < toEmails.length; i += 1){
+    for (let i = 0; i < toEmails.length; i += 1) {
         // Add from emails
-        const senderEmail = new helper.Email('support@jinnmail.com');
+        const senderEmail = new helper.Email('george@jinnmail.com');
         // Add to email
         const toEmail = new helper.Email(toEmails[i]);
         // HTML Content

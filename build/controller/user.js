@@ -89,7 +89,7 @@ var UserController = function () {
                     var tokenObj = {
                         userId: userObj.userId
                     };
-                    token = _jsonwebtoken2.default.sign(tokenObj, process.env.JWT_SECRET);
+                    token = _jsonwebtoken2.default.sign(tokenObj, process.env.JWT_SECRET, { expiresIn: '24h' });
                     return token;
                 }).then(function (token) {
                     var finalOutput = {
@@ -115,14 +115,16 @@ var UserController = function () {
                         reject({ code: 500, msg: 'err' });
                     } else {
                         var newUser = new _user2.default();
+                        newUser.userId = (0, _v2.default)();
                         newUser.email = data.email;
                         newUser.password = data.password;
-                        newUser.userId = (0, _v2.default)();
                         newUser.verificationCode = Math.floor(100000 + Math.random() * 900000);
                         newUser.save(function (err, savedUser) {
                             if (err) {
                                 reject({ code: 500, msg: err });
                             } else {
+                                console.log("New User:" + newUser);
+                                console.log("Saved User:" + savedUser);
                                 mail.email_sender([data.email], newUser.verificationCode);
                                 resolve(savedUser);
                             }
@@ -192,6 +194,7 @@ var UserController = function () {
         value: function resendCode(data) {
             return new Promise(function (resolve, reject) {
                 _user2.default.findOne({ email: data.email }).then(function (code) {
+                    console.log("CODE:" + code.verificationCode);
                     mail.email_sender([data.email], code.verificationCode);
                     resolve('ok');
                 }).catch(function (err) {
