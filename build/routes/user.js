@@ -119,6 +119,17 @@ var UserRoute = function () {
             });
         }
     }, {
+        key: 'getRegisteredUsers',
+        value: function getRegisteredUsers(req, res) {
+            _user2.default.getUsers(req).then(function (data) {
+                // reqRes.responseHandler('fetched successfully', data, res);
+                res.status(200).send(data);
+            }).catch(function (err) {
+                _reqRes2.default.httpErrorHandler(err, res);
+                res.end();
+            });
+        }
+    }, {
         key: 'routes',
         value: function routes() {
             this.router.post('/', validator.registerValidator, this.register);
@@ -128,6 +139,8 @@ var UserRoute = function () {
             this.router.post('/code/resend', this.resendCode);
             this.router.post('/forgot/password', this.forgetPassword);
             this.router.post('/forgot/password/reset', this.resetPasswordChange);
+
+            this.router.get('/', _userAuth2.default, this.getRegisteredUsers);
         }
     }]);
 

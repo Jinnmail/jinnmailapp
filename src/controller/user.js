@@ -17,7 +17,6 @@ class UserController {
 
     }
 
-
     login(data) {
         let userObj;
         let token;
@@ -258,6 +257,25 @@ class UserController {
                 reject({ code: 422, msg: 'new password is required.' })
             }
         })    
+    }
+
+    getUsers(data){
+        return new Promise((resolve, reject) => {
+            userModel.aggregate([
+                {
+                    $sort: {
+                        "created": -1
+                    }
+                }
+            ]).then((users) => {
+                if (users.length<1) {
+                    reject({ code: 500, msg: 'err' });
+                } else {
+                    resolve(users)
+                }
+            })
+
+        })
     }
 }
 

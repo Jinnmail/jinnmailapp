@@ -45,6 +45,10 @@ var _alias = require('./routes/alias');
 
 var _alias2 = _interopRequireDefault(_alias);
 
+var _admin = require('./routes/admin');
+
+var _admin2 = _interopRequireDefault(_admin);
+
 var _logger = require('./utils/logger');
 
 var _logger2 = _interopRequireDefault(_logger);
@@ -81,6 +85,7 @@ var server = function () {
 
       this.app.use('/api/v1/user', _user2.default);
       this.app.use('/api/v1/alias', _alias2.default);
+      this.app.use('/api/v1/admin', _admin2.default);
     }
   }]);
 

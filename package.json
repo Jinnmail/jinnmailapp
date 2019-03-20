@@ -9,7 +9,7 @@
     "debug": "babel-watch ./src/server.js --presets es2015,stage-2",
     "build-server": "babel -d ./build ./src -s --presets es2015,stage-2",
     "build": "npm run clean && npm run build-server && npm run lint",
-    "start": "node ./build/server.js",
+    "start":"node ./build/server.js",
     "lint": "touch ./node_modules/.eslintignore && eslint ./src --fix"
   },
   "dependencies": {
@@ -33,7 +33,9 @@
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "sendgrid": "^5.2.3",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "body-parser": "^1.18.3",
+    "uuid-v4": "^0.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

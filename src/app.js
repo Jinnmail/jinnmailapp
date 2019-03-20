@@ -12,6 +12,7 @@ import validator from 'express-validator';
 
 import userRoutes from './routes/user'
 import aliasRoutes from './routes/alias'
+import adminRoutes from './routes/admin'
 
 //logger
 import logger from './utils/logger';
@@ -40,6 +41,7 @@ class server {
 
     this.app.use('/api/v1/user', userRoutes);
     this.app.use('/api/v1/alias', aliasRoutes);
+    this.app.use('/api/v1/admin', adminRoutes)
   }
 
 }

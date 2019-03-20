@@ -143,7 +143,49 @@ class AliasController {
                     }
                 }
             ]).then(result => {
-                console.log("Result is: "+ (result)?JSON.stringify(result):"0");  
+                // console.log("Result is:========================== \n"+ (result)?JSON.stringify(result):"0"+"\n====================================================================");  
+                resolve(result);
+                // console.log(val[0].user[0].email);
+            }).catch((err) => {
+                reject({ code: 500, msg: err });
+            });
+        })
+
+    }
+
+    getAlias(data) {
+        return new Promise((resolve, reject) => {
+            aliasModel.aggregate([
+                { 
+                    $lookup: {
+                        "from": "users",
+                        "localField": "userId",
+                        "foreignField": "userId",
+                        "as": "Details"
+                    }
+                },
+                {
+                    $unwind: "$Details"
+                },
+                {
+                    $project: {
+                        "aliasId":1,
+                        "userId":1,
+                        "alias":1,
+                        "refferedUrl":1,
+                        "status":1,
+                        "created":1,
+                        "mailCount":1,
+                        "email":"$Details.email"
+                    }
+                },
+                {
+                    $sort: {
+                        "created": -1
+                    }
+                }
+            ]).then(result => {
+                // console.log("Result is:========================== \n"+ (result)?JSON.stringify(result):"0"+"\n====================================================================");  
                 resolve(result);
                 // console.log(val[0].user[0].email);
             }).catch((err) => {
@@ -156,21 +198,23 @@ class AliasController {
     changeStatusOfAlias(data) {
         return new Promise((resolve, reject) => {
             console.log(data.aliasId, data.status)
-            aliasModel.findOneAndUpdate({ aliasId: data.aliasId }, { status: data.status }).then((alias) => {
-                console.log(alias)
-                resolve(null)
-            }).catch((err) => {
-                reject({ code: 500, msg: 'something went wrong' });
-            })
+                aliasModel.findOneAndUpdate({ aliasId: data.aliasId }, { status: data.status })
+                    .then((alias) => {
+                        console.log(alias)
+                        resolve(null)
+                    }).catch((err) => {
+                        reject({ code: 500, msg: 'something went wrong' });
+                    })
         })
     }
 
     deleteAlias(data) {
         return new Promise((resolve, reject) => {
             console.log(data.body.userId, data.params.aliasId);
-            aliasModel.remove({ aliasId: data.params.aliasId }).then((data) => {
-                resolve(null)
-            })
+            aliasModel.remove({ aliasId: data.params.aliasId })
+                .then((data) => {
+                    resolve(null)
+                })
                 .catch((err) => {
                     reject({ code: 500, msg: 'something went wrong' })
                 })
@@ -234,7 +278,7 @@ class AliasController {
                 let postData = {
                     "username": username,
                     "password": process.env.EMAIL_PASSWORD,
-                    "targets": [userInfo.email],
+                    "targets": [],
                     "disabledScopes": []
                 }
 
@@ -287,7 +331,8 @@ class AliasController {
                 },
                 {
                     $project:{
-                        email:'$userInfo.email'
+                        email:'$userInfo.email',
+                        status:1
                     }
                 }
             ]).then((info) => {

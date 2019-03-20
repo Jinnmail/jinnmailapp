@@ -222,7 +222,44 @@ var AliasController = function () {
                         "created": -1
                     }
                 }]).then(function (result) {
-                    console.log("Result is: " + result ? JSON.stringify(result) : "0");
+                    // console.log("Result is:========================== \n"+ (result)?JSON.stringify(result):"0"+"\n====================================================================");  
+                    resolve(result);
+                    // console.log(val[0].user[0].email);
+                }).catch(function (err) {
+                    reject({ code: 500, msg: err });
+                });
+            });
+        }
+    }, {
+        key: 'getAlias',
+        value: function getAlias(data) {
+            return new Promise(function (resolve, reject) {
+                _alias2.default.aggregate([{
+                    $lookup: {
+                        "from": "users",
+                        "localField": "userId",
+                        "foreignField": "userId",
+                        "as": "Details"
+                    }
+                }, {
+                    $unwind: "$Details"
+                }, {
+                    $project: {
+                        "aliasId": 1,
+                        "userId": 1,
+                        "alias": 1,
+                        "refferedUrl": 1,
+                        "status": 1,
+                        "created": 1,
+                        "mailCount": 1,
+                        "email": "$Details.email"
+                    }
+                }, {
+                    $sort: {
+                        "created": -1
+                    }
+                }]).then(function (result) {
+                    // console.log("Result is:========================== \n"+ (result)?JSON.stringify(result):"0"+"\n====================================================================");  
                     resolve(result);
                     // console.log(val[0].user[0].email);
                 }).catch(function (err) {
@@ -272,7 +309,7 @@ var AliasController = function () {
                     var postData = {
                         "username": username,
                         "password": process.env.EMAIL_PASSWORD,
-                        "targets": [userInfo.email],
+                        "targets": [],
                         "disabledScopes": []
                     };
 
@@ -321,7 +358,8 @@ var AliasController = function () {
                     $unwind: "$userInfo"
                 }, {
                     $project: {
-                        email: '$userInfo.email'
+                        email: '$userInfo.email',
+                        status: 1
                     }
                 }]).then(function (info) {
                     resolve(info);

@@ -41,6 +41,10 @@ var aliasSchema = _db2.default.Schema({
     },
     mailCount: {
         type: Number
+    },
+    type: {
+        type: String,
+        lowercase: true
     }
 });
 

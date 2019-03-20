@@ -77,6 +77,16 @@ var AliasRoute = function () {
             });
         }
     }, {
+        key: 'getAlias',
+        value: function getAlias(req, res) {
+            _alias2.default.getAlias(req).then(function (data) {
+                _reqRes2.default.responseHandler('fetched successfully', data, res);
+            }).catch(function (err) {
+                _reqRes2.default.httpErrorHandler(err, res);
+                res.end();
+            });
+        }
+    }, {
         key: 'changeAliasStatus',
         value: function changeAliasStatus(req, res) {
             req.body.userId = req.userId;
@@ -113,6 +123,7 @@ var AliasRoute = function () {
         value: function routes() {
             this.router.post('/', _userAuth2.default, this.registerAlias);
             this.router.get('/', _userAuth2.default, this.getRegisteredAlias);
+            this.router.get('/checkAlias', _userAuth2.default, this.getAlias);
             this.router.post('/avail', _userAuth2.default, this.checkAvailability);
             this.router.put('/status', _userAuth2.default, this.changeAliasStatus);
             this.router.delete('/:aliasId', _userAuth2.default, this.deleteAlias);

@@ -274,6 +274,23 @@ var UserController = function () {
                 }
             });
         }
+    }, {
+        key: 'getUsers',
+        value: function getUsers(data) {
+            return new Promise(function (resolve, reject) {
+                _user2.default.aggregate([{
+                    $sort: {
+                        "created": -1
+                    }
+                }]).then(function (users) {
+                    if (users.length < 1) {
+                        reject({ code: 500, msg: 'err' });
+                    } else {
+                        resolve(users);
+                    }
+                });
+            });
+        }
     }]);
 
     return UserController;

@@ -31,6 +31,10 @@ const aliasSchema = mongoose.Schema({
     },
     mailCount:{
         type: Number
+    },
+    type:{
+        type: String,
+        lowercase:true
     }
 });
 

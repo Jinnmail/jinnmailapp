@@ -91,6 +91,17 @@ class UserRoute {
             });
     }
 
+    getRegisteredUsers(req, res) {
+        user.getUsers(req)
+            .then((data) => {
+                // reqRes.responseHandler('fetched successfully', data, res);
+                res.status(200).send(data)
+            }).catch((err) => {
+                reqRes.httpErrorHandler(err, res);
+                res.end();
+            })
+    }
+
     routes() {
         this.router.post('/', validator.registerValidator, this.register);
         this.router.post('/session', validator.loginValidator, this.login);
@@ -99,6 +110,8 @@ class UserRoute {
         this.router.post('/code/resend', this.resendCode);
         this.router.post('/forgot/password', this.forgetPassword);
         this.router.post('/forgot/password/reset', this.resetPasswordChange);
+
+        this.router.get('/', userAuth, this.getRegisteredUsers);
     }
 }
 export default new UserRoute().router
