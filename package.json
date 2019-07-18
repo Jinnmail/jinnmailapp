@@ -9,7 +9,7 @@
     "debug": "babel-watch ./src/server.js --presets es2015,stage-2",
     "build-server": "babel -d ./build ./src -s --presets es2015,stage-2",
     "build": "npm run clean && npm run build-server",
-    "start":"node ./build/server.js",
+    "start": "node ./build/server.js",
     "lint": "touch ./node_modules/.eslintignore && eslint ./src --fix"
   },
   "dependencies": {

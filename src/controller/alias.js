@@ -1,5 +1,6 @@
 import userModel from '../models/user';
 import aliasModel from '../models/alias';
+import mailModel from '../models/mailDetails';
 import proxyMailModel from '../models/proxymail'
 import uuidv4 from 'uuid/v4';
 import jwt from 'jsonwebtoken';
@@ -33,7 +34,7 @@ class AliasController {
     // }
 
     registerAlias(data) {
-        console.log(data);
+        console.log("\nRegister Alias Data:",data);
         return new Promise((resolve, reject) => {
             
             let source = data.source;
@@ -56,7 +57,7 @@ class AliasController {
                             if (err) {
                                 reject({ code: 500, msg: 'something went wrong' })
                             } else {
-                                this.registerUserOnMailServer(saved, domain ).then((data) => {
+                                this.registerUserOnMailServer(saved, domain ).then((d) => {
                                     resolve(saved)
                                 }).catch((err) => {
                                     reject({ code: 500, msg: 'something went wrong' })
@@ -85,8 +86,23 @@ class AliasController {
                             if (err) {
                                 reject({ code: 500, msg: 'something went wrong' })
                             } else {
-                                this.registerUserOnMailServer(saved, domain + '.' + token).then((data) => {
-                                    resolve(saved)
+                                this.registerUserOnMailServer(saved, domain + '.' + token).then((x) => {
+                                    console.log("\nMail Server Data: ",x)
+                                    this.registerMailboxesOnServer(x.id).then(x => {
+                                        console.log("MailBoxes Updated")
+                                        resolve(saved)
+                                    }).catch( err => {
+                                        var d = {
+                                            params: {
+                                                aliasId: x.id
+                                            }
+                                        }
+                                        this.deleteAlias(d).then( x => {
+                                            reject({ code: 500, msg: 'something went wrong' })
+                                        }).catch(err => {
+                                            reject({ code: 500, msg: 'something went wrong' })
+                                        })
+                                    })
                                 }).catch((err) => {
                                     reject({ code: 500, msg: 'something went wrong' })
                                 })
@@ -197,10 +213,10 @@ class AliasController {
 
     changeStatusOfAlias(data) {
         return new Promise((resolve, reject) => {
-            console.log(data.aliasId, data.status)
+            // console.log(data.aliasId, data.status)
                 aliasModel.findOneAndUpdate({ aliasId: data.aliasId }, { status: data.status })
                     .then((alias) => {
-                        console.log(alias)
+                        // console.log(alias)
                         resolve(null)
                     }).catch((err) => {
                         reject({ code: 500, msg: 'something went wrong' });
@@ -210,7 +226,7 @@ class AliasController {
 
     deleteAlias(data) {
         return new Promise((resolve, reject) => {
-            console.log(data.body.userId, data.params.aliasId);
+            // console.log(data.body.userId, data.params.aliasId);
             aliasModel.remove({ aliasId: data.params.aliasId })
                 .then((data) => {
                     resolve(null)
@@ -269,7 +285,52 @@ class AliasController {
         return domain.split('.')[0];
     }
 
-
+    registerMailboxesOnServer(id){
+        console.log(id)
+        return new Promise((resolve, reject) => {
+            let url = `https://jinnmail.com/api/users/${id}`
+            let options = {
+                method: 'get',
+                json: true,
+                url: url
+            };
+            request(options, (err,res,body) => {
+                if (err) { console.log(err); }
+                console.log("Body",body)
+                let link = `https://jinnmail.com/api/users/${id}/mailboxes`;
+                let opt = {
+                    method: 'get',
+                    json: true,
+                    url: link
+                };
+                request(opt, (error, result, content)=>{
+                    if(error) { console.log(error); }
+                    let mailboxes = content.results;
+                    let mailData = {};
+                    mailData.alias = body.address;
+                    mailData.wildduckId = id;
+                    mailboxes.map(m=>{
+                        if(m.name === "INBOX")
+                        {
+                            mailData.inboxId = m.id
+                        }
+                        if(m.name === "Sent Mail")
+                        {
+                            mailData.sentId = m.id
+                        }
+                    })
+                    console.log(mailData)
+                    let mail = new mailModel(mailData);
+                    mail.save((err, saved) => {
+                        if(err) { console.log(err); }
+                        else { console.log("saved"); }
+                    })
+                })
+                
+                resolve("ok")
+            })  
+        })
+    }
 
     registerUserOnMailServer(data, username) {
         return new Promise((resolve, reject) => {
@@ -296,10 +357,14 @@ class AliasController {
                     }
                     var headers = res.headers
                     var statusCode = res.statusCode
-                    console.log('headers: ', headers)
-                    console.log('statusCode: ', statusCode)
-                    console.log('body: ', body)
-                    resolve('ok')
+                    console.log('\nHeaders: ', headers)
+                    console.log('\nStatusCode: ', statusCode)
+                    console.log('\nBody: ', body)
+                    /////////////////////////////////////////////////////////////////////////////////
+                    
+                    /////////////////////////////////////////////////////////////////////////////////
+
+                    resolve(body)
                 })
             }).catch((err) => {
                 reject(err);
@@ -311,7 +376,7 @@ class AliasController {
     getAliasUser(data) {
         return new Promise((resolve, reject) => {
             let alias = data.query.alias;
-            console.log(alias)
+            // console.log(alias)
             aliasModel.aggregate([
                 {
                     $match: {

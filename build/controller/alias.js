@@ -14,6 +14,10 @@ var _alias = require('../models/alias');
 
 var _alias2 = _interopRequireDefault(_alias);
 
+var _mailDetails = require('../models/mailDetails');
+
+var _mailDetails2 = _interopRequireDefault(_mailDetails);
+
 var _proxymail = require('../models/proxymail');
 
 var _proxymail2 = _interopRequireDefault(_proxymail);
@@ -118,7 +122,7 @@ var AliasController = function () {
         value: function registerAlias(data) {
             var _this2 = this;
 
-            console.log(data);
+            console.log("\nRegister Alias Data:", data);
             return new Promise(function (resolve, reject) {
 
                 var source = data.source;
@@ -141,7 +145,7 @@ var AliasController = function () {
                                 if (err) {
                                     reject({ code: 500, msg: 'something went wrong' });
                                 } else {
-                                    _this2.registerUserOnMailServer(saved, domain).then(function (data) {
+                                    _this2.registerUserOnMailServer(saved, domain).then(function (d) {
                                         resolve(saved);
                                     }).catch(function (err) {
                                         reject({ code: 500, msg: 'something went wrong' });
@@ -170,8 +174,23 @@ var AliasController = function () {
                                 if (err) {
                                     reject({ code: 500, msg: 'something went wrong' });
                                 } else {
-                                    _this2.registerUserOnMailServer(saved, _domain + '.' + token).then(function (data) {
-                                        resolve(saved);
+                                    _this2.registerUserOnMailServer(saved, _domain + '.' + token).then(function (x) {
+                                        console.log("\nMail Server Data: ", x);
+                                        _this2.registerMailboxesOnServer(x.id).then(function (x) {
+                                            console.log("MailBoxes Updated");
+                                            resolve(saved);
+                                        }).catch(function (err) {
+                                            var d = {
+                                                params: {
+                                                    aliasId: x.id
+                                                }
+                                            };
+                                            _this2.deleteAlias(d).then(function (x) {
+                                                reject({ code: 500, msg: 'something went wrong' });
+                                            }).catch(function (err) {
+                                                reject({ code: 500, msg: 'something went wrong' });
+                                            });
+                                        });
                                     }).catch(function (err) {
                                         reject({ code: 500, msg: 'something went wrong' });
                                     });
@@ -271,9 +290,9 @@ var AliasController = function () {
         key: 'changeStatusOfAlias',
         value: function changeStatusOfAlias(data) {
             return new Promise(function (resolve, reject) {
-                console.log(data.aliasId, data.status);
+                // console.log(data.aliasId, data.status)
                 _alias2.default.findOneAndUpdate({ aliasId: data.aliasId }, { status: data.status }).then(function (alias) {
-                    console.log(alias);
+                    // console.log(alias)
                     resolve(null);
                 }).catch(function (err) {
                     reject({ code: 500, msg: 'something went wrong' });
@@ -284,7 +303,7 @@ var AliasController = function () {
         key: 'deleteAlias',
         value: function deleteAlias(data) {
             return new Promise(function (resolve, reject) {
-                console.log(data.body.userId, data.params.aliasId);
+                // console.log(data.body.userId, data.params.aliasId);
                 _alias2.default.remove({ aliasId: data.params.aliasId }).then(function (data) {
                     resolve(null);
                 }).catch(function (err) {
@@ -300,6 +319,59 @@ var AliasController = function () {
 
         // generating a random number 
 
+    }, {
+        key: 'registerMailboxesOnServer',
+        value: function registerMailboxesOnServer(id) {
+            console.log(id);
+            return new Promise(function (resolve, reject) {
+                var url = 'https://jinnmail.com/api/users/' + id;
+                var options = {
+                    method: 'get',
+                    json: true,
+                    url: url
+                };
+                (0, _request2.default)(options, function (err, res, body) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Body", body);
+                    var link = 'https://jinnmail.com/api/users/' + id + '/mailboxes';
+                    var opt = {
+                        method: 'get',
+                        json: true,
+                        url: link
+                    };
+                    (0, _request2.default)(opt, function (error, result, content) {
+                        if (error) {
+                            console.log(error);
+                        }
+                        var mailboxes = content.results;
+                        var mailData = {};
+                        mailData.alias = body.address;
+                        mailData.wildduckId = id;
+                        mailboxes.map(function (m) {
+                            if (m.name === "INBOX") {
+                                mailData.inboxId = m.id;
+                            }
+                            if (m.name === "Sent Mail") {
+                                mailData.sentId = m.id;
+                            }
+                        });
+                        console.log(mailData);
+                        var mail = new _mailDetails2.default(mailData);
+                        mail.save(function (err, saved) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log("saved");
+                            }
+                        });
+                    });
+
+                    resolve("ok");
+                });
+            });
+        }
     }, {
         key: 'registerUserOnMailServer',
         value: function registerUserOnMailServer(data, username) {
@@ -327,10 +399,14 @@ var AliasController = function () {
                         }
                         var headers = res.headers;
                         var statusCode = res.statusCode;
-                        console.log('headers: ', headers);
-                        console.log('statusCode: ', statusCode);
-                        console.log('body: ', body);
-                        resolve('ok');
+                        console.log('\nHeaders: ', headers);
+                        console.log('\nStatusCode: ', statusCode);
+                        console.log('\nBody: ', body);
+                        /////////////////////////////////////////////////////////////////////////////////
+
+                        /////////////////////////////////////////////////////////////////////////////////
+
+                        resolve(body);
                     });
                 }).catch(function (err) {
                     reject(err);
@@ -342,7 +418,7 @@ var AliasController = function () {
         value: function getAliasUser(data) {
             return new Promise(function (resolve, reject) {
                 var alias = data.query.alias;
-                console.log(alias);
+                // console.log(alias)
                 _alias2.default.aggregate([{
                     $match: {
                         alias: alias
