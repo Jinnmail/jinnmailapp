@@ -13,9 +13,11 @@
     "lint": "touch ./node_modules/.eslintignore && eslint ./src --fix"
   },
   "dependencies": {
+    "@sendgrid/inbound-mail-parser": "^7.0.1",
     "@sendgrid/mail": "^6.3.1",
     "async": "^2.6.1",
     "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.18.3",
     "btoa": "^1.2.1",
     "bunyan": "^1.8.12",
     "cookie-parser": "~1.4.3",
@@ -34,7 +36,6 @@
     "request-promise": "^4.2.2",
     "sendgrid": "^5.2.3",
     "uuid": "^3.3.2",
-    "body-parser": "^1.18.3",
     "uuid-v4": "^0.1.0"
   },
   "devDependencies": {

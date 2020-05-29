@@ -106,6 +106,11 @@ class UserRoute {
         console.log("***************************************")
         console.log("******** INBOUND WEBHOOK FIRED ********")
         console.log("***************************************")
+        let sg_wh_api_string = req.query.sendgrid_webhook_api_string;
+        console.log(api_string)
+        if (sg_wh_api_string === process.env.SENDGRID_WEBHOOK_API_STRING) {
+            console.log("********MATCHED********")
+        }
     }
 
     routes() {
