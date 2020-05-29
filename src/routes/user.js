@@ -3,7 +3,6 @@ import userAuth from '../middlewares/userAuth'
 import reqRes from '../middlewares/reqRes'
 import user from '../controller/user';
 import * as validator from '../middlewares/validator'
-const logger = require('heroku-logger')
 
 class UserRoute {
     router
@@ -59,7 +58,6 @@ class UserRoute {
     }
 
     resendCode(req, res){
-        
         user.resendCode(req.body)
             .then((data) => {
                 reqRes.responseHandler('', data, res); //Handle Response
@@ -103,13 +101,13 @@ class UserRoute {
     }
 
     inbound(req, res) {
-        logger.info("***************************************")
-        logger.info("******** INBOUND WEBHOOK FIRED ********")
-        logger.info("***************************************")
+        console.log("***************************************")
+        console.log("******** INBOUND WEBHOOK FIRED ********")
+        console.log("***************************************")
         let sg_wh_api_string = req.query.sendgrid_webhook_api_string;
-        logger.info(api_string)
+        console.log(sg_wh_api_string)
         if (sg_wh_api_string === process.env.SENDGRID_WEBHOOK_API_STRING) {
-            logger.info("********MATCHED********")
+            console.log("********MATCHED********")
         }
     }
 
@@ -121,7 +119,7 @@ class UserRoute {
         this.router.post('/code/resend', this.resendCode);
         this.router.post('/forgot/password', this.forgetPassword);
         this.router.post('/forgot/password/reset', this.resetPasswordChange);
-        this.router.post('/inbound', this.inbound)
+        this.router.post('/inbound', this.inbound);
 
         this.router.get('/', userAuth, this.getRegisteredUsers);
     }

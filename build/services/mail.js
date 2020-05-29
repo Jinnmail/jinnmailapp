@@ -15,6 +15,8 @@ var _async2 = _interopRequireDefault(_async);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
+// const sgInbound = require('@sendgrid/inbound-mail-parser')(process.env.SENDGRID_API_KEY);
+
 function email_sender(toEmails, code) {
     console.log(code);
 

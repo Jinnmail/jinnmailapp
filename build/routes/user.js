@@ -89,7 +89,6 @@ var UserRoute = function () {
     }, {
         key: 'resendCode',
         value: function resendCode(req, res) {
-
             _user2.default.resendCode(req.body).then(function (data) {
                 _reqRes2.default.responseHandler('', data, res); //Handle Response
             }).catch(function (err) {
@@ -130,6 +129,18 @@ var UserRoute = function () {
             });
         }
     }, {
+        key: 'inbound',
+        value: function inbound(req, res) {
+            console.log("***************************************");
+            console.log("******** INBOUND WEBHOOK FIRED ********");
+            console.log("***************************************");
+            var sg_wh_api_string = req.query.sendgrid_webhook_api_string;
+            console.log(sg_wh_api_string);
+            if (sg_wh_api_string === process.env.SENDGRID_WEBHOOK_API_STRING) {
+                console.log("********MATCHED********");
+            }
+        }
+    }, {
         key: 'routes',
         value: function routes() {
             this.router.post('/', validator.registerValidator, this.register);
@@ -139,6 +150,7 @@ var UserRoute = function () {
             this.router.post('/code/resend', this.resendCode);
             this.router.post('/forgot/password', this.forgetPassword);
             this.router.post('/forgot/password/reset', this.resetPasswordChange);
+            this.router.post('/inbound', this.inbound);
 
             this.router.get('/', _userAuth2.default, this.getRegisteredUsers);
         }
