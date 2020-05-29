@@ -102,6 +102,12 @@ class UserRoute {
             })
     }
 
+    inbound(req, res) {
+        console.log("***************************************")
+        console.log("******** INBOUND WEBHOOK FIRED ********")
+        console.log("***************************************")
+    }
+
     routes() {
         this.router.post('/', validator.registerValidator, this.register);
         this.router.post('/session', validator.loginValidator, this.login);
@@ -110,6 +116,7 @@ class UserRoute {
         this.router.post('/code/resend', this.resendCode);
         this.router.post('/forgot/password', this.forgetPassword);
         this.router.post('/forgot/password/reset', this.resetPasswordChange);
+        this.router.post('/inbound', this.inbound)
 
         this.router.get('/', userAuth, this.getRegisteredUsers);
     }
