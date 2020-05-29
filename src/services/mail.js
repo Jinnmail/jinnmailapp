@@ -1,7 +1,7 @@
 import { mail as helper } from 'sendgrid';
 import async from 'async';
 const sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
-const sgInbound = require('@sendgrid/inbound-mail-parser')(process.env.SENDGRID_API_KEY);
+// const sgInbound = require('@sendgrid/inbound-mail-parser')(process.env.SENDGRID_API_KEY);
 
 export function email_sender(
     toEmails,
