@@ -3,7 +3,6 @@ import async from 'async';
 const sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 const sgInbound = require('@sendgrid/inbound-mail-parser');
 
-sg.setApiKey(process.env.SENDGRID_API_KEY);
 sgInbound.setApiKey(process.env.SENDGRID_API_KEY);
 
 export function email_sender(
