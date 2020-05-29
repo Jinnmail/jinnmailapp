@@ -3,7 +3,7 @@ import userAuth from '../middlewares/userAuth'
 import reqRes from '../middlewares/reqRes'
 import user from '../controller/user';
 import * as validator from '../middlewares/validator'
-
+const logger = require('heroku-logger')
 
 class UserRoute {
     router
@@ -103,13 +103,13 @@ class UserRoute {
     }
 
     inbound(req, res) {
-        console.log("***************************************")
-        console.log("******** INBOUND WEBHOOK FIRED ********")
-        console.log("***************************************")
+        logger.info("***************************************")
+        logger.info("******** INBOUND WEBHOOK FIRED ********")
+        logger.info("***************************************")
         let sg_wh_api_string = req.query.sendgrid_webhook_api_string;
-        console.log(api_string)
+        logger.info(api_string)
         if (sg_wh_api_string === process.env.SENDGRID_WEBHOOK_API_STRING) {
-            console.log("********MATCHED********")
+            logger.info("********MATCHED********")
         }
     }
 
