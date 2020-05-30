@@ -1,9 +1,11 @@
-var express = require('express');
-var router = express.Router();
+const express = require("express")
+const router = express.Router()
+const userRoutes = require("./user")
+// const aliasRoutes = require("./routes/alias")
+// const adminRoutes = require("./routes/admin")
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+router.use("/api/v1/user", userRoutes);
+// router.use("/api/v1/alias", aliasRoutes);
+// router.use("/api/v1/admin", adminRoutes)
 
-module.exports = router;
+module.exports = router
