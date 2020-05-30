@@ -1,13 +1,14 @@
-import adminModel from '../models/admin'
-import Alias from '../models/alias'
-import User from '../models/user'
-import bcrypt from 'bcrypt-nodejs'
-import uuidv4 from 'uuid-v4'
-import jwt from 'jsonwebtoken'
-import request from "request"
+const adminModel = require('../models/admin')
+const Alias = require('../models/alias')
+const User = require('../models/user')
+const bcrypt = require('bcrypt-nodejs')
+const uuidv4 = require('uuid-v4')
+const jwt = require('jsonwebtoken')
+const request = require("request")
 
-class AdminController{
-    getAdmin(data){
+module.exports = {
+
+    getAdmin: function(data){
         // console.log("JWT:"+process.env.JWT_SECRET)
         return new Promise((resolve, reject) => {
             adminModel.findOne({}).then((adminData) => {
@@ -39,9 +40,9 @@ class AdminController{
                 }
             })
         })
-    }
+    }, 
 
-    getUser(data)
+    getUser: function(data)
     {
         return new Promise((resolve, reject) => {
             // console.log(data.uid)
@@ -74,9 +75,9 @@ class AdminController{
                 reject({ code: 500, msg: err });
             });
         })
-    }
+    }, 
 
-    getAlias(data)
+    getAlias: function(data)
     {
         return new Promise((resolve, reject) => {
             Alias.aggregate([
@@ -105,9 +106,9 @@ class AdminController{
                 reject({ code: 500, msg: err });
             });
         })
-    }
+    }, 
 
-    getSearched(data)
+    getSearched: function(data)
     {
         return new Promise((resolve, reject) => {
             if(data.key === "aliasId")
@@ -232,4 +233,3 @@ class AdminController{
         }) 
     }
 }
-export default new AdminController(); 

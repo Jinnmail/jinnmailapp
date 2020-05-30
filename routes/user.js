@@ -17,70 +17,70 @@ function login(req, res) {
         })
 }
 
-    // register(req, res) {
-    //     user.register(req.body)
-    //         .then((data) => {
-    //             reqRes.responseHandler('signup Successfull', data, res);
-    //         }).catch((err) => {
-    //             reqRes.httpErrorHandler(err, res)
-    //             res.end()
-    //         })
-    // }
+function register(req, res) {
+    user.register(req.body)
+        .then((data) => {
+            reqRes.responseHandler('signup Successfull', data, res);
+        }).catch((err) => {
+            reqRes.httpErrorHandler(err, res)
+            res.end()
+        })
+}
 
-    // resetPassword(req, res) {
-    //     req.body.userId = req.userId;
-    //     user.changePassword(req.body)
-    //         .then((data) => {
-    //             reqRes.responseHandler('password changed', data, res);
-    //         }).catch((err) => {
-    //             reqRes.httpErrorHandler(err, res)
-    //             res.end()
-    //         })
-    // }
+function resetPassword(req, res) {
+    req.body.userId = req.userId;
+    user.changePassword(req.body)
+        .then((data) => {
+            reqRes.responseHandler('password changed', data, res);
+        }).catch((err) => {
+            reqRes.httpErrorHandler(err, res)
+            res.end()
+        })
+}
 
-    // codeVerification(req,res){
+function codeVerification(req,res){
+    
+    user.codeVerification(req.body)
+        .then((data) => {
+            reqRes.responseHandler('', data, res); //Handle Response
+        }).catch((err) => {
+            reqRes.httpErrorHandler(err, res)
+            res.end()
+        })
+}
+
+function resendCode(req, res){
+    
+    user.resendCode(req.body)
+        .then((data) => {
+            reqRes.responseHandler('', data, res); //Handle Response
+        }).catch((err) => {
+            reqRes.httpErrorHandler(err, res)
+            res.end()
+        })
+}
+
+function forgetPassword(req,res){
         
-    //     user.codeVerification(req.body)
-    //         .then((data) => {
-    //             reqRes.responseHandler('', data, res); //Handle Response
-    //         }).catch((err) => {
-    //             reqRes.httpErrorHandler(err, res)
-    //             res.end()
-    //         })
-    // }
+    user.forgetPassword(req.body)
+        .then((data) => {
+            reqRes.responseHandler('', data, res); //Handle Response
+        }).catch((err) => {
+            reqRes.httpErrorHandler(err, res)
+            res.end()
+        })
+}
 
-    // resendCode(req, res){
-        
-    //     user.resendCode(req.body)
-    //         .then((data) => {
-    //             reqRes.responseHandler('', data, res); //Handle Response
-    //         }).catch((err) => {
-    //             reqRes.httpErrorHandler(err, res)
-    //             res.end()
-    //         })
-    // }
-
-    // forgetPassword(req,res){
-         
-    //     user.forgetPassword(req.body)
-    //         .then((data) => {
-    //             reqRes.responseHandler('', data, res); //Handle Response
-    //         }).catch((err) => {
-    //             reqRes.httpErrorHandler(err, res)
-    //             res.end()
-    //         })
-    // }
-
-    // resetPasswordChange(req,res){
-    //     user.resetPasswordChange(req.body)
-    //         .then( data => {
-    //             reqRes.responseHandler('',data, res);
-    //         })
-    //         .catch( err => {
-    //             reqRes.httpErrorHandler(err, res);
-    //             res.end();
-    //         });
-    // }
+function resetPasswordChange(req,res){
+    user.resetPasswordChange(req.body)
+        .then( data => {
+            reqRes.responseHandler('',data, res);
+        })
+        .catch( err => {
+            reqRes.httpErrorHandler(err, res);
+            res.end();
+        });
+}
 
 function getRegisteredUsers(req, res) {
     // return res.json({"name": "james"});
@@ -94,13 +94,13 @@ function getRegisteredUsers(req, res) {
         })
 }
 
-// router.post('/', validator.registerValidator, register);
+router.post('/', validator.registerValidator, register);
 router.post('/session', validator.loginValidator, login);
-// router.post('/reset/password', userAuth, resetPassword);
-// router.post('/code/verify', codeVerification);
-// router.post('/code/resend', resendCode);
-// router.post('/forgot/password', forgetPassword);
-// router.post('/forgot/password/reset', resetPasswordChange);
+router.post('/reset/password', userAuth.validateUser, resetPassword);
+router.post('/code/verify', codeVerification);
+router.post('/code/resend', resendCode);
+router.post('/forgot/password', forgetPassword);
+router.post('/forgot/password/reset', resetPasswordChange);
 
 router.get('/', userAuth.validateUser, getRegisteredUsers);
 
