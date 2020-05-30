@@ -38,7 +38,4 @@ const aliasSchema = mongoose.Schema({
     }
 });
 
-const alias = mongoose.model('alias', aliasSchema);
-
-export default alias;
-
+module.exports = mongoose.model('alias', aliasSchema);

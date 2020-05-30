@@ -1,23 +1,19 @@
-import userModel from '../models/user';
-import aliasModel from '../models/alias';
-import mailModel from '../models/mailDetails';
-import proxyMailModel from '../models/proxymail'
-import uuidv4 from 'uuid/v4';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt-nodejs';
-import cred from '../config/const';
-import uuidv3 from 'uuid/v3';
-import request from 'request';
-import { PromiseProvider } from 'mongoose';
+const userModel = require('../models/user');
+const aliasModel = require('../models/alias');
+const mailModel = require('../models/mailDetails');
+const proxyMailModel = require('../models/proxymail');
+const uuidv4 = require('uuid/v4');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt-nodejs');
+const cred = require('../config/const');
+const uuidv3 = require('uuid/v3');
+const request = require('request');
+const { PromiseProvider } = require('mongoose');
 var URL = require('url').URL;
 
 // import logger from '../utils/logger';
 
-class AliasController {
-
-    constructor() {
-
-    }
+module.exports = {
 
     // checkAvailability(data) {
     //     return new Promise((resolve, reject) => {
@@ -33,7 +29,7 @@ class AliasController {
     //     });
     // }
 
-    registerAlias(data) {
+    registerAlias: function(data) {
         console.log("\nRegister Alias Data:",data);
         return new Promise((resolve, reject) => {
             
@@ -115,9 +111,9 @@ class AliasController {
                 })
             }
         });
-    }
+    }, 
 
-    getRegisteredAlias(data) {
+    getRegisteredAlias: function(data) {
         return new Promise((resolve, reject) => {
             // aliasModel.find({ userId: data.userId }).sort({ created: -1 }).then((aliases) => {
             //     resolve(aliases)
@@ -167,9 +163,9 @@ class AliasController {
             });
         })
 
-    }
+    }, 
 
-    getAlias(data) {
+    getAlias: function(data) {
         return new Promise((resolve, reject) => {
             aliasModel.aggregate([
                 { 
@@ -209,9 +205,9 @@ class AliasController {
             });
         })
 
-    }
+    }, 
 
-    changeStatusOfAlias(data) {
+    changeStatusOfAlias: function(data) {
         return new Promise((resolve, reject) => {
             // console.log(data.aliasId, data.status)
                 aliasModel.findOneAndUpdate({ aliasId: data.aliasId }, { status: data.status })
@@ -222,9 +218,9 @@ class AliasController {
                         reject({ code: 500, msg: 'something went wrong' });
                     })
         })
-    }
+    }, 
 
-    deleteAlias(data) {
+    deleteAlias: function(data) {
         return new Promise((resolve, reject) => {
             // console.log(data.body.userId, data.params.aliasId);
             aliasModel.remove({ aliasId: data.params.aliasId })
@@ -236,10 +232,10 @@ class AliasController {
                 })
         })
 
-    }
+    }, 
 
     //parsing domain name 
-    getHostName = (url) => {
+    getHostName: function(url) {
         url = url.includes('http')?url:'http://'+url;
         //console.log(url,"url129")
         var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
@@ -249,13 +245,13 @@ class AliasController {
         else {
             return null;
         }
-    }
+    }, 
 
     //end
 
     // generating a random number 
 
-    randomString = (string_length) => {
+    randomString: function(string_length) {
         let chars = "0123456789abcdefghiklmnopqrstuvwxyz";
         let randomstring = '';
         for (let i = 0; i < string_length; i++) {
@@ -263,10 +259,10 @@ class AliasController {
             randomstring += chars.substring(rnum, rnum + 1);
         }
         return randomstring;
-    }
+    }, 
 
 
-    getDomain = (url) => {
+    getDomain: function(url) {
         let hostName = this.getHostName(url);
         let domain = hostName;
 
@@ -283,9 +279,9 @@ class AliasController {
         }
 
         return domain.split('.')[0];
-    }
+    }, 
 
-    registerMailboxesOnServer(id){
+    registerMailboxesOnServer: function(id){
         console.log(id)
         return new Promise((resolve, reject) => {
             let url = `https://jinnmail.com/api/users/${id}`
@@ -330,9 +326,9 @@ class AliasController {
                 resolve("ok")
             })  
         })
-    }
+    }, 
 
-    registerUserOnMailServer(data, username) {
+    registerUserOnMailServer: function(data, username) {
         return new Promise((resolve, reject) => {
             //console.log(data)
             userModel.findOne({ userId: data.userId }, { email: 1 }).then((userInfo) => {
@@ -371,9 +367,9 @@ class AliasController {
             })
 
         })
-    }
+    }, 
 
-    getAliasUser(data) {
+    getAliasUser: function(data) {
         return new Promise((resolve, reject) => {
             let alias = data.query.alias;
             // console.log(alias)
@@ -410,5 +406,3 @@ class AliasController {
 
 
 }
-
-export default new AliasController();

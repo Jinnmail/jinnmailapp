@@ -20,7 +20,5 @@ const proxyMailSchema = mongoose.Schema({
     }
 });
 
-const proxyMail = mongoose.model('proxyMail', proxyMailSchema);
-
-export default proxyMail;
+module.exports = mongoose.model('proxyMail', proxyMailSchema);
 
