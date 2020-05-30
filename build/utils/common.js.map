@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../src/utils/common.js"],"names":["common"],"mappings":";;;;;;;;IAAMA,M,GAEF,kBAAc;AAAA;AAEb,C;;kBAGU,IAAIA,MAAJ,E","file":"common.js","sourcesContent":["class common {\n    \n    constructor() {\n\n    }\n\n}\nexport default new common()"]}
