@@ -17,7 +17,7 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
             aliasModel.findOne({alias: toEmail}).then((alias) => {
-                if (alias) {
+                if (alias && alias.status) {
                     userModel.findOne({userId: alias.userId}).then((user) => {
                         if (user) {
                             toEmail = user.email
@@ -28,7 +28,7 @@ module.exports = {
                         }
                     })
                 } else {
-                    reject({code: 500, msg: "No Alias found"});
+                    reject({code: 500, msg: "No active Alias found"});
                 }
             })
         });
