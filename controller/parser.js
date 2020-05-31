@@ -8,7 +8,6 @@ module.exports = {
     inbound: function(data) {
         var config = {keys: ['to', 'from', 'subject', 'text']};
         var parsing = new mailParse(config, data);
-        console.log(parsing)
         var response = parsing.keyValues();
 
         var toEmail = response.to;
@@ -22,7 +21,7 @@ module.exports = {
                     userModel.findOne({userId: alias.userId}).then((user) => {
                         if (user) {
                             toEmail = user.email
-                            mail.send_email(fromEmail, subject, toEmail, messageBody)
+                            mail.send_mail(fromEmail, subject, toEmail, messageBody)
                             resolve();
                         } else {
                             reject({code: 500, msg: "No User found"});

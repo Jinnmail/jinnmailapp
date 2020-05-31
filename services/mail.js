@@ -72,7 +72,7 @@ module.exports = {
         // );
     }, 
 
-    send_email: function(to, from, subject, messageBody) {
+    send_mail: function(from, subject, to, messageBody) {
         const fromEmail = new helper.Email(from);
         const toEmail = new helper.Email(to);
         const content = new helper.Content('text/html', messageBody);
