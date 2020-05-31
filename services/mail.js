@@ -77,8 +77,9 @@ module.exports = {
         const toEmail = new helper.Email(to);
         const headerHtml = "JinnMail This email has been sent to Jinnmail"
         const footerHtml = "To contact us send a mail on the following email address: replytojm.p8i3sfsi@jinnmail.com"
-        messageBody = `${headerHtml}<br /><br />${messageBody}<br /><br />${footerHtml}`   
-        const content = new helper.Content('text/html', messageBody);
+        var messageBodyHtml = messageBody.replace(/\n/g, "<br />")
+        messageBodyHtml = `${headerHtml}<br /><br />${messageBodyHtml}<br /><br />${footerHtml}`   
+        const content = new helper.Content('text/html', messageBodyHtml);
         const mail = new helper.Mail(fromEmail, subject, toEmail, content);
 
         const request = sg.emptyRequest({
