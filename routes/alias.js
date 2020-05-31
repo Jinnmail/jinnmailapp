@@ -60,7 +60,6 @@ function changeAliasStatus(req, res) {
         })
 }
 
-
 function deleteAlias(req, res) {
     console.log('delete', req.params.aliasId);
     alias.deleteAlias(req)

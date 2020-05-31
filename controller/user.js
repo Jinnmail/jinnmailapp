@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt-nodejs');
 const cred = require('../config/const')
 const uuidv3 = require('uuid/v3');
-// import * as mail from '../services/mail';
-// import { callbackify } from 'util';
+const mail = require('../services/mail');
+// const {callbackify} = require ('util');
 const async = require('async');
 const btoa = require('btoa')
 
