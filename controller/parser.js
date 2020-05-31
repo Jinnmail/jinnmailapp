@@ -16,9 +16,6 @@ module.exports = {
         var subject = response.subject;
         var messageBody = response.text
 
-        // var spaceIndex = fromEmail.lastIndexOf(' '); // "first last <email@server.com>"
-        // fromEmail = fromEmail.substring(spaceIndex+2, fromEmail.length-1) // => email@server.com
-
         return new Promise((resolve, reject) => {
             aliasModel.findOne({alias: toEmail}).then((alias) => {
                 if (alias) {
@@ -39,3 +36,6 @@ module.exports = {
     }
 
 }
+
+// var spaceIndex = fromEmail.lastIndexOf(' '); // "first last <email@server.com>"
+// fromEmail = fromEmail.substring(spaceIndex+2, fromEmail.length-1) // => email@server.com
