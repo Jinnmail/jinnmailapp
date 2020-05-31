@@ -75,6 +75,9 @@ module.exports = {
     send_mail: function(from, subject, to, messageBody) {
         const fromEmail = new helper.Email(from);
         const toEmail = new helper.Email(to);
+        const headerHtml = "JinnMail This email has been sent to Jinnmail"
+        const footerHtml = "To contact us send a mail on the following email address: replytojm.p8i3sfsi@jinnmail.com"
+        messageBody = `${headerHtml}<br /><br />${messageBody}<br /><br />${footerHtml}`   
         const content = new helper.Content('text/html', messageBody);
         const mail = new helper.Mail(fromEmail, subject, toEmail, content);
 
