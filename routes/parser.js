@@ -12,7 +12,6 @@ function inbound(req, res) {
     })
 }
 
-// router.post('/inbound', inbound);
 router.post('/inbound', webhookCheck.checkAccess, inbound);
 
 module.exports = router;
