@@ -16,24 +16,23 @@ module.exports = {
         var subject = response.subject;
         var messageBody = response.text
 
-        var spaceIndex = fromEmail.lastIndexOf(' '); // "first last <email@server.com>"
-        
-        fromEmail = fromEmail.substring(spaceIndex+2, fromEmail.length-1) // => email@server.com
+        // var spaceIndex = fromEmail.lastIndexOf(' '); // "first last <email@server.com>"
+        // fromEmail = fromEmail.substring(spaceIndex+2, fromEmail.length-1) // => email@server.com
 
         return new Promise((resolve, reject) => {
-            userModel.findOne({email: fromEmail}).then((user) => {
-                if (user) {
-                    aliasModel.findOne({userId: user.userId}).then((alias) => {
-                        if (alias) {
-                            toEmail = "schillerj78@gmail.com"
-                            mail.send_email(alias.alias, subject, toEmail, messageBody)
+            aliasModel.findOne({alias: toEmail}).then((alias) => {
+                if (alias) {
+                    userModel.findOne({userId: alias.userId}).then((user) => {
+                        if (user) {
+                            toEmail = user.email
+                            mail.send_email(fromEmail, subject, toEmail, messageBody)
                             resolve();
                         } else {
-                            reject({code: 500, msg: "No Alias found"});
+                            reject({code: 500, msg: "No User found"});
                         }
                     })
                 } else {
-                    reject({code: 500, msg: "No User found"});
+                    reject({code: 500, msg: "No Alias found"});
                 }
             })
         });
