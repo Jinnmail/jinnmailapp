@@ -18,13 +18,12 @@ app.set('view engine', 'jade');
 app.use(validator());
 app.use(cors());
 app.use(logger('dev'));
-// app.use(express.json());
+app.use(express.json());
 app.use(express.urlencoded({
   extended: true
 }));
 const upload = multer();
 app.use(upload.none());
-// app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

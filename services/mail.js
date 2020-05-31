@@ -75,7 +75,7 @@ module.exports = {
     send_email: function(to, from, subject, messageBody) {
         const fromEmail = new helper.Email(from);
         const toEmail = new helper.Email(to);
-        const content = new helper.Content('text/html', messabeBody);
+        const content = new helper.Content('text/html', messageBody);
         const mail = new helper.Mail(fromEmail, subject, toEmail, content);
 
         const request = sg.emptyRequest({
@@ -84,14 +84,13 @@ module.exports = {
             body: mail.toJSON()
         });
         sg.API(request, (error, response) => {
-            console.log('SendGrid');
             if (error) {
+                console.log(error)
+                console.log(response)
                 console.log('Error response received');
+            } else {
+                console.log("***Success***")
             }
-            console.log(response,error)
-            console.log(response.statusCode);
-            console.log(response.body);
-            // console.log(response.headers);
         });
     }
 
