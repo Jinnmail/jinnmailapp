@@ -6,9 +6,9 @@ var parser = require('../controller/parser.js');
 function inbound(req, res) {
     parser.inbound(req)
     .then(() => {
-        return res.status(200)
+        res.status(200).send()
     }).catch((err) => {
-        return res.status(200) // sendgrid requires a 200 response
+        res.status(200).send() // sendgrid requires a 200 response
     })
 }
 

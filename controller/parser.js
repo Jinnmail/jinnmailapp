@@ -6,7 +6,7 @@ const aliasModel = require('../models/alias');
 module.exports = {
 
     inbound: function(data) {
-        var config = {keys: ['to', 'from', 'subject', 'text']};
+        var config = {keys: ['to', 'from', 'subject', 'text', 'files', 'attachements']};
         var parsing = new mailParse(config, data);
         var response = parsing.keyValues();
 
