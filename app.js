@@ -7,7 +7,7 @@ var cors = require('cors');
 const routes = require("./routes");
 require("dotenv").config()
 const validator = require('express-validator');
-const multer = require('multer');
+const fileParser = require('express-multipart-file-parser')
 
 var app = express();
 
@@ -20,10 +20,9 @@ app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({
-  extended: true
+  extended: false
 }));
-const upload = multer();
-app.use(upload.none());
+app.use(fileParser)
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

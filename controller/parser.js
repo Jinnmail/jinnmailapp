@@ -6,7 +6,8 @@ const aliasModel = require('../models/alias');
 module.exports = {
 
     inbound: function(data) {
-        var config = {keys: ['to', 'from', 'subject', 'text', 'files', 'attachements']};
+        var attachments = data.files
+        var config = {keys: ['to', 'from', 'subject', 'text', 'headers']};
         var parsing = new mailParse(config, data);
         var response = parsing.keyValues();
 
@@ -14,6 +15,7 @@ module.exports = {
         var fromEmail = response.from;
         var subject = response.subject;
         var messageBody = response.text
+        var headers = response.headers
 
         return new Promise((resolve, reject) => {
             aliasModel.findOne({alias: toEmail}).then((alias) => {
