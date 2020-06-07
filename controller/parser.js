@@ -56,7 +56,7 @@ module.exports = {
                 const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
                 const user = await userModel.findOne({userId: alias.userId})
                 if (user) {
-                    subject = `[JM] ${subject.replace(new RegExp(alias.alias, 'g'), '')}`
+                    subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
                     headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
                     headerHtml = 
                         `<div style=\"background-color:#eee;padding:30px 20px 10px;text-align:center;width:100%\">
@@ -98,16 +98,17 @@ module.exports = {
                 if (response.to.includes("<")) { // test case 2
                     logger.info("Test Case 2")
                     const proxyMail = await proxymailModel.findOne({proxyMail: to});
-                    logger.info(proxyMail.senderAliasId, {key: "senderAliasId:"})
                     const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
                     const alias = await aliasModel.findOne({aliasId: proxyMail.aliasId});
 
-                    subject = subject.replace(/^\[JM\] /, "")
+                    subject = subject.replace(/\[𝕁𝕄\] /, "").replace("[[Hidden by Jinnmail]]", alias.alias)
                     const user = await userModel.findOne({userId: alias.userId})
                     headers =  headers.replace(new RegExp(user.email, 'g'), '')
                     footerHtml = "Sent secretly with <a href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
-                    html = messageBody.replace(/\n/g, "<br />")
-                    html += `<br /><br />${footerHtml}`
+                    messageBody = messageBody.replace(/\n/g, "<br />").replace('[[Hidden by Jinnmail]]', '').replace(/-/g, '')
+                    messageBody = messageBody.replace('To contact us send a mail on the following email address:', '')
+                    messageBody = messageBody.replace(proxyMail.proxyMail, '')
+                    html += `${messageBody}<br /><br />${footerHtml}`
 
                     mail.send_mail({
                         to: senderAlias.alias, 
@@ -125,10 +126,11 @@ module.exports = {
                     const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
                     const alias = await aliasModel.findOne({userId: jinnmailUser.userId, type: "alias"});
 
+                    subject = subject.replace(jinnmailUser.email, '[[Hidden by Jinnmail]]')
                     const user = await userModel.findOne({userId: alias.userId})
                     headers =  headers.replace(new RegExp(user.email, 'g'), '')
                     footerHtml = "Sent secretly with <a href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
-                    html = messageBody.replace(/\n/g, "<br />")
+                    html = messageBody.replace(/\n/g, "<br />").replace(jinnmailUser.email, '[[Hidden by Jinnmail]]')
                     html += `<br /><br />${footerHtml}`
 
                     mail.send_mail({

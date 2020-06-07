@@ -108,9 +108,9 @@ module.exports = {
             logger.error(err, {code: 500})
         });
 
-        logger.info(to, {key: "to:"})
-        logger.info(from, {key: "from:"})
-        logger.info(subject, {key: "subject:"})
+        logger.info("to: " + to)
+        logger.info("from: " + from)
+        logger.info("subject: " + subject)
     }, 
 
     send_bounce_back: function(params) {
@@ -128,7 +128,7 @@ module.exports = {
             if (err) {
                 logger.error(err, {code: 500})
             } else {
-                logger.info("Bounce back email sent", {key: "msg"})
+                logger.info("msg: Bounce back email sent")
             }
         });
     }
