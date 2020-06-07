@@ -30,7 +30,7 @@ module.exports = {
 
         var attachments = data.files
 
-        var config = {keys: ['to', 'from', 'subject', 'cc', 'text', 'headers']};
+        var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'text', 'headers']};
         var parsing = new mailParse(config, data);
         var response = parsing.keyValues();
 
@@ -41,7 +41,7 @@ module.exports = {
         to = extractEmailAddress(to)
         var from = response.from.replace(/"/g, '');
         var subject = (response.subject ? response.subject : " "); // subject is required in sendgrid
-        var messageBody = (response.text ? response.text : " ");
+        var messageBody = (response.text ? response.html : " ");
         var headers = response.headers.toString();
         var cc = (response.cc ? response.cc : "")
 
@@ -67,7 +67,9 @@ module.exports = {
                             <p>To contact us send a mail on the following email address:</p>
                             <a href=\"mailto:${proxyMail.proxyMail}\" target=\"_blank\">${proxyMail.proxyMail}</a>
                         </div>`
-                    html = messageBody.replace(/\n/g, "<br />").replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
+                    html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, user.email)
+                    html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
+                    // html = messageBody.replace(/\n/g, "<br />").replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
                     html = `${headerHtml}<br /><br />${html}<br /><br />${footerHtml}`
                     mail.send_mail({
                         to: user.email, 
@@ -101,13 +103,15 @@ module.exports = {
                     const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
                     const alias = await aliasModel.findOne({aliasId: proxyMail.aliasId});
 
-                    subject = subject.replace(/\[𝕁𝕄\] /, "").replace("[[Hidden by Jinnmail]]", alias.alias)
+                    subject = subject.replace(/\[𝕁𝕄\] /g, "").replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
                     const user = await userModel.findOne({userId: alias.userId})
                     headers =  headers.replace(new RegExp(user.email, 'g'), '')
-                    footerHtml = "Sent secretly with <a href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
-                    messageBody = messageBody.replace(/\n/g, "<br />").replace('[[Hidden by Jinnmail]]', '').replace(/-/g, '')
-                    messageBody = messageBody.replace('To contact us send a mail on the following email address:', '')
-                    messageBody = messageBody.replace(proxyMail.proxyMail, '')
+                    footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
+                    messageBody = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
+                    // .replace(/-/g, '')
+                    // messageBody = messageBody.replace(/\n/g, "<br />").replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias).replace(/-/g, '')
+                    // messageBody = messageBody.replace('To contact us send a mail on the following email address:', '')
+                    messageBody = messageBody.replace(new RegExp(proxyMail.proxyMail, 'g'), "[[Hidden by Jinnmail]]")
                     html += `${messageBody}<br /><br />${footerHtml}`
 
                     mail.send_mail({
@@ -126,11 +130,12 @@ module.exports = {
                     const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
                     const alias = await aliasModel.findOne({userId: jinnmailUser.userId, type: "alias"});
 
-                    subject = subject.replace(jinnmailUser.email, '[[Hidden by Jinnmail]]')
+                    subject = subject.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
                     const user = await userModel.findOne({userId: alias.userId})
                     headers =  headers.replace(new RegExp(user.email, 'g'), '')
-                    footerHtml = "Sent secretly with <a href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
-                    html = messageBody.replace(/\n/g, "<br />").replace(jinnmailUser.email, '[[Hidden by Jinnmail]]')
+                    footerHtml = "Sent secretly with <a clicktracking=off href='https://emailclick.jinnmail.com/homepage-from-signature'>Jinnmail</a>"
+                    html = messageBody.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
+                    // html = messageBody.replace(/\n/g, "<br />").replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
                     html += `<br /><br />${footerHtml}`
 
                     mail.send_mail({
@@ -211,6 +216,15 @@ function extractName(nameAndEmailAddress) {
     return nameAndEmailAddress
 }
 
+// messageBody = messageBody.replace(
+//     `<div style=\"background-color:#eee;padding:30px 20px 10px;text-align:center;width:100%\">
+//         <h1>JinnMail</h1><p>This email has been sent to Jinnmail</p>
+//     </div>`, '')
+// messageBody = messageBody.replace(
+//     `<hr><hr><div style=\"padding:30px 20px 10px;text-align:center;width:100%\">
+//         <p>To contact us send a mail on the following email address:</p>
+//         <a href=\"mailto:${proxyMail.proxyMail}\" target=\"_blank\">${proxyMail.proxyMail}</a>
+//     </div>`, '')
 
 // var spaceIndex = fromEmail.lastIndexOf(' '); // "first last <email@server.com>"
 // fromEmail = fromEmail.substring(spaceIndex+2, fromEmail.length-1) // => email@server.com
