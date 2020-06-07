@@ -95,7 +95,7 @@ module.exports = {
             fromEmailAddress = extractEmailAddress(from)
             jinnmailUser = await userModel.findOne({email: fromEmailAddress})
             if (jinnmailUser) {
-                if (response.to.includes("<")) { // test case 2
+                if (subject.includes("Re: [𝕁𝕄]")) { // test case 2
                     logger.info("Test Case 2")
                     const proxyMail = await proxymailModel.findOne({proxyMail: to});
                     const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
