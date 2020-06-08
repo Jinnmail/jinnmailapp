@@ -11,6 +11,7 @@ const request = require('request');
 const { PromiseProvider } = require('mongoose');
 var URL = require('url').URL;
 const blacklistModel = require('../models/blacklist');
+const logger = require('heroku-logger')
 
 // import logger from '../utils/logger';
 
@@ -252,16 +253,16 @@ module.exports = {
     }, 
 
     deleteAlias: async function(data) {
-        const proxymails = await proxymails.find({aliasId: data.aliasId})
+        const proxymails = await proxyMailModel.find({aliasId: data.params.aliasId})
 
         for(var i=0; i < proxymails.length; i++) {
             await aliasModel.deleteOne({aliasId: proxymails[i].senderAliasId});
-            await proxyMailModel.deleteOne({proxyMailId: proxymails[i].proxyMailId})
+            await proxyMailModel.deleteOne({proxyMailId: proxymails[i].proxyMailId});
         }
 
-        const alias = await aliasModel.remove({aliasId: data.params.aliasId})
+        const alias = await aliasModel.deleteOne({aliasId: data.params.aliasId})
 
-        if (alias) { 
+        if (alias.deletedCount > 0) { 
             return
         } else {
             throw new Error("No Alias found")

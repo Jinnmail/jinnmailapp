@@ -62,25 +62,6 @@ function changeAliasStatus(req, res) {
 
 async function deleteAlias(req, res) {
     try {
-        await parser.inbound(req)
-
-        let response = {
-            status: 200,
-            message: message,
-            data: data,
-            error: ''
-        };
-        resolve(res.status(200).send(response));
-
-        res.status(200).send()
-    } catch(err) {
-        logger.info(err)
-        res.status(200).send() // sendgrid requires a 200 response
-    }
-}
-
-async function deleteAlias(req, res) {
-    try {
         const data = await alias.deleteAlias(req)
         let response = {
             status: 200,
