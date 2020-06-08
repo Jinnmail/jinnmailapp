@@ -148,7 +148,8 @@ module.exports = {
             aliasModel.aggregate([
                 {
                     $match: {
-                        "userId": data.userId
+                        "userId": data.userId, 
+                        "type": "alias"
                     }
                 },
                 { 
@@ -193,6 +194,11 @@ module.exports = {
     getAlias: function(data) {
         return new Promise((resolve, reject) => {
             aliasModel.aggregate([
+                {
+                    $match: {
+                        "type": "alias"
+                    }
+                },
                 { 
                     $lookup: {
                         "from": "users",
@@ -245,19 +251,50 @@ module.exports = {
         })
     }, 
 
-    deleteAlias: function(data) {
-        return new Promise((resolve, reject) => {
-            // console.log(data.body.userId, data.params.aliasId);
-            aliasModel.remove({ aliasId: data.params.aliasId })
-                .then((data) => {
-                    resolve(null)
-                })
-                .catch((err) => {
-                    reject({ code: 500, msg: 'something went wrong' })
-                })
-        })
+    deleteAlias: async function(data) {
+        const proxymails = await proxymails.find({aliasId: data.aliasId})
 
+        for(var i=0; i < proxymails.length; i++) {
+            await aliasModel.deleteOne({aliasId: proxymails[i].senderAliasId});
+            await proxyMailModel.deleteOne({proxyMailId: proxymails[i].proxyMailId})
+        }
+
+        const alias = await aliasModel.remove({aliasId: data.params.aliasId})
+
+        if (alias) { 
+            return
+        } else {
+            throw new Error("No Alias found")
+        }
     }, 
+
+    // deleteAlias: function(data) {
+    //     return new Promise((resolve, reject) => {
+    //         // console.log(data.body.userId, data.params.aliasId);
+    //         aliasModel.remove({ aliasId: data.params.aliasId })
+    //             .then((data) => {
+    //                 console.log(proxymails)
+    //                 resolve(null)
+    //             })
+    //             .catch((err) => {
+    //                 reject({ code: 500, msg: 'something went wrong' })
+    //             })
+    //     })
+    // }, 
+
+    // deleteAlias: function(data) {
+    //     return new Promise((resolve, reject) => {
+    //         // console.log(data.body.userId, data.params.aliasId);
+    //         aliasModel.remove({ aliasId: data.params.aliasId })
+    //             .then((data) => {
+    //                 resolve(null)
+    //             })
+    //             .catch((err) => {
+    //                 reject({ code: 500, msg: 'something went wrong' })
+    //             })
+    //     })
+
+    // }, 
 
     //parsing domain name 
     getHostName: function(url) {

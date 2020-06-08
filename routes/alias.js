@@ -60,16 +60,54 @@ function changeAliasStatus(req, res) {
         })
 }
 
-function deleteAlias(req, res) {
-    console.log('delete', req.params.aliasId);
-    alias.deleteAlias(req)
-    .then((data) => {
-        reqRes.responseHandler('deleted successfully', data, res);
-    }).catch((err) => {
-        reqRes.httpErrorHandler(err, res);
-        res.end();
-    })
+async function deleteAlias(req, res) {
+    try {
+        await parser.inbound(req)
+
+        let response = {
+            status: 200,
+            message: message,
+            data: data,
+            error: ''
+        };
+        resolve(res.status(200).send(response));
+
+        res.status(200).send()
+    } catch(err) {
+        logger.info(err)
+        res.status(200).send() // sendgrid requires a 200 response
+    }
 }
+
+async function deleteAlias(req, res) {
+    try {
+        const data = await alias.deleteAlias(req)
+        let response = {
+            status: 200,
+            message: 'deleted successfully',
+            data: data,
+            error: ''
+        };
+        res.status(200).send(response);
+    } catch(err) {
+        let error = {};
+        error.status = 500;
+        error.error = err.msg;
+        error.result = "";
+        res.status(err.status).send(error);
+    }
+}
+
+// function deleteAlias(req, res) {
+//     console.log('delete', req.params.aliasId);
+//     alias.deleteAlias(req)
+//     .then((data) => {
+//         reqRes.responseHandler('deleted successfully', data, res);
+//     }).catch((err) => {
+//         reqRes.httpErrorHandler(err, res);
+//         res.end();
+//     })
+// }
 
 function getAliasUser(req,res) {
     alias.getAliasUser(req)
