@@ -93,6 +93,7 @@ module.exports = {
                             } else {
                                 data.aliasId = uuidv4();
                                 data.alias = email_address;
+                                data.type = "alias";
                                 data.mailCount = 0;
                                 data.refferedUrl = data.url;
                                 let alias = new aliasModel(data);
