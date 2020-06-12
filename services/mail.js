@@ -124,12 +124,10 @@ module.exports = {
             html: messageBody
         };  
 
-        sgNew.send(msg).catch(err => {
-            if (err) {
-                logger.error(err, {code: 500})
-            } else {
-                logger.info("msg: Bounce back email sent")
-            }
+        sgNew.send(msg).then(() => {
+            logger.info("msg: Bounce back email sent")
+        }).catch(err => {
+            logger.error(err, {code: 500})
         });
     }
 
