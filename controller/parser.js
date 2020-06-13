@@ -43,13 +43,41 @@ async function testcase1and3(params) {
     if (proxyMail && senderAlias && user) {
         subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
         headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
-        headerHtml = 
-            `<div style=\"background-color:#eee;padding:30px 20px 10px;text-align:center;width:100%\">
-                <h1>JinnMail</h1><p>This email has been sent to Jinnmail</p>
-            </div>`
+        headerHtml = `
+            <div style="background-color:#eee;padding:0px 0px 20px;text-align:center;width:100%">
+                <div style="float: left; width: 33.333%;">
+                    <div style="width: 100%;">&nbsp;</div>
+                    <div style="width: 100%;">&nbsp;</div>
+                    <div style="width: 100%;">
+                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="margin-top:10px;margin-left:10px;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_report_760525.png?raw=true" height="30px" /></a>
+                    </div>
+                    <div style="width: 100%;">
+                        Spam? Click to turn off this alias.
+                    </div>
+                </div>
+                <div style="display: inline-block; width: 33.333%;">
+                    <h2><img style="margin-top:10px;margin-left:10px;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_hidden_1242300.png?raw=true" height="30px"> Shielded by Jinnmail</h2>
+                    <img style="margin-top:10px;margin-left:10px;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_Reply_1703102.png?raw=true" height="30px" /> Reply normally to send privately via your Jinnmail alias.            
+                </div>
+                <div style="float: right; width: 33.333%;">
+                    <div style="width: 100%;">&nbsp;</div>
+                    <div style="width: 100%;">&nbsp;</div>
+                    <div style="width: 100%;">
+                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="margin-top:10px;margin-left:10px;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_toggle_1217299.png?raw=true" height="40px" /></a>
+                    </div>
+                    <div style="width: 100%;">
+                        Stop emails to this alias. 
+                    </div>
+                </div>
+            </div>
+        `
+        // `<div style=\"background-color:#eee;padding:30px 20px 10px;text-align:center;width:100%\">
+        //     <h1>Shielded by Jinnmail</h1><p>This email has been sent to Jinnmail</p>
+        // </div>`
         footerHtml = 
             `<hr><hr><div style=\"padding:30px 20px 10px;text-align:center;width:100%\">
-                <p>To contact us send a mail on the following email address:</p>
+                <p>Reply normally to HIDE your email address. But forwarding REVEALS your email address.</p>
+                <p><a clicktracking=off href="${process.env.DASHBOARD_URL}">👤</a> Manage your Jinnmail account and aliases</p>
                 <a href=\"mailto:${proxyMail.proxyMail}\" target=\"_blank\">${proxyMail.proxyMail}</a>
             </div>`
         html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, user.email)
