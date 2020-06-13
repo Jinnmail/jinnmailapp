@@ -67,7 +67,7 @@ async function testcase1and3(params) {
             })
         }
     } else {
-        bounceback(to)
+        bounceback(to, from, headers)
     }
 }
 
@@ -152,7 +152,7 @@ function testcase6() {
 
 }
 
-function bounceback(to) {
+function bounceback(to, from, headers) {
     logger.error("No active Alias found", {code: 500})
     html = `
         <div>
@@ -193,59 +193,63 @@ function bounceback(to) {
             messageBody: html
             // messageBody: "No active Alias found"
         })
-        throw new Error("No active Alias found");
 } 
 
 module.exports = { 
 
     inbound: async function(data) {
         var attachments = data.files
-        var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'text', 'headers']};
+        var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'text', 'headers', 'envelope']};
         var parsing = new mailParse(config, data);
         var response = parsing.keyValues();
 
         logger.info("to: came into inbound parse as " + response.to)
         logger.info("from: came into inbound parse as " + response.from)
 
-        var to = response.to.replace(/"/g, '');
-        to = extractEmailAddress(to)
-        var from = response.from.replace(/"/g, '');
-        var subject = (response.subject ? response.subject : " "); // subject is required in sendgrid
-        var messageBody = (response.text ? response.html : " ");
-        var headers = response.headers.toString();
-        var cc = (response.cc ? response.cc : "")
+        let tos = JSON.parse(response.envelope).to
 
-        logger.info("to: inbound parse converted " + to)
-        logger.info("from: inbound parse converted " + from)
+        for(var i = 0; i < tos.length; i++) {
+            var to = tos[i]
+            to = to.replace(/"/g, '');
+            to = extractEmailAddress(to)
+            var from = response.from.replace(/"/g, '');
+            var subject = (response.subject ? response.subject : " "); // subject is required in sendgrid
+            var messageBody = (response.text ? response.html : " ");
+            var headers = response.headers.toString();
+            var cc = (response.cc ? response.cc : "")
 
-        var params = {
-            to: to, 
-            from: from, 
-            cc: cc, 
-            headers: headers, 
-            subject: subject, 
-            messageBody: messageBody, 
-            attachments: attachments
-        }
+            logger.info("to: inbound parse converted " + to)
+            logger.info("from: inbound parse converted " + from)
 
-        if (to.includes("@jinnmail.com")) {
-            logger.info("Test Case 1 and 3")
-            testcase1and3(params)
-        } else if (to.includes("@reply.jinnmail.com")) {
-            logger.info("Test Case 2")
-            fromEmailAddress = extractEmailAddress(from)
-            jinnmailUser = await userModel.findOne({email: fromEmailAddress})
-            if (jinnmailUser) {
-                if (subject.includes("Re: [𝕁𝕄]")) {
-                    logger.info("Test Case 2")
-                    testcase2(params)              
+            var params = {
+                to: to, 
+                from: from, 
+                cc: cc, 
+                headers: headers, 
+                subject: subject, 
+                messageBody: messageBody, 
+                attachments: attachments
+            }
+
+            if (to.includes("@jinnmail.com")) {
+                logger.info("Test Case 1 and 3")
+                testcase1and3(params)
+            } else if (to.includes("@reply.jinnmail.com")) {
+                logger.info("Test Case 2 or 4")
+                fromEmailAddress = extractEmailAddress(from)
+                jinnmailUser = await userModel.findOne({email: fromEmailAddress})
+                if (jinnmailUser) {
+                    if (subject.includes("Re: [𝕁𝕄]")) {
+                        logger.info("Test Case 2")
+                        testcase2(params)              
+                    } else {
+                        logger.info("Test Case 4")
+                        params.jinnmailUser = jinnmailUser
+                        testcase4(params)
+                    }
                 } else {
-                    logger.info("Test Case 4")
-                    params.jinnmailUser = jinnmailUser
-                    testcase4(params)
+                    bounceback(to, from, headers)
                 }
-            } else {
-                bounceback(to)
             }
         }
 
