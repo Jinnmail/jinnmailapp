@@ -71,9 +71,6 @@ async function testcase1and3(params) {
                 </div>
             </div>
         `
-        // `<div style=\"background-color:#eee;padding:30px 20px 10px;text-align:center;width:100%\">
-        //     <h1>Shielded by Jinnmail</h1><p>This email has been sent to Jinnmail</p>
-        // </div>`
         footerHtml = 
             `<hr><hr><div style=\"padding:30px 20px 10px;text-align:center;width:100%\">
                 <p>Reply normally to HIDE your email address. But forwarding REVEALS your email address.</p>

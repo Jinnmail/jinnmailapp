@@ -45,36 +45,50 @@ module.exports = {
 
     forget_mail: function(toEmails, msg) {
         for (let i = 0; i < toEmails.length; i += 1) {
-            // Add from emails
-            const senderEmail = new helper.Email('george@jinnmail.com');
-            // Add to email
-            const toEmail = new helper.Email(toEmails[i]);
-            // HTML Content
-            const content = new helper.Content('text/html', msg);
-            const mail = new helper.Mail(senderEmail, 'forget', toEmail, content);
-            const request = sg.emptyRequest({
-                method: 'POST',
-                path: '/v3/mail/send',
-                body: helper.toJSON()
-            });
-            sg.API(request, (error, response) => {
-                console.log('SendGrid');
-                if (error) {
-                    console.log('Error response received');
-                }
-                console.log(response,error)
-                console.log(response.statusCode);
-                console.log(response.body);
-                // console.log(response.headers);
-            });
+            const params = { 
+                to: toEmails[i],
+                from: 'george@jinnmail.com', 
+                subject: 'forget',
+                html: msg
+            };
+            sgNew.send(params).catch(err => {
+                logger.error(err, {code: 500})
+            });  
         }
-        // parentCallback(null,
-        //     {
-        //         successfulEmails,
-        //         errorEmails,
-        //     }
-        // );
     }, 
+
+    // forget_mail: function(toEmails, msg) {
+    //     for (let i = 0; i < toEmails.length; i += 1) {
+    //         // Add from emails
+    //         const senderEmail = new helper.Email('george@jinnmail.com');
+    //         // Add to email
+    //         const toEmail = new helper.Email(toEmails[i]);
+    //         // HTML Content
+    //         const content = new helper.Content('text/html', msg);
+    //         const mail = new helper.Mail(senderEmail, 'forget', toEmail, content);
+    //         const request = sg.emptyRequest({
+    //             method: 'POST',
+    //             path: '/v3/mail/send',
+    //             body: helper.toJSON()
+    //         });
+    //         sg.API(request, (error, response) => {
+    //             console.log('SendGrid');
+    //             if (error) {
+    //                 console.log('Error response received');
+    //             }
+    //             console.log(response,error)
+    //             console.log(response.statusCode);
+    //             console.log(response.body);
+    //             // console.log(response.headers);
+    //         });
+    //     }
+    //     // parentCallback(null,
+    //     //     {
+    //     //         successfulEmails,
+    //     //         errorEmails,
+    //     //     }
+    //     // );
+    // }, 
 
     send_mail: function(params) {
         var {to, from, replyTo, subject, cc, headers, messageBody, attachments} = params
