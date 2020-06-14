@@ -192,7 +192,7 @@ module.exports = {
                 function (token, user, done) {   
                     let text= 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                         'Please click on the following link:\n\n' +
-                        '<a clicktracking=off href='+ process.env.DASHBOARD_URL + 'forgetpassword.html?t='+btoa(token) +'&e='+btoa(data.email)+ '>click here</a>\n\n' +
+                        '<a clicktracking=off href='+ process.env.DASHBOARD_URL + '/forgetpassword.html?t='+btoa(token) +'&e='+btoa(data.email)+ '>click here</a>\n\n' +
                         'If you did not request this, please ignore this email and your password will remain unchanged.\n'
                     mail.forget_mail([data.email], text)
                     resolve('email is sent')

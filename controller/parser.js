@@ -44,64 +44,33 @@ async function testcase1and3(params) {
         subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
         headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
         headerHtml = `
-            <style>
-                * {
-                    box-sizing: border-box;
-                }
-                .col-1 {width: 8.33%;}
-                .col-2 {width: 16.66%;}
-                .col-3 {width: 25%;}
-                .col-4 {width: 33.33%;}
-                .col-5 {width: 41.66%;}
-                .col-6 {width: 50%;}
-                .col-7 {width: 58.33%;}
-                .col-8 {width: 66.66%;}
-                .col-9 {width: 75%;}
-                .col-10 {width: 83.33%;}
-                .col-11 {width: 91.66%;}
-                .col-12 {width: 100%;}
-                [class*="col-"] {
-                    float: left;
-                    padding: 5px;
-                    /* border: 1px solid red; */
-                }
-                .row::after {
-                    content: "";
-                    clear: both;
-                    display: table;
-                }
-            </style>
-            <div class="row" style="background-color:#eee;">
-                <div class="row">
-                    <div class="col-3">&nbsp;</div>
-                    <div class="col-6" style="text-align:center;">
+            <table style="background-color:#eee;width:100%;">
+                <tr>
+                    <td colspan="4" style="text-align:center;">
                         <h2 style="margin:0;"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_hidden_1242300.png?raw=true" height="30px"> Shielded by Jinnmail</h2>
-                    </div>
-                    <div class="col-3">&nbsp;</div>
-                </div>
-                <div class="row">
-                    <div class="col-2">&nbsp;</div>
-                    <div class="col-8" style="text-align:center;">
-                        <div class="col-6">
-                            <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;"src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_report_760525.png?raw=true" height="30px" /></a>
-                            Spam?
-                        </div>
-                        <div class="col-6" style="margin-top:-4px;">
-                            <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_toggle_1217299.png?raw=true" height="40px" /></a>
-                            Turn on/off this alias 
-                        </div>
-                    </div>
-                    <div class="col-2">&nbsp;</div>
-                </div>
-            </div>
-            <div class="row" style="text-align:center;">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:25%;text-align:center;">&nbsp;</td>
+                    <td style="width:25%;text-align:center;">
+                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;"src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_report_760525.png?raw=true" height="30px" /></a>
+                        Spam?
+                    </td>
+                    <td style="width:5%;text-align:center;">&nbsp;</td>
+                    <td style="width:45%;text-align:left;">
+                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_toggle_1217299.png?raw=true" height="40px" /></a>
+                        Turn on/off this alias 
+                    </td>
+                </tr>
+            </table>
+            <div style="width:100%;text-align:center;">
                 <img style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_Reply_1703102.png?raw=true" height="30px" />
                 <span style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);">Reply normally to HIDE your email address.</span>
             </div>
         `
         footerHtml = `
             <hr><hr>
-            <div class="row" style="text-align:center;">
+            <div style="text-align:center;">
                 <span style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);">Reply normally HIDES your email address. Forwarding REVEALS it.</p>
                 <p><a clicktracking=off href="${process.env.DASHBOARD_URL}">👤</a> Manage your Jinnmail account and aliases</p>
             </div>
