@@ -21,6 +21,45 @@ function randomString(string_length) {
     return randomstring;
 }
 
+async function testcases(params) {
+    var {
+        to: to, 
+        from: from, 
+        cc: cc, 
+        headers: headers, 
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments
+    } = params
+
+    if (to.includes("@jinnmail.com")) {
+        logger.info("Test Case 1 and 3")
+        const alias = await aliasModel.findOne({alias: to})
+        if (alias && alias.status) {
+            params.alias = alias
+            testcase1and3(params)
+        } else {
+            bounceback(to, from, headers)
+        }
+    } else if (to.includes("@reply.jinnmail.com")) {
+        logger.info("Test Case 2 or 4")
+        fromEmailAddress = extractEmailAddress(from)
+        jinnmailUser = await userModel.findOne({email: fromEmailAddress})
+        if (jinnmailUser) {
+            if (subject.includes("Re: [𝕁𝕄]")) {
+                logger.info("Test Case 2")
+                testcase2(params)              
+            } else {
+                logger.info("Test Case 4")
+                params.jinnmailUser = jinnmailUser
+                testcase4(params)
+            }
+        } else {
+            bounceback(to, from, headers)
+        }
+    }
+}
+
 async function testcase1and3(params) {
     var html = ''
     var headerHtml = ''
@@ -261,32 +300,7 @@ module.exports = {
                 attachments: attachments
             }
 
-            if (to.includes("@jinnmail.com")) {
-                logger.info("Test Case 1 and 3")
-                const alias = await aliasModel.findOne({alias: to})
-                if (alias && alias.status) {
-                    params.alias = alias
-                    testcase1and3(params)
-                } else {
-                    bounceback(to, from, headers)
-                }
-            } else if (to.includes("@reply.jinnmail.com")) {
-                logger.info("Test Case 2 or 4")
-                fromEmailAddress = extractEmailAddress(from)
-                jinnmailUser = await userModel.findOne({email: fromEmailAddress})
-                if (jinnmailUser) {
-                    if (subject.includes("Re: [𝕁𝕄]")) {
-                        logger.info("Test Case 2")
-                        testcase2(params)              
-                    } else {
-                        logger.info("Test Case 4")
-                        params.jinnmailUser = jinnmailUser
-                        testcase4(params)
-                    }
-                } else {
-                    bounceback(to, from, headers)
-                }
-            }
+            testcases(params)
         }
 
         return
