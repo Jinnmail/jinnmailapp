@@ -71,7 +71,7 @@ async function testcase1and3(params) {
         footerHtml = `
             <hr><hr>
             <div style="text-align:center;">
-                <span style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);">Reply normally HIDES your email address. Forwarding REVEALS it.</p>
+                <span style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);">Note: Replying normally HIDES your email address. Forwarding REVEALS it.</p>
                 <p><a clicktracking=off href="${process.env.DASHBOARD_URL}">👤</a> Manage your Jinnmail account and aliases</p>
             </div>
         `
