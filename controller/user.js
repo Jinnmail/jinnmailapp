@@ -147,6 +147,7 @@ module.exports = {
                 if(data.code===code.verificationCode){
                     userModel.findOneAndUpdate({email:data.email},{verified:true}).then((ok)=>{
                         console.log(ok);
+                        mail.send_welcome(data.email);
                         resolve('ok')
                     })
                 }else{
