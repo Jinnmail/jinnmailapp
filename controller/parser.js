@@ -47,24 +47,24 @@ async function testcase1and3(params) {
             <table style="background-color:#eee;width:100%;">
                 <tr>
                     <td colspan="4" style="text-align:center;">
-                        <h2 style="margin:0;"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_hidden_1242300.png?raw=true" height="30px"> Shielded by Jinnmail</h2>
+                        <h2 style="margin:0;"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2>
                     </td>
                 </tr>
                 <tr>
                     <td style="width:25%;text-align:center;">&nbsp;</td>
                     <td style="width:25%;text-align:center;">
-                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;"src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_report_760525.png?raw=true" height="30px" /></a>
+                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;"src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px" /></a>
                         Spam?
                     </td>
                     <td style="width:5%;text-align:center;">&nbsp;</td>
                     <td style="width:45%;text-align:left;">
-                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_toggle_1217299.png?raw=true" height="40px" /></a>
+                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px" /></a>
                         Turn on/off this alias 
                     </td>
                 </tr>
             </table>
             <div style="width:100%;text-align:center;">
-                <img style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/noun_Reply_1703102.png?raw=true" height="30px" />
+                <img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px" />
                 <span style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);">Reply normally to HIDE your email address.</span>
             </div>
         `
