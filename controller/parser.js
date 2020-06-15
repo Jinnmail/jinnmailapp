@@ -43,7 +43,13 @@ async function testcases(params) {
     if (to.includes("@jinnmail.com")) {
         logger.info("Test Case 1 and 3")
         const alias = await aliasModel.findOne({alias: to})
-        if (alias && alias.status) {
+        const jinnmailUser = await userModel.findOne({userId: alias.userId})
+        var fromEmailAddress = extractEmailAddress(from)
+        if (jinnmailUser && (jinnmailUser.email === fromEmailAddress)) {
+            params.to = jinnmailUser.email
+            params.alias = alias
+            testcase6(params)
+        } else if (alias && alias.status) {
             params.alias = alias
             testcase1and3(params)
         } else {
@@ -197,7 +203,25 @@ async function testcase5() {
 
 }
 
-async function testcase6() {
+async function testcase6(params) {
+    var {
+        to: to,
+        headers: headers,  
+        alias: alias
+    } = params
+
+    mail.send_mail({
+        to: to, 
+        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        subject: "Delivery Status Notification (Failure)", 
+        cc: '', 
+        headers: headers, 
+        messageBody: `You attempted to send this message from your own mailbox "${to}" to your own alias "${alias.alias}".<br><br>Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.`, 
+        attachments: []
+    })
+}
+
+async function testcase7() {
 
 }
 
