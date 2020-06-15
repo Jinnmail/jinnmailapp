@@ -47,8 +47,9 @@ module.exports = {
         for (let i = 0; i < toEmails.length; i += 1) {
             const params = { 
                 to: toEmails[i],
-                from: 'george@jinnmail.com', 
-                subject: 'forget',
+                from: 'Jinnmail <hello@jinnmail.com>',
+                reply_to: 'Jinnmail Support <help@jinnmail.org>', 
+                subject: 'Reset your password',
                 html: msg
             };
             sgNew.send(params).catch(err => {
