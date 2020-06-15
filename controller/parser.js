@@ -25,9 +25,17 @@ function htmlHeader() {
     return '<table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a>Spam?</td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a>Turn on/off this alias</td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br>' 
 }
 
+// function htmlHeaderOut() {
+//     return '<table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a>Spam?</td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a>Turn on/off this alias</td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br>' 
+// }
+
 function htmlFooter() {
     return '<br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a>👤</a> Manage your Jinnmail account and aliases</p></span></div>'
 }
+
+// function htmlFooterOut() {  clicktracking=off href="https://jinnmail.com/account"
+//     return '<br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a>👤</a> Manage your Jinnmail account and aliases</p></span></div>'
+// }
 
 async function testcases(params) {
     var {
@@ -43,7 +51,13 @@ async function testcases(params) {
     if (to.includes("@jinnmail.com")) {
         logger.info("Test Case 1 and 3")
         const alias = await aliasModel.findOne({alias: to})
-        if (alias && alias.status) {
+        const jinnmailUser = await userModel.findOne({userId: alias.userId})
+        var fromEmailAddress = extractEmailAddress(from)
+        if (jinnmailUser && (jinnmailUser.email === fromEmailAddress)) {
+            params.to = jinnmailUser.email
+            params.alias = alias
+            testcase6(params)
+        } else if (alias && alias.status) {
             params.alias = alias
             testcase1and3(params)
         } else {
@@ -131,6 +145,7 @@ async function testcase2(params) {
         subject = subject.replace(/\[𝕁𝕄\] /g, "").replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
         const user = await userModel.findOne({userId: alias.userId})
         headers =  headers.replace(new RegExp(user.email, 'g'), '')
+        cc = cc.replace(new RegExp(alias.alias, 'g'), '')
         footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
         messageBody = messageBody.replace(htmlHeader(), '')
         messageBody = messageBody.replace(htmlFooter(), '')
@@ -197,7 +212,25 @@ async function testcase5() {
 
 }
 
-async function testcase6() {
+async function testcase6(params) {
+    var {
+        to: to,
+        headers: headers,  
+        alias: alias
+    } = params
+
+    mail.send_mail({
+        to: to, 
+        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        subject: "Delivery Status Notification (Failure)", 
+        cc: '', 
+        headers: headers, 
+        messageBody: `You attempted to send this message from your own mailbox "${to}" to your own alias "${alias.alias}".<br><br>Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.`, 
+        attachments: []
+    })
+}
+
+async function testcase7() {
 
 }
 
