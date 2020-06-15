@@ -21,6 +21,14 @@ function randomString(string_length) {
     return randomstring;
 }
 
+function htmlHeader() {
+    return '<table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a>Spam?</td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a>Turn on/off this alias</td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br>' 
+}
+
+function htmlFooter() {
+    return '<br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a>👤</a> Manage your Jinnmail account and aliases</p></span></div>'
+}
+
 async function testcases(params) {
     var {
         to: to, 
@@ -82,38 +90,8 @@ async function testcase1and3(params) {
     if (proxyMail && senderAlias && user) {
         subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
         headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
-        headerHtml = `
-            <table style="background-color:#eee;width:100%;">
-                <tr>
-                    <td colspan="4" style="text-align:center;">
-                        <h2 style="margin:0;"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="width:25%;text-align:center;">&nbsp;</td>
-                    <td style="width:25%;text-align:center;">
-                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;"src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px" /></a>
-                        Spam?
-                    </td>
-                    <td style="width:5%;text-align:center;">&nbsp;</td>
-                    <td style="width:45%;text-align:left;">
-                        <a clicktracking=off href="${process.env.DASHBOARD_URL}"><img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px" /></a>
-                        Turn on/off this alias 
-                    </td>
-                </tr>
-            </table>
-            <div style="width:100%;text-align:center;">
-                <img style="vertical-align:middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px" />
-                <span style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);">Reply normally to HIDE your email address.</span>
-            </div>
-        `
-        footerHtml = `
-            <hr><hr>
-            <div style="text-align:center;">
-                <span style="vertical-align:middle;opacity:0.4;filter:alpha(opacity=40);">Note: Replying normally HIDES your email address. Forwarding REVEALS it.</p>
-                <p><a clicktracking=off href="${process.env.DASHBOARD_URL}">👤</a> Manage your Jinnmail account and aliases</p>
-            </div>
-        `
+        headerHtml = htmlHeader()
+        footerHtml = htmlFooter()
         html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, user.email)
         html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
         html = `${headerHtml}<br /><br />${html}<br /><br />${footerHtml}`
@@ -154,6 +132,8 @@ async function testcase2(params) {
         const user = await userModel.findOne({userId: alias.userId})
         headers =  headers.replace(new RegExp(user.email, 'g'), '')
         footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
+        messageBody = messageBody.replace(htmlHeader(), '')
+        messageBody = messageBody.replace(htmlFooter(), '')
         messageBody = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
         messageBody = messageBody.replace(new RegExp(proxyMail.proxyMail, 'g'), "[[Hidden by Jinnmail]]")
         html += `${messageBody}<br /><br />${footerHtml}`
