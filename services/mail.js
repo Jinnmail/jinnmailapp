@@ -59,9 +59,9 @@ module.exports = {
     }, 
     
     send_welcome(to) {
-        let html = "Welcome to Jinnmail, the tool that keeps your email address private and spam-free by using aliases that mask your real email address.<br /> \
+        let html = `Welcome to Jinnmail, the tool that keeps your email address private and spam-free by using aliases that mask your real email address.<br /> \
             <br /> \
-            A message sent by anyone to one of your aliases will arrive in this [[UserEmail]] inbox like normal, but when you reply it is sent by your alias; the recipient never knows your real address. We recommend generating a new alias for every new form. Or create a custom alias at your <a clicktracking=off href='https://jinnmail.com/account'>Account Dashboard</a> to use for mobile apps. (Mobile support soon). Emails are never stored or read by any human beings.<br /> \
+            A message sent by anyone to one of your aliases will arrive in this ${to} inbox like normal, but when you reply it is sent by your alias; the recipient never knows your real address. We recommend generating a new alias for every new form. Or create a custom alias at your <a clicktracking=off href='https://jinnmail.com/account'>Account Dashboard</a> to use for mobile apps. (Mobile support soon). Emails are never stored or read by any human beings.<br /> \
             <br /> \
             Generate new email aliases when signing up or filling out any webform using the <a clicktracking=off href='<https://go.jinnmail.com/chrome>'>Jinnmail extension in Chrome</a>. Clicking the small Jinnmail button that appears in any email address box creates and inserts a new alias into the webform.<br /> \
             <br /> \
@@ -69,7 +69,7 @@ module.exports = {
             <br /> \
             This is a beta and there could be bugs. We want to make this software something you use everyday, so please reach out to help@jinnmail.com with any comments, problems, or suggestions.<br /> \
             <br /> \
-            Thanks for staying private using Jinnmail!"
+            Thanks for staying private using Jinnmail!`
         const msg = {
             to: to,
             from: "Jinnmail <hello@jinnmail.com>", 
