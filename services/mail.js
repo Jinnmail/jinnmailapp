@@ -23,41 +23,41 @@ module.exports = {
         }
     }, 
 
-    email_sender: function(toEmails,code) {
-        console.log(code);
+    // email_sender: function(toEmails,code) {
+    //     console.log(code);
         
-        for (let i = 0; i < toEmails.length; i += 1) {
-            // Add from emails
-            const senderEmail = new helper.Email('Jinnmail <hello@jinnmail.com>');
-            // const senderEmail = new helper.Email('george@jinnmail.com');
-            // Add to email
-            const toEmail = new helper.Email(toEmails[i]);
-            // HTML Content
-            const content = new helper.Content('text/html', `welcome to jinnmail, verification code is: ${code}`);
-            const mail = new helper.Mail(senderEmail, 'jinnmail', toEmail, content);
-            const request = sg.emptyRequest({
-                method: 'POST',
-                path: '/v3/mail/send',
-                body: mail.toJSON()
-            });
-            sg.API(request, (error, response) => {
-                console.log('SendGrid');
-                if (error) {
-                    console.log('Error response received');
-                }
-                console.log(response,error)
-                console.log(response.statusCode);
-                console.log(response.body);
-                // console.log(response.headers);
-            });
-        }
-        // parentCallback(null,
-        //     {
-        //         successfulEmails,
-        //         errorEmails,
-        //     }
-        // );
-    }, 
+    //     for (let i = 0; i < toEmails.length; i += 1) {
+    //         // Add from emails
+    //         const senderEmail = new helper.Email('Jinnmail <hello@jinnmail.com>');
+    //         // const senderEmail = new helper.Email('george@jinnmail.com');
+    //         // Add to email
+    //         const toEmail = new helper.Email(toEmails[i]);
+    //         // HTML Content
+    //         const content = new helper.Content('text/html', `welcome to jinnmail, verification code is: ${code}`);
+    //         const mail = new helper.Mail(senderEmail, 'jinnmail', toEmail, content);
+    //         const request = sg.emptyRequest({
+    //             method: 'POST',
+    //             path: '/v3/mail/send',
+    //             body: mail.toJSON()
+    //         });
+    //         sg.API(request, (error, response) => {
+    //             console.log('SendGrid');
+    //             if (error) {
+    //                 console.log('Error response received');
+    //             }
+    //             console.log(response,error)
+    //             console.log(response.statusCode);
+    //             console.log(response.body);
+    //             // console.log(response.headers);
+    //         });
+    //     }
+    //     // parentCallback(null,
+    //     //     {
+    //     //         successfulEmails,
+    //     //         errorEmails,
+    //     //     }
+    //     // );
+    // }, 
 
     forget_mail: function(toEmails, msg) {
         for (let i = 0; i < toEmails.length; i += 1) {
