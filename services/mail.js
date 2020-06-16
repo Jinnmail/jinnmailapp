@@ -8,12 +8,28 @@ sgNew.setApiKey(process.env.SENDGRID_API_KEY);
 
 module.exports = {
 
+    email_sender: function(toEmails, code) {
+        for (let i = 0; i < toEmails.length; i += 1) {
+            let params = { 
+                to: toEmails[i],
+                from: 'Jinnmail <hello@jinnmail.com>',
+                reply_to: 'Jinnmail Support <help@jinnmail.org>', 
+                subject: 'Verification code for Jinnmail',
+                html: `Almost there!<br><br>Before you can use your new Jinnmail account, enter this code into the CODE textbox inside your Jinnmail extension window and click "Verify". Once confirmed, your Jinnmail account will be activated and ready to use.<br><br><h2>${code}</h2><br><br><br><br>Any issues? Reply here or email help@jinnmail.com.`
+            };
+            sgNew.send(params).catch(err => {
+                logger.error(err, {code: 500})
+            }); 
+        }
+    }, 
+
     email_sender: function(toEmails,code) {
         console.log(code);
         
         for (let i = 0; i < toEmails.length; i += 1) {
             // Add from emails
-            const senderEmail = new helper.Email('george@jinnmail.com');
+            const senderEmail = new helper.Email('Jinnmail <hello@jinnmail.com>');
+            // const senderEmail = new helper.Email('george@jinnmail.com');
             // Add to email
             const toEmail = new helper.Email(toEmails[i]);
             // HTML Content
