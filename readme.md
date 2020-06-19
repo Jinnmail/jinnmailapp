@@ -57,4 +57,14 @@ Turn heroku off:
 heroku ps:scale web=0 // turn off
 heroku ps:scale web=1 // turn on
 
+
+
+
+Testing:
+$ npm install mocha -g
+...and/or... for debugging tests
+$ npm install mocha --save-dev
+Run tests,
+$ npm test
+1 passing
 ```

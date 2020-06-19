@@ -33,7 +33,8 @@ async function main() {
 
     const user = await userModel.deleteMany({});
     const alias = await aliasModel.deleteMany({});
-    const proxymail = await proxymailModel.deleteMany({}); 
+    const proxymail = await proxymailModel.deleteMany({});
+    console.log('No users, aliases, proxymails')
 
     const users = await userModel.insertMany([
         {

@@ -2,7 +2,7 @@ var helper = require('sendgrid').mail;
 const async = require('async');
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 const logger = require('heroku-logger')
-
+const dotenv = require("dotenv").config()
 const sgNew = require('@sendgrid/mail');
 sgNew.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -12,10 +12,10 @@ module.exports = {
         for (let i = 0; i < toEmails.length; i += 1) {
             let params = { 
                 to: toEmails[i],
-                from: 'Jinnmail <hello@jinnmail.com>',
+                from: `Jinnmail <hello${process.env.JM_EMAIL_DOMAIN}>`,
                 reply_to: 'Jinnmail Support <help@jinnmail.org>', 
                 subject: 'Verification code for Jinnmail',
-                html: `Almost there!<br><br>Before you can use your new Jinnmail account, enter this code into the CODE textbox inside your Jinnmail extension window and click "Verify". Once confirmed, your Jinnmail account will be activated and ready to use.<br><br><h2>${code}</h2><br><br><br><br>Any issues? Reply here or email help@jinnmail.com.`
+                html: `Almost there!<br><br>Before you can use your new Jinnmail account, enter this code into the CODE textbox inside your Jinnmail extension window and click "Verify". Once confirmed, your Jinnmail account will be activated and ready to use.<br><br><h2>${code}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`
             };
             sgNew.send(params).catch(err => {
                 logger.error(err, {code: 500})
@@ -63,7 +63,7 @@ module.exports = {
         for (let i = 0; i < toEmails.length; i += 1) {
             const params = { 
                 to: toEmails[i],
-                from: 'Jinnmail <hello@jinnmail.com>',
+                from: `Jinnmail <hello${process.env.JM_EMAIL_DOMAIN}>`,
                 reply_to: 'Jinnmail Support <help@jinnmail.org>', 
                 subject: 'Reset your password',
                 html: msg
@@ -83,13 +83,13 @@ module.exports = {
             <br /> \
             You can deactivate/reactivate any aliases from the Jinnmail browser extension, or you can delete your aliases at your <a clicktracking=off href='https://jinnmail.com/account'>Account Dashboard</a>.<br /> \
             <br /> \
-            This is a beta and there could be bugs. We want to make this software something you use everyday, so please reach out to help@jinnmail.com with any comments, problems, or suggestions.<br /> \
+            This is a beta and there could be bugs. We want to make this software something you use everyday, so please reach out to help${process.env.JM_EMAIL_DOMAIN} with any comments, problems, or suggestions.<br /> \
             <br /> \
             Thanks for staying private using Jinnmail!`
         const msg = {
             to: to,
-            from: "Jinnmail <hello@jinnmail.com>", 
-            reply_to: "Jinnmail Support <help@jinnmail.com>", 
+            from: `Jinnmail <hello${process.env.JM_EMAIL_DOMAIN}>`, 
+            reply_to: `Jinnmail Support <${process.env.JM_EMAIL_DOMAIN}>`, 
             subject: "Welcome to Jinnmail",
             html: html
         };

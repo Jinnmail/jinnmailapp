@@ -40,8 +40,8 @@ module.exports = {
                 let myCustUrl = new URL(data.url);
                 let str = myCustUrl.hostname;
                 let domain = str.substr(0, str.lastIndexOf('.'));
-                let email_address = domain + '@jinnmail.com'
-                blacklistModel.findOne({localPart: domain, domain: "@jinnmail.com"}).then((blacklist) => {
+                let email_address = domain + process.env.JM_EMAIL_DOMAIN
+                blacklistModel.findOne({localPart: domain, domain: process.env.JM_EMAIL_DOMAIN}).then((blacklist) => {
                     if (blacklist) {
                         reject({code: 403, msg: 'Not available'})
                     } else {
@@ -82,8 +82,8 @@ module.exports = {
             } else {
                 let domain = this.getDomain(data.url);
                 let token = this.randomString(6);
-                let email_address = domain + '.' + token + '@jinnmail.com'
-                blacklistModel.findOne({localPart: domain + '.' + token, domain: "@jinnmail.com"}).then((blacklist) => {
+                let email_address = domain + '.' + token + process.env.JM_EMAIL_DOMAIN
+                blacklistModel.findOne({localPart: domain + '.' + token, domain: process.env.JM_EMAIL_DOMAIN}).then((blacklist) => {
                     if (blacklist) {
                         reject({code: 403, msg: 'Not available'})
                     } else {
