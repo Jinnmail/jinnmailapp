@@ -66,5 +66,7 @@ $ npm install mocha -g
 $ npm install mocha --save-dev
 Run tests,
 $ npm test
+...or...to run a certain test
+npm test -- -f "Use Case 1"
 1 passing
 ```

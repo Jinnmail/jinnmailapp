@@ -7,6 +7,7 @@ const userModel = require('../models/user');
 const aliasModel = require('../models/alias');
 const proxymailModel = require('../models/proxymail');
 const user = require('../models/user');
+require('dotenv');
 
 function randomString(string_length) {
     let numbers = "0123456789";
@@ -23,203 +24,7 @@ function randomString(string_length) {
     return randomstring;
 }
 
-async function testcase1and3(params) {
-    var html = ''
-    var headerHtml = ''
-    var footerHtml = ''
-    var {
-        to: to, 
-        from: from, 
-        cc: cc, 
-        headers: headers, 
-        subject: subject, 
-        messageBody: messageBody, 
-        attachments: attachments, 
-        alias
-    } = params
-
-    const senderAlias = await get_or_create_sender_alias(from, alias.userId)
-    const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
-    const user = await userModel.findOne({userId: alias.userId})
-
-    if (proxyMail && senderAlias && user) {
-        subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
-        headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
-        headerHtml = '<div id="jinnmail-header"><table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a><a clicktracking=off href="https://jinnmail.com/account">Spam?</a></td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a><a clicktracking=off href="https://jinnmail.com/account">Turn on/off this alias</a></td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br></div><div id="jinnmail-header-end"></div>'
-        footerHtml = '<div id="jinnmail-footer"><br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a clicktracking=off href="https://jinnmail.com/account">👤</a> <a clicktracking=off href="https://jinnmail.com/account">Manage your Jinnmail account and aliases</a></p></span></div><div id="jinnmail-footer-end"></div>'
-        html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, user.email)
-        html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
-        html = `${headerHtml}<br /><br />${html}<br /><br />${footerHtml}`
-        mail.send_mail({
-            to: user.email, 
-            from: from, 
-            replyTo: `${extractName(senderAlias.alias)} <${proxyMail.proxyMail}>`,  
-            subject: subject, 
-            cc: cc, 
-            headers: headers, 
-            messageBody: html, 
-            attachments: attachments
-        })
-    } else {
-        bounceback(to, from, headers)
-    }
-}
-
-async function testcase2(params) {
-    var footerHtml = ''
-    var html = ''
-    var {
-        to: to, 
-        from: from, 
-        cc: cc, 
-        headers: headers, 
-        subject: subject, 
-        messageBody: messageBody, 
-        attachments: attachments
-    } = params
-
-    const proxyMail = await proxymailModel.findOne({proxyMail: to});
-    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
-    const alias = await aliasModel.findOne({aliasId: proxyMail.aliasId});
-
-    if (proxyMail && senderAlias && (alias && alias.status)) {
-        subject = subject.replace(/\[𝕁𝕄\] /g, "").replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
-        const user = await userModel.findOne({userId: alias.userId})
-        headers =  headers.replace(new RegExp(user.email, 'g'), '')
-        cc = cc.replace(new RegExp(alias.alias, 'g'), '')
-        footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
-        messageBody = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
-        messageBody = messageBody.replace(/<div id="(.*)jinnmail-footer">(.*)<\/div><div id="(.*)jinnmail-footer-end"><\/div>/, '')
-        messageBody = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
-        messageBody = messageBody.replace(new RegExp(proxyMail.proxyMail, 'g'), "[[Hidden by Jinnmail]]")
-        html += `${messageBody}<br /><br />${footerHtml}`
-
-        mail.send_mail({
-            to: senderAlias.alias, 
-            from: alias.alias,  
-            subject: subject, 
-            cc: cc, 
-            headers: headers, 
-            messageBody: html, 
-            attachments: attachments
-        })
-    } else {
-        bounceback(to, from, headers)
-    }
-}
-
-async function testcase4(params) {
-    var html = ''
-    var footerHtml = ''
-    var {
-        to: to, 
-        from: from, 
-        cc: cc, 
-        headers: headers, 
-        subject: subject, 
-        messageBody: messageBody, 
-        attachments: attachments, 
-        jinnmailUser: jinnmailUser
-    } = params
-
-    to = extractEmailAddress(to)
-    const proxyMail = await proxymailModel.findOne({proxyMail: to});
-    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
-    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, type: "alias"});
-
-    if (proxyMail && senderAlias && (alias && alias.status)) {
-        subject = subject.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
-        const user = await userModel.findOne({userId: alias.userId})
-        headers =  headers.replace(new RegExp(user.email, 'g'), '')
-        footerHtml = "Sent secretly with <a clicktracking=off href='https://emailclick.jinnmail.com/homepage-from-signature'>Jinnmail</a>"
-        html = messageBody.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
-        html += `<br /><br />${footerHtml}`
-
-        mail.send_mail({
-            to: senderAlias.alias, 
-            from: alias.alias, 
-            subject: subject, 
-            cc: cc, 
-            headers: headers, 
-            messageBody: html, 
-            attachments: attachments
-        })
-    } else {
-        bounceback(to, from, headers)
-    }
-}
-
-async function testcase5() {
-
-}
-
-async function testcase6(params) {
-    var {
-        to: to,
-        headers: headers,  
-        alias: alias
-    } = params
-
-    mail.send_mail({
-        to: to, 
-        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
-        subject: "Delivery Status Notification (Failure)", 
-        cc: '', 
-        headers: headers, 
-        messageBody: `You attempted to send this message from your own mailbox "${to}" to your own alias "${alias.alias}".<br><br>Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.`, 
-        attachments: []
-    })
-}
-
-async function testcase7() {
-
-}
-
-async function testcase9() {
-    var html = ''
-    var headerHtml = ''
-    var footerHtml = ''
-    var {
-        to: to, 
-        from: from, 
-        cc: cc, 
-        headers: headers, 
-        subject: subject, 
-        messageBody: messageBody, 
-        attachments: attachments, 
-        alias
-    } = params
-
-    const senderAlias = await get_or_create_sender_alias(from, alias.userId)
-    const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
-    const user = await userModel.findOne({userId: alias.userId})
-
-    if (proxyMail && senderAlias && user) {
-        subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
-        headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
-        headerHtml = '<div id="jinnmail-header"><table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a><a clicktracking=off href="https://jinnmail.com/account">Spam?</a></td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a><a clicktracking=off href="https://jinnmail.com/account">Turn on/off this alias</a></td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br></div><div id="jinnmail-header-end"></div>'
-        footerHtml = '<div id="jinnmail-footer"><br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a clicktracking=off href="https://jinnmail.com/account">👤</a> <a clicktracking=off href="https://jinnmail.com/account">Manage your Jinnmail account and aliases</a></p></span></div><div id="jinnmail-footer-end"></div>'
-        html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, user.email)
-        html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
-        html = `${headerHtml}<br /><br />${html}<br /><br />${footerHtml}`
-        mail.send_mail({
-            to: user.email, 
-            from: from, 
-            replyTo: `${extractName(senderAlias.alias)} <${proxyMail.proxyMail}>`,  
-            subject: subject, 
-            cc: cc, 
-            headers: headers, 
-            messageBody: html, 
-            attachments: attachments
-        })
-    } else {
-        bounceback(to, from, headers)
-    }
-}
-
-
 function bounceback(to, from, headers) {
-    logger.error("No active Alias found", {code: 500})
     html = `
         <div>
         <table cellpadding="0" cellspacing="0" style="padding-top:32px;background-color:#ffffff"><tbody>
@@ -251,15 +56,316 @@ function bounceback(to, from, headers) {
         </tr>
         </tbody></table>
         </div>`
-        mail.send_bounce_back({ 
-            to: extractEmailAddress(from), 
-            from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
-            subject: "Delivery Status Notification (Failure)", 
-            headers: headers, 
-            messageBody: html
-            // messageBody: "No active Alias found"
-        })
+    var msg = {
+        to: from, 
+        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        subject: "Delivery Status Notification (Failure)", 
+        headers: headers, 
+        messageBody: html
+    }
+
+    return msg
 } 
+
+function bounceback2(params) {
+    var {
+        to: to,
+        headers: headers,  
+        alias: alias
+    } = params
+
+    var msg = {
+        to: to, 
+        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        subject: "Delivery Status Notification (Failure)", 
+        cc: '', 
+        headers: headers, 
+        messageBody: `You attempted to send this message from your own mailbox "${to}" to your own alias "${alias.alias}".<br><br>Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.`, 
+        attachments: []
+    }
+
+    return msg
+}
+
+async function usecases(params) {
+    var msg = {}
+    var {
+        to: to, 
+        from: from, 
+        replyTo: replyTo, 
+        cc: cc, 
+        headers: headers, 
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments
+    } = params
+
+    if (extractEmailAddress(to).includes(process.env.JM_EMAIL_DOMAIN)) { 
+        const alias = await aliasModel.findOne({alias: extractEmailAddress(to)}) // xxx@dev.jinnmail.com
+        const jinnmailUser = await userModel.findOne({userId: alias.userId}) // jinnmailuser@gmail.com
+        if (jinnmailUser && (jinnmailUser.email === extractEmailAddress(from))) {
+            params.to = jinnmailUser.email
+            params.alias = alias
+            msg = bounceback2(params)
+        } else if (alias && alias.status) {
+            params.alias = alias
+            if (replyTo) {
+                msg = await nonUserOwnReplyToToUser(params)
+            } else {
+                msg = await nonUserToUser(params)
+            }
+        } else {
+            msg = bounceback(to, from, headers)
+        }
+    } else if (extractEmailAddress(to).includes(process.env.JM_REPLY_EMAIL_SUBDOMAIN)) {
+        jinnmailUser = await userModel.findOne({email: extractEmailAddress(from)})
+        if (jinnmailUser) {
+            if (subject.includes("Re: [𝕁𝕄]")) {
+                msg = await userToNonuser(params);
+        } else if (subject.startsWith("[𝕁𝕄] ")) { 
+                    msg = await userToNonUserOwnReplyTo(params);
+            } else {
+                    params.jinnmailUser = jinnmailUser
+                    msg = userToNonUser2(params)
+            }
+        } else {
+            msg = bounceback(to, from, headers)
+        }
+    }
+
+    return msg;
+}
+
+async function nonUserToUser(params) {
+    var html = ''
+    var headerHtml = ''
+    var footerHtml = ''
+    var msg = {}
+    var {
+        to: to, 
+        from: from, 
+        cc: cc, 
+        headers: headers, 
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments, 
+        alias
+    } = params
+
+    const senderAlias = await get_or_create_sender_alias(extractEmailAddress(from), alias.userId)
+    const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
+    const jinnmailUser = await userModel.findOne({userId: alias.userId})
+
+    if (proxyMail && senderAlias && jinnmailUser) {
+        subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
+        headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
+        headerHtml = '<div id="jinnmail-header"><table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a><a clicktracking=off href="https://jinnmail.com/account">Spam?</a></td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a><a clicktracking=off href="https://jinnmail.com/account">Turn on/off this alias</a></td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br></div><div id="jinnmail-header-end"></div>'
+        footerHtml = '<div id="jinnmail-footer"><br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a clicktracking=off href="https://jinnmail.com/account">👤</a> <a clicktracking=off href="https://jinnmail.com/account">Manage your Jinnmail account and aliases</a></p></span></div><div id="jinnmail-footer-end"></div>'
+        html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, jinnmailUser.email)
+        html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
+        html = `${headerHtml}<br /><br />${html}<br /><br />${footerHtml}`
+        msg = {
+            to: jinnmailUser.email, 
+            from: extractEmailAddress(from), 
+            replyTo: proxyMail.proxyMail,  
+            subject: subject, 
+            cc: cc, 
+            headers: headers, 
+            messageBody: html, 
+            attachments: attachments
+        }
+    } else {
+        msg = bounceback(extractEmailAddress(to), extractEmailAddress(from), headers)
+    }
+
+    return msg
+}
+
+async function userToNonuser(params) {
+    var footerHtml = ''
+    var html = ''
+    var msg = {}
+    var {
+        to: to, 
+        from: from, 
+        cc: cc, 
+        headers: headers, 
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments
+    } = params
+
+    const proxyMail = await proxymailModel.findOne({proxyMail: extractEmailAddress(to)});
+    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
+    const alias = await aliasModel.findOne({aliasId: proxyMail.aliasId});
+
+    if (proxyMail && senderAlias && (alias && alias.status)) {
+        subject = subject.replace(/\[𝕁𝕄\] /g, "")
+        subject = subject.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
+        const user = await userModel.findOne({userId: alias.userId})
+        headers =  headers.replace(new RegExp(user.email, 'g'), '')
+        cc = cc.replace(new RegExp(alias.alias, 'g'), '')
+        footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
+        messageBody = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
+        messageBody = messageBody.replace(/<div id="(.*)jinnmail-footer">(.*)<\/div><div id="(.*)jinnmail-footer-end"><\/div>/, '')
+        messageBody = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
+        messageBody = messageBody.replace(new RegExp(proxyMail.proxyMail, 'g'), "[[Hidden by Jinnmail]]")
+        html += `${messageBody}<br /><br />${footerHtml}`
+
+        msg = {
+            to: senderAlias.alias, 
+            from: alias.alias, 
+            replyTo: '',  
+            subject: subject, 
+            cc: cc, 
+            headers: headers, 
+            messageBody: html, 
+            attachments: attachments
+        }
+    } else {
+        msg = bounceback(extractEmailAddress(to), extractEmailAddress(from), headers)
+    }
+
+    return msg
+}
+
+async function userToNonUser2(params) {
+    var html = ''
+    var footerHtml = ''
+    var msg = {}
+    var {
+        to: to, 
+        from: from, 
+        cc: cc, 
+        headers: headers, 
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments, 
+        jinnmailUser: jinnmailUser
+    } = params
+
+    const proxyMail = await proxymailModel.findOne({proxyMail: extractEmailAddress(to)});
+    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
+    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, type: "alias"});
+
+    if (proxyMail && senderAlias && (alias && alias.status)) {
+        subject = subject.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
+        const user = await userModel.findOne({userId: alias.userId})
+        headers =  headers.replace(new RegExp(user.email, 'g'), '')
+        footerHtml = "Sent secretly with <a clicktracking=off href='https://emailclick.jinnmail.com/homepage-from-signature'>Jinnmail</a>"
+        html = messageBody.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
+        html += `<br /><br />${footerHtml}`
+
+        msg = {
+            to: senderAlias.alias, 
+            from: alias.alias,
+            replyTo: '',  
+            subject: subject, 
+            cc: cc, 
+            headers: headers, 
+            messageBody: html, 
+            attachments: attachments
+        }
+    } else {
+        msg = bounceback(extractEmailAddress(to), extractEmailAddress(from), headers)
+    }
+
+    return msg
+}
+
+async function nonUserOwnReplyToToUser(params) {
+    var html = ''
+    var headerHtml = ''
+    var footerHtml = ''
+    var msg = {}
+    var {
+        to: to, 
+        from: from, 
+        replyTo: replyTo, 
+        cc: cc, 
+        headers: headers, 
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments, 
+        alias: alias
+    } = params
+
+    const senderAlias = await get_or_create_sender_alias(extractEmailAddress(from), alias.userId)
+    const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
+    const jinnmailUser = await userModel.findOne({userId: alias.userId})
+
+    if (senderAlias && proxyMail && jinnmailUser) {
+        subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
+        headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
+        headerHtml = '<div id="jinnmail-header"><table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a><a clicktracking=off href="https://jinnmail.com/account">Spam?</a></td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a><a clicktracking=off href="https://jinnmail.com/account">Turn on/off this alias</a></td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br></div><div id="jinnmail-header-end"></div>'
+        footerHtml = '<div id="jinnmail-footer"><br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a clicktracking=off href="https://jinnmail.com/account">👤</a> <a clicktracking=off href="https://jinnmail.com/account">Manage your Jinnmail account and aliases</a></p></span></div><div id="jinnmail-footer-end"></div>'
+        html = messageBody.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
+        html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
+        html = `${headerHtml}<br /><br />${html}<br /><br />${footerHtml}`
+        var msg = {
+            to: jinnmailUser.email, 
+            from: from, 
+            replyTo: proxyMail.proxyMail, 
+            subject: subject, 
+            cc: cc, 
+            headers: headers, 
+            messageBody: html, 
+            attachments: attachments
+        }
+    } else {
+        msg = bounceback(to, from, headers)
+    }
+
+    return msg
+}
+
+async function userToNonUserOwnReplyTo(params)  {
+    var html = ''
+    var headerHtml = ''
+    var footerHtml = ''
+    var msg = {}
+    var {
+        to: to, 
+        from: from, 
+        replyTo: replyTo, 
+        cc: cc, 
+        headers: headers, 
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments, 
+    } = params
+
+    const jinnmailUser = await userModel.findOne({email: extractEmailAddress(from)})
+    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, type: 'alias'})
+    const proxyMail = await proxymailModel.findOne({proxyMail: extractEmailAddress(to)})
+    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId})
+
+    if (jinnmailUser && alias && proxyMail && senderAlias) {
+        subject = subject.replace(/\[𝕁𝕄\] /g, "")
+        subject = subject.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
+        headers =  headers.replace(new RegExp(jinnmailUser.email, 'g'), '')
+        footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
+        html = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
+        html = html.replace(/<div id="(.*)jinnmail-footer">(.*)<\/div><div id="(.*)jinnmail-footer-end"><\/div>/, '')
+        html = html.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
+        html = html.replace(proxyMail.proxyMail, '[[Hidden by Jinnmail]]')
+        html = `${html}<br /><br />${footerHtml}`
+        msg = {
+            to: senderAlias.alias, 
+            from: alias.alias, 
+            replyTo: '', 
+            subject: subject, 
+            cc: cc, 
+            headers: headers, 
+            messageBody: html, 
+            attachments: attachments
+        }
+    } else {
+        msg = bounceback(to, from, headers)
+    }
+
+    return msg
+}
 
 module.exports = { 
 
@@ -267,46 +373,27 @@ module.exports = {
         var attachments = data.files
         var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'text', 'headers', 'envelope', 'reply_to']};
         var parsing = new mailParse(config, data);
-        var response = parsing.keyValues();
+        var parts = parsing.keyValues();
 
-        logger.info("to: came into inbound parse as " + response.to)
-        logger.info("from: came into inbound parse as " + response.from)
+        const msg = await parse(parts)
+        // return await parse(parts)
 
-        let tos = JSON.parse(response.envelope).to
-
-        for(var i = 0; i < tos.length; i++) {
-            var to = tos[i]
-            to = to.replace(/"/g, '');
-            to = extractEmailAddress(to)
-            var from = response.from.replace(/"/g, '');
-            var replyTo = response.reply_to;
-            var subject = (response.subject ? response.subject : " "); // subject is required in sendgrid
-            var messageBody = (response.text ? response.html : " ");
-            var headers = response.headers.toString();
-            var cc = (response.cc ? response.cc : "")
-
-            logger.info("to: inbound parse converted " + to)
-            logger.info("from: inbound parse converted " + from)
-
-            var params = {
-                to: to, 
-                from: from, 
-                replyTo: replyTo, 
-                cc: cc, 
-                headers: headers, 
-                subject: subject, 
-                messageBody: messageBody, 
-                attachments: attachments
-            }
-
-            module.exports.testcases(params)
-        }
+        mail.send_mail(msg)
 
         return
-    }, 
+    },
 
-    testcases: async function(params) {
-        var {
+    parse: async function(parts) {
+        var to = parts.to.replace(/"/g, '').split(', ')[0];
+        var from = parts.from.replace(/"/g, '');
+        var replyTo = parts.reply_to;
+        var subject = (parts.subject ? parts.subject : " "); // subject is required in sendgrid
+        var messageBody = (parts.html ? parts.html : " ");
+        var headers = parts.headers.toString();
+        var cc = (parts.cc ? parts.cc : "")
+        var attachments = parts.attachements
+    
+        var params = {
             to: to, 
             from: from, 
             replyTo: replyTo, 
@@ -315,89 +402,10 @@ module.exports = {
             subject: subject, 
             messageBody: messageBody, 
             attachments: attachments
-        } = params
-    
-        if (to.includes(process.env.JM_EMAIL_DOMAIN)) {
-            logger.info("Test Case 1 and 3")
-            const alias = await aliasModel.findOne({alias: to})
-            const jinnmailUser = await userModel.findOne({userId: alias.userId})
-            var fromEmailAddress = extractEmailAddress(from)
-            if (jinnmailUser && (jinnmailUser.email === fromEmailAddress)) {
-                params.to = jinnmailUser.email
-                params.alias = alias
-                testcase6(params)
-            } else if (alias && alias.status) {
-                params.alias = alias
-                if (replyTo) {
-                    return await module.exports.testcase8(params)
-                }
-                testcase1and3(params)
-            } else {
-                bounceback(to, from, headers)
-            }
-        } else if (to.includes(process.env.JM_REPLY_EMAIL_SUBDOMAIN)) {
-            logger.info("Test Case 2 or 4")
-            fromEmailAddress = extractEmailAddress(from)
-            jinnmailUser = await userModel.findOne({email: fromEmailAddress})
-            if (jinnmailUser) {
-                if (subject.includes("Re: [𝕁𝕄]")) {
-                    logger.info("Test Case 2")
-                    testcase2(params)              
-                } else {
-                    logger.info("Test Case 4")
-                    params.jinnmailUser = jinnmailUser
-                    testcase4(params)
-                }
-            } else {
-                bounceback(to, from, headers)
-            }
         }
-    },
-
-    testcase8: async function(params) {
-        var html = ''
-        var headerHtml = ''
-        var footerHtml = ''
-        var {
-            to: to, 
-            from: from, 
-            replyTo: replyTo, 
-            cc: cc, 
-            headers: headers, 
-            subject: subject, 
-            messageBody: messageBody, 
-            attachments: attachments, 
-            alias: alias
-        } = params
     
-        const senderAlias = await get_or_create_sender_alias(from, alias.userId)
-        const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
-        const user = await userModel.findOne({userId: alias.userId})
-    
-        if (senderAlias && proxyMail && user) {
-            subject = `[𝕁𝕄] ${subject.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')}`
-            headers =  headers.replace(new RegExp(alias.alias, 'g'), '')
-            headerHtml = '<div id="jinnmail-header"><table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a><a clicktracking=off href="https://jinnmail.com/account">Spam?</a></td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a><a clicktracking=off href="https://jinnmail.com/account">Turn on/off this alias</a></td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br></div><div id="jinnmail-header-end"></div>'
-            footerHtml = '<div id="jinnmail-footer"><br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a clicktracking=off href="https://jinnmail.com/account">👤</a> <a clicktracking=off href="https://jinnmail.com/account">Manage your Jinnmail account and aliases</a></p></span></div><div id="jinnmail-footer-end"></div>'
-            html = messageBody.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
-            html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
-            html = `${headerHtml}<br /><br />${html}<br /><br />${footerHtml}`
-            var msg = {
-                to: user.email, 
-                from: from, 
-                replyTo: `${extractName(senderAlias.alias)} <${proxyMail.proxyMail}>`,  
-                subject: subject, 
-                cc: cc, 
-                headers: headers, 
-                messageBody: html, 
-                attachments: attachments
-            }
-            mail.send_mail(msg)
-            return msg
-        } else {
-            bounceback(to, from, headers)
-        }
-    }
+        return await usecases(params)
+    } 
 
 }
 
@@ -418,7 +426,7 @@ async function get_or_create_sender_alias(sender, userId) {
 }
 
 async function get_or_create_proxymail(aliasId, senderAliasId) {
-    proxymail = await proxymailModel.findOne({aliasId: aliasId, senderAliasId})
+    proxymail = await proxymailModel.findOne({aliasId: aliasId, senderAliasId: senderAliasId})
     if (proxymail) {
         return proxymail
     } else {
@@ -451,19 +459,6 @@ function extractName(nameAndEmailAddress) {
 
     return nameAndEmailAddress
 }
-
-// messageBody = messageBody.replace(
-//     `<div style=\"background-color:#eee;padding:30px 20px 10px;text-align:center;width:100%\">
-//         <h1>JinnMail</h1><p>This email has been sent to Jinnmail</p>
-//     </div>`, '')
-// messageBody = messageBody.replace(
-//     `<hr><hr><div style=\"padding:30px 20px 10px;text-align:center;width:100%\">
-//         <p>To contact us send a mail on the following email address:</p>
-//         <a href=\"mailto:${proxyMail.proxyMail}\" target=\"_blank\">${proxyMail.proxyMail}</a>
-//     </div>`, '')
-
-// var spaceIndex = fromEmail.lastIndexOf(' '); // "first last <email@server.com>"
-// fromEmail = fromEmail.substring(spaceIndex+2, fromEmail.length-1) // => email@server.com
 
 // var attachmentSize = 0
 

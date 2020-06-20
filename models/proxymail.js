@@ -13,6 +13,9 @@ const proxyMailSchema = mongoose.Schema({
         type: String,
         required: true
     }, 
+    replytoAliasId: {
+        type: String
+    }, 
     proxyMail: {
         type: String,
         lowercase: true,
