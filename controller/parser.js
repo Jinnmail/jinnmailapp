@@ -374,8 +374,18 @@ module.exports = {
         var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'text', 'headers', 'envelope', 'reply_to']};
         var parsing = new mailParse(config, data);
         var parts = parsing.keyValues();
+        
+        var params = {
+            to: parts.to, 
+            from: parts.from, 
+            cc: parts.cc, 
+            headers: parts.headers, 
+            subject: parts.subject, 
+            messageBody: parts.text, 
+            attachments: attachments
+        }
 
-        const msg = await parse(parts)
+        const msg = await module.exports.parse(params)
         // return await parse(parts)
 
         mail.send_mail(msg)
@@ -383,17 +393,16 @@ module.exports = {
         return
     },
 
-    parse: async function(parts) {
-        var to = parts.to.replace(/"/g, '').split(', ')[0];
-        var from = parts.from.replace(/"/g, '');
-        var replyTo = parts.reply_to;
-        var subject = (parts.subject ? parts.subject : " "); // subject is required in sendgrid
-        var messageBody = (parts.html ? parts.html : " ");
-        var headers = parts.headers.toString();
-        var cc = (parts.cc ? parts.cc : "")
-        var attachments = parts.attachements
+    parse: async function(params) {
+        var to = params.to.replace(/"/g, '').split(', ')[0];
+        var from = params.from.replace(/"/g, '');
+        var replyTo = params.reply_to;
+        var subject = (params.subject ? params.subject : " "); // subject is required in sendgrid
+        var messageBody = (params.html ? params.html : " ");
+        var headers = params.headers.toString();
+        var cc = (params.cc ? params.cc : "")
     
-        var params = {
+        var params2 = {
             to: to, 
             from: from, 
             replyTo: replyTo, 
@@ -401,10 +410,10 @@ module.exports = {
             headers: headers, 
             subject: subject, 
             messageBody: messageBody, 
-            attachments: attachments
+            attachments: params.attachments
         }
     
-        return await usecases(params)
+        return await usecases(params2)
     } 
 
 }
