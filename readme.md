@@ -64,6 +64,9 @@ Testing:
 $ npm install mocha -g
 ...and/or... for debugging tests
 $ npm install mocha --save-dev
+Change your environment variables for dev
+Seed database, 
+npm run seed
 Run tests,
 $ npm test
 ...or...to run a certain test

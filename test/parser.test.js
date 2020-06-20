@@ -37,7 +37,7 @@ describe('Use Case 1', () => {
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
-            html: 'xxx@dev.jinnmail.com', 
+            messageBody: 'xxx@dev.jinnmail.com', 
             attachments: []
         }
         const res = await parser.parse(params)
@@ -58,7 +58,7 @@ describe('Use Case 1', () => {
             cc: '', 
             headers: 'jinnmailuser@gmail.com', 
             subject: `Re: ${res.subject}`, 
-            html: res.messageBody, 
+            messageBody: res.messageBody, 
             attachments: []
         }
         const res2 = await parser.parse(params2)
@@ -81,7 +81,7 @@ describe('Use Case 1', () => {
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
-            html: res2.messageBody, 
+            messageBody: res2.messageBody, 
             attachments: []
         }
         const res3 = await parser.parse(params3)
@@ -108,7 +108,7 @@ describe('Use Case 2', () => {
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
-            html: 'xxx@dev.jinnmail.com', 
+            messageBody: 'xxx@dev.jinnmail.com', 
             attachments: []
         }
         const res = await parser.parse(params)
@@ -129,7 +129,7 @@ describe('Use Case 2', () => {
             cc: '', 
             headers: 'jinnmailuser@gmail.com', 
             subject: 'jinnmailuser@gmail.com', 
-            html: '', 
+            messageBody: '', 
             attachments: []
         }
         const res2 = await parser.parse(params2)
@@ -182,7 +182,7 @@ describe('Use Case 4', () => {
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
-            html: 'xxx@dev.jinnmail.com', 
+            messageBody: 'xxx@dev.jinnmail.com', 
             attachments: []
         }
         var res = await parser.parse(params)
@@ -202,7 +202,7 @@ describe('Use Case 4', () => {
             cc: '', 
             headers: 'jinnmailuser@gmail.com', 
             subject: '[𝕁𝕄] [[Hidden by Jinnmail]]', 
-            html: `${res.replyTo} [[Hidden by Jinnmail]]`, 
+            messageBody: `${res.replyTo} [[Hidden by Jinnmail]]`, 
             attachments: []
         }
         var res2 = await parser.parse(params2)

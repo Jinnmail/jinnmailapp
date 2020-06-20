@@ -381,7 +381,7 @@ module.exports = {
             cc: parts.cc, 
             headers: parts.headers, 
             subject: parts.subject, 
-            messageBody: parts.text, 
+            messageBody: parts.html, 
             attachments: attachments
         }
 
@@ -398,7 +398,7 @@ module.exports = {
         var from = params.from.replace(/"/g, '');
         var replyTo = params.reply_to;
         var subject = (params.subject ? params.subject : " "); // subject is required in sendgrid
-        var messageBody = (params.html ? params.html : " ");
+        var messageBody = (params.messageBody ? params.messageBody : " ");
         var headers = params.headers.toString();
         var cc = (params.cc ? params.cc : "")
     
