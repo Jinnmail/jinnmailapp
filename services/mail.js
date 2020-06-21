@@ -128,13 +128,15 @@ module.exports = {
             msg.attachments.push(attachment)
         }
 
-        sgNew.send(msg).catch(err => {
+        sgNew.send(msg)
+        .then(() => {
+            logger.info("to: " + msg.to)
+            logger.info("from: " + msg.from)
+            logger.info("subject: " + msg.subject)
+        })
+        .catch(err => {
             logger.error(err, {code: 500})
         });
-
-        logger.info("to: " + to)
-        logger.info("from: " + from)
-        logger.info("subject: " + subject)
     }, 
 
     send_bounce_back: function(params) {

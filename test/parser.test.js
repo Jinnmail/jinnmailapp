@@ -37,7 +37,7 @@ describe('Use Case 1', () => {
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
-            messageBody: 'xxx@dev.jinnmail.com', 
+            messageBody: 'mailto:xxx@dev.jinnmail.com', 
             attachments: []
         }
         const res = await parser.parse(params)
@@ -108,7 +108,7 @@ describe('Use Case 2', () => {
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
-            messageBody: 'xxx@dev.jinnmail.com', 
+            messageBody: 'mailto:xxx@dev.jinnmail.com', 
             attachments: []
         }
         const res = await parser.parse(params)
@@ -116,7 +116,6 @@ describe('Use Case 2', () => {
         expect(res.from).to.equal('nonjinnmailuser@gmail.com') 
         expect(res.replyTo).to.include('@reply.dev.jinnmail.com')
         expect(res.headers).to.not.include('xxx@dev.jinnmail.com')
-        expect(res.messageBody).to.include('[[Hidden by Jinnmail]]')
         expect(res.messageBody).to.include('[[Hidden by Jinnmail]]')
         expect(res.subject.startsWith('[𝕁𝕄] ')).to.equal(true);
         expect(res.messageBody).that.includes('Shielded by Jinnmail');
@@ -182,7 +181,7 @@ describe('Use Case 4', () => {
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
-            messageBody: 'xxx@dev.jinnmail.com', 
+            messageBody: 'mailto:xxx@dev.jinnmail.com', 
             attachments: []
         }
         var res = await parser.parse(params)
@@ -202,7 +201,7 @@ describe('Use Case 4', () => {
             cc: '', 
             headers: 'jinnmailuser@gmail.com', 
             subject: '[𝕁𝕄] [[Hidden by Jinnmail]]', 
-            messageBody: `${res.replyTo} [[Hidden by Jinnmail]]`, 
+            messageBody: `mailto:${res.replyTo} [[Hidden by Jinnmail]]`, 
             attachments: []
         }
         var res2 = await parser.parse(params2)
