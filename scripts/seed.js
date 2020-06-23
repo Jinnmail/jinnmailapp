@@ -53,6 +53,15 @@ async function main() {
             email: userEmails[1],
             password: userPwds[1],
             verificationCode: userCodes[1]
+        }, 
+        {
+            verified: true,
+            resetPasswordToken: userResetPwdTokens[2],
+            aliasesCount: 0,
+            userId: "bf116d63-1d2d-48ae-8692-5e4602a959a6",
+            email: userEmails[2],
+            password: userPwds[2],
+            verificationCode: userCodes[2]
         }
     ]);
 
@@ -71,6 +80,15 @@ async function main() {
             userId: "bf116d63-1d2d-48ae-8692-5e4602a959a5",
             aliasId: "8df12e8a-f4fc-4473-a094-6259632ddae4",
             alias: aliasAliases[1],
+            type: "alias", 
+            mailCount: 0,
+            refferedUrl: "yyy.com"
+        }, 
+        {
+            status: true,
+            userId: "bf116d63-1d2d-48ae-8692-5e4602a959a6",
+            aliasId: "8df12e8a-f4fc-4473-a094-6259632ddae6",
+            alias: aliasAliases[2],
             type: "alias", 
             mailCount: 0,
             refferedUrl: "xxx.com"
