@@ -24,7 +24,7 @@ beforeEach(function (done) {
     });
 });
 
-describe('Use Case 1', () => { 
+describe('Use Case 1', () => { // (Test Cases 1, 2, 3)
     
     // new email and all replies
     // non-jinnmail user -> jinnmail user alias -> non-jinnmail user -> jinnmail user alias
@@ -96,7 +96,7 @@ describe('Use Case 1', () => {
     })
 })
 
-describe('Use Case 2', () => {
+describe('Use Case 2', () => { // (Test Case 4)
 
     // non-jinnmail user -> jinnmail user alias
     // new email
@@ -146,7 +146,7 @@ describe('Use Case 2', () => {
     })
 })
 
-describe('Use Case 3', () => {
+describe('Use Case 3', () => { // (Test Case 6)
 
     // jinnmail user sends to their own alias
 
@@ -172,7 +172,7 @@ describe('Use Case 3', () => {
     })
 })
 
-describe('Use Case 4', () => {
+describe('Use Case 4', () => { // (Test Cases 8, 9)
 
     // non-jinnmail user -> jinnmail user alias with their own non-jinnmail user reply to -> non-jinnmail user
 
@@ -223,7 +223,7 @@ describe('Use Case 4', () => {
     })
 })
 
-describe('Use Case 5', () => {
+describe('Use Case 5', () => { // (Test Case 5)
 
     // new email with another to and cc, and then reply 
     // {non-jinnmail user, another email, CC another email} -> jinnmail user alias -> non-jinnmail user
@@ -260,6 +260,43 @@ describe('Use Case 5', () => {
         expect(res2.replyTo).to.equal('');
         expect(res2.subject).to.include('[[Hidden by Jinnmail]]');
         expect(res2.subject).to.not.include('jinnmailuser2@gmail.com');
+    })
+})
+
+describe('Use Case 6', () => { // (Test Case 7)
+
+    // new email and then reply with own alias added within the to and cc 
+    // non-jinnmail user -> jinnmail user alias -> {non-jinnmail user, add own alias, CC own alias}
+
+    it('should pass all tests', async () => {
+        const params = {
+            to: 'George Burke <xxx@dev.jinnmail.com>',  
+            from: 'Mike Burke <nonjinnmailuser@gmail.com>', 
+            reply_to: '', 
+            cc: '', 
+            headers: 'xxx@dev.jinnmail.com', 
+            subject: 'xxx@dev.jinnmail.com', 
+            messageBody: 'mailto:xxx@dev.jinnmail.com', 
+            attachments: []
+        }
+        const res = await parser.parse(params)
+        expect(res.to).to.equal('George Burke <jinnmailuser2@gmail.com>')
+        expect(res.from).to.equal('Mike Burke <nonjinnmailuser@gmail.com>') 
+        expect(res.replyTo).to.include('Mike Burke <')
+
+        const params2 = {
+            to: `${res.replyTo}, George Burke <xxx@dev.jinnmail.com>`, 
+            from: res.to,
+            reply_to: '',  
+            cc: 'George Burke <xxx@dev.jinnmail.com>', 
+            headers: '', 
+            subject: 'Re: [𝕁𝕄]', 
+            messageBody: '', 
+            attachments: []
+        }
+        const res2 = await parser.parse(params2) // no headers in test, so won't actually send the bounceback email
+        expect(res2.from).to.equal('George Burke <xxx@dev.jinnmail.com>');
+        expect(res2.to).to.equal('Mike Burke <nonjinnmailuser@gmail.com>');
     })
 })
 

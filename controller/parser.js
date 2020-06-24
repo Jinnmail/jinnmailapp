@@ -7,84 +7,97 @@ const userModel = require('../models/user');
 const aliasModel = require('../models/alias');
 const proxymailModel = require('../models/proxymail');
 const user = require('../models/user');
+const Mail = require('nodemailer/lib/mailer');
 require('dotenv');
 
-function randomString(string_length) {
-    let numbers = "0123456789";
-    let letters = "abcdefghiklmnopqrstuvwxyz";
-    let chars = `${numbers}${letters}`
-    let char = letters[Math.floor(Math.random() * letters.length)]
-    let randomstring = char; // email addresses must begin with a letter
+module.exports = { 
 
-    for (let i = 0; i < string_length-1; i++) {
-        let rnum = Math.floor(Math.random() * chars.length);
-        randomstring += chars.substring(rnum, rnum + 1);
-    }
+    inbound: async function(data) {
+        var attachments = data.files
+        var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'headers', 'envelope', 'reply_to']};
+        var parsing = new mailParse(config, data);
+        var parts = parsing.keyValues();
 
-    return randomstring;
+        var params = {
+            to: parts.to, 
+            from: parts.from, 
+            cc: parts.cc, 
+            headers: parts.headers, 
+            subject: parts.subject, 
+            messageBody: parts.html, 
+            attachments: attachments
+        }
+
+        const msg = await module.exports.parse(params)
+
+        mail.send_mail(msg)
+
+        return
+    }, 
+
+    parse: async function(params) {
+        await replyToOwnAlias(JSON.parse(JSON.stringify(params))) // an exception, included their own alias in the to and/or cc
+
+        var to = params.to.replace(/"/g, '').split(', ')[0]; // outlook email addresses have double quotes '"emailaddress", "x", "y"'
+        var from = params.from.replace(/"/g, '');
+        var replyTo = params.reply_to;
+        var subject = (params.subject ? params.subject : " "); // subject is required in sendgrid
+        var messageBody = (params.messageBody ? params.messageBody : " ");
+        var headers = params.headers.toString();
+        var cc = (params.cc ? params.cc : "")
+    
+        var params2 = {
+            to: to, 
+            from: from, 
+            replyTo: replyTo, 
+            cc: cc, 
+            headers: headers, 
+            subject: subject, 
+            messageBody: messageBody, 
+            attachments: params.attachments
+        }
+    
+        return await usecases(params2)
+    } 
+
 }
 
-function bounceback(to, from, headers) {
-    html = `
-        <div>
-        <table cellpadding="0" cellspacing="0" style="padding-top:32px;background-color:#ffffff"><tbody>
-        <tr><td>
-        <table cellpadding="0" cellspacing="0"><tbody>
-        <tr><td style="max-width:560px;padding:24px 24px 32px;background-color:#fafafa;border:1px solid #e0e0e0;border-radius:2px">
-        <img style="padding:0 24px 16px 0;float:left" width="72" height="72" alt="Error Icon" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/gmail-warning.png?raw=true" data-image-whitelisted="" class="CToWUd">
-        <table style="min-width:272px;padding-top:8px"><tbody>
-        <tr><td><h2 style="font-size:20px;color:#212121;font-weight:bold;margin:0">
-        Address not found
-        </h2></td></tr>
-        <tr><td style="padding-top:20px;color:#757575;font-size:16px;font-weight:normal;text-align:left">
-        Your message wasn't delivered to <a style="color:#212121;text-decoration:none"><b>${to}</b></a> because the address couldn't be found, or is unable to receive mail.
-        </td></tr>
-        <tr><td style="padding-top:24px;color:#4285f4;font-size:14px;font-weight:bold;text-align:left">
-        <a style="text-decoration:none" href="https://support.google.com/mail/?p=NoSuchUser" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://support.google.com/mail/?p%3DNoSuchUser&amp;source=gmail&amp;ust=1592078515825000&amp;usg=AFQjCNGsuA_1C95-GMCuiloboi3wnZl95w">LEARN MORE</a>
-        </td></tr>
-        </tbody></table>
-        </td></tr>
-        </tbody></table>
-        </td></tr>
-        <tr style="border:none;background-color:#fff;font-size:12.8px;width:90%">
-        <td align="left" style="padding:48px 10px">
-        The response was:<br>
-        <p style="font-family:monospace">
-        550 5.1.1 The email account that you tried to reach does not exist. Please try double-checking the recipient's email address for typos or unnecessary spaces. Learn more at <a href="https://support.google.com/mail/?p=NoSuchUser" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://support.google.com/mail/?p%3DNoSuchUser&amp;source=gmail&amp;ust=1592078515825000&amp;usg=AFQjCNGsuA_1C95-GMCuiloboi3wnZl95w">https://support.google.com/<wbr>mail/?p=NoSuchUser</a> h5sor3867356ejl.12 - gsmtp
-        </p>
-        </td>
-        </tr>
-        </tbody></table>
-        </div>`
-    var msg = {
-        to: from, 
-        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
-        subject: "Delivery Status Notification (Failure)", 
-        headers: headers, 
-        messageBody: html
-    }
-
-    return msg
-} 
-
-function bounceback2(params) {
+async function replyToOwnAlias(params) {
     var {
-        to: to,
-        headers: headers,  
-        alias: alias
-    } = params
-
-    var msg = {
         to: to, 
-        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
-        subject: "Delivery Status Notification (Failure)", 
-        cc: '', 
+        from: from, 
+        replyTo: replyTo, 
+        cc: cc, 
         headers: headers, 
-        messageBody: `You attempted to send this message from your own mailbox "${to}" to your own alias "${alias.alias}".<br><br>Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.`, 
-        attachments: []
-    }
+        subject: subject, 
+        messageBody: messageBody, 
+        attachments: attachments, 
+    } = params
+    
+    var toArr = to.replace(/"/g, '').split(', ')
+    if (toArr.length > 1) {
+        var firstTo = toArr[0];
+        if (firstTo.includes(process.env.JM_REPLY_EMAIL_SUBDOMAIN)) {
+            var restTo = toArr.slice(1)
+            var flattenedRestTo = restTo.toString()
 
-    return msg
+            var toName = extractName(firstTo)
+            var toEmail = extractEmailAddress(firstTo)
+            var fromName = extractName(from)
+            var fromEmail = extractEmailAddress(from)
+        
+            const jinnmailUser = await userModel.findOne({email: fromEmail})
+            const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
+            const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias'})
+            
+            if (flattenedRestTo.includes(alias.alias) || cc.includes(alias.alias)) {
+                params.to = jinnmailUser.email 
+                params.alias = alias
+                msg = bounceback2(params)
+                mail.send_mail(msg)
+            }
+        }
+    }
 }
 
 async function usecases(params) {
@@ -323,7 +336,7 @@ async function userToNonUser2(params) {
 
     const proxyMail = await proxymailModel.findOne({proxyMail: toEmail});
     const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
-    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, type: "alias"});
+    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: "alias"});
 
     if (proxyMail && senderAlias && (alias && alias.status)) {
         subject = subject.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
@@ -424,8 +437,8 @@ async function userToNonUserOwnReplyTo(params)  {
     var fromEmail = extractEmailAddress(from)
 
     const jinnmailUser = await userModel.findOne({email: fromEmail})
-    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, type: 'alias'})
     const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
+    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias'})
     const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId})
 
     if (jinnmailUser && alias && proxyMail && senderAlias) {
@@ -456,55 +469,67 @@ async function userToNonUserOwnReplyTo(params)  {
     return msg
 }
 
-module.exports = { 
+function bounceback(to, from, headers) {
+    html = `
+        <div>
+        <table cellpadding="0" cellspacing="0" style="padding-top:32px;background-color:#ffffff"><tbody>
+        <tr><td>
+        <table cellpadding="0" cellspacing="0"><tbody>
+        <tr><td style="max-width:560px;padding:24px 24px 32px;background-color:#fafafa;border:1px solid #e0e0e0;border-radius:2px">
+        <img style="padding:0 24px 16px 0;float:left" width="72" height="72" alt="Error Icon" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/gmail-warning.png?raw=true" data-image-whitelisted="" class="CToWUd">
+        <table style="min-width:272px;padding-top:8px"><tbody>
+        <tr><td><h2 style="font-size:20px;color:#212121;font-weight:bold;margin:0">
+        Address not found
+        </h2></td></tr>
+        <tr><td style="padding-top:20px;color:#757575;font-size:16px;font-weight:normal;text-align:left">
+        Your message wasn't delivered to <a style="color:#212121;text-decoration:none"><b>${to}</b></a> because the address couldn't be found, or is unable to receive mail.
+        </td></tr>
+        <tr><td style="padding-top:24px;color:#4285f4;font-size:14px;font-weight:bold;text-align:left">
+        <a style="text-decoration:none" href="https://support.google.com/mail/?p=NoSuchUser" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://support.google.com/mail/?p%3DNoSuchUser&amp;source=gmail&amp;ust=1592078515825000&amp;usg=AFQjCNGsuA_1C95-GMCuiloboi3wnZl95w">LEARN MORE</a>
+        </td></tr>
+        </tbody></table>
+        </td></tr>
+        </tbody></table>
+        </td></tr>
+        <tr style="border:none;background-color:#fff;font-size:12.8px;width:90%">
+        <td align="left" style="padding:48px 10px">
+        The response was:<br>
+        <p style="font-family:monospace">
+        550 5.1.1 The email account that you tried to reach does not exist. Please try double-checking the recipient's email address for typos or unnecessary spaces. Learn more at <a href="https://support.google.com/mail/?p=NoSuchUser" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://support.google.com/mail/?p%3DNoSuchUser&amp;source=gmail&amp;ust=1592078515825000&amp;usg=AFQjCNGsuA_1C95-GMCuiloboi3wnZl95w">https://support.google.com/<wbr>mail/?p=NoSuchUser</a> h5sor3867356ejl.12 - gsmtp
+        </p>
+        </td>
+        </tr>
+        </tbody></table>
+        </div>`
+    var msg = {
+        to: from, 
+        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        subject: "Delivery Status Notification (Failure)", 
+        headers: headers, 
+        messageBody: html
+    }
 
-    inbound: async function(data) {
-        var attachments = data.files
-        var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'headers', 'envelope', 'reply_to']};
-        var parsing = new mailParse(config, data);
-        var parts = parsing.keyValues();
-        
-        var params = {
-            to: parts.to, 
-            from: parts.from, 
-            cc: parts.cc, 
-            headers: parts.headers, 
-            subject: parts.subject, 
-            messageBody: parts.html, 
-            attachments: attachments
-        }
+    return msg
+} 
 
-        const msg = await module.exports.parse(params)
-        // return await parse(parts)
+function bounceback2(params) {
+    var {
+        to: to,
+        headers: headers,  
+        alias: alias
+    } = params
 
-        mail.send_mail(msg)
+    var msg = {
+        to: to, 
+        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        subject: "Delivery Status Notification (Failure)", 
+        cc: '', 
+        headers: headers, 
+        messageBody: `You attempted to send this message from your own mailbox "${to}" to your own alias "${alias.alias}".<br><br>Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.`, 
+        attachments: []
+    }
 
-        return
-    },
-
-    parse: async function(params) {
-        var to = params.to.replace(/"/g, '').split(', ')[0];
-        var from = params.from.replace(/"/g, '');
-        var replyTo = params.reply_to;
-        var subject = (params.subject ? params.subject : " "); // subject is required in sendgrid
-        var messageBody = (params.messageBody ? params.messageBody : " ");
-        var headers = params.headers.toString();
-        var cc = (params.cc ? params.cc : "")
-    
-        var params2 = {
-            to: to, 
-            from: from, 
-            replyTo: replyTo, 
-            cc: cc, 
-            headers: headers, 
-            subject: subject, 
-            messageBody: messageBody, 
-            attachments: params.attachments
-        }
-    
-        return await usecases(params2)
-    } 
-
+    return msg
 }
 
 async function get_or_create_sender_alias(sender, userId) {
@@ -556,6 +581,21 @@ function extractName(nameAndEmailAddress) {
     } else {
         return ''
     }
+}
+
+function randomString(string_length) {
+    let numbers = "0123456789";
+    let letters = "abcdefghiklmnopqrstuvwxyz";
+    let chars = `${numbers}${letters}`
+    let char = letters[Math.floor(Math.random() * letters.length)]
+    let randomstring = char; // email addresses must begin with a letter
+
+    for (let i = 0; i < string_length-1; i++) {
+        let rnum = Math.floor(Math.random() * chars.length);
+        randomstring += chars.substring(rnum, rnum + 1);
+    }
+
+    return randomstring;
 }
 
 // var attachmentSize = 0
