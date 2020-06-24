@@ -223,6 +223,7 @@ async function userToNonUser(params) {
         subject = subject.replace(/\[𝕁𝕄\] /g, "")
         subject = subject.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
         const user = await userModel.findOne({userId: alias.userId})
+        subject = subject.replace(new RegExp(user.email, 'g'), '[[Hidden by Jinnmail]]')
         headers =  headers.replace(new RegExp(user.email, 'g'), '')
         cc = cc.replace(new RegExp(alias.alias, 'g'), '')
         footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"

@@ -223,6 +223,46 @@ describe('Use Case 4', () => {
     })
 })
 
+describe('Use Case 5', () => {
+
+    // new email with another to and cc, and then reply 
+    // {non-jinnmail user, another email, CC another email} -> jinnmail user alias -> non-jinnmail user
+
+    it('should pass all tests', async () => {
+        const params = {
+            to: 'xxx@dev.jinnmail.com, somoneelse@gmail.com',  
+            from: 'Mike Burke <nonjinnmailuser@gmail.com>', 
+            reply_to: '', 
+            cc: '', 
+            headers: 'xxx@dev.jinnmail.com', 
+            subject: 'xxx@dev.jinnmail.com', 
+            messageBody: 'mailto:xxx@dev.jinnmail.com', 
+            attachments: []
+        }
+        const res = await parser.parse(params)
+        expect(res.to).to.equal('jinnmailuser2@gmail.com')
+        expect(res.from).to.equal('Mike Burke <nonjinnmailuser@gmail.com>') 
+        expect(res.replyTo).to.include('Mike Burke <')
+
+        const params2 = {
+            to: res.replyTo, 
+            from: `George Burke <${res.to}>`,
+            reply_to: '',  
+            cc: '', 
+            headers: 'jinnmailuser2@gmail.com', 
+            subject: `Re: ${res.subject} jinnmailuser2@gmail.com`, 
+            messageBody: res.messageBody, 
+            attachments: []
+        }
+        const res2 = await parser.parse(params2)
+        expect(res2.from).to.equal('George Burke <xxx@dev.jinnmail.com>');
+        expect(res2.to).to.equal('Mike Burke <nonjinnmailuser@gmail.com>');
+        expect(res2.replyTo).to.equal('');
+        expect(res2.subject).to.include('[[Hidden by Jinnmail]]');
+        expect(res2.subject).to.not.include('jinnmailuser2@gmail.com');
+    })
+})
+
 // describe('Math', function() {
 //     describe('#abs()', function() {
 //         it('should return positive value of given negative number', function() {
