@@ -81,7 +81,7 @@ describe('Use Case 1', () => { // (Test Cases 1, 2, 3)
             reply_to: '',  
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
-            subject: 'xxx@dev.jinnmail.com', 
+            subject: 'Re: xxx@dev.jinnmail.com', 
             messageBody: res2.messageBody, 
             attachments: []
         }
@@ -93,6 +93,7 @@ describe('Use Case 1', () => { // (Test Cases 1, 2, 3)
         // expect(res3.messageBody).to.include('jinnmailuser2@gmail.com') // hard to get this to show up to test
         expect(res3.headers).to.not.include('xxx@dev.jinnmail.com')
         expect(res3.subject).to.include('[[Hidden by Jinnmail]]')
+        expect(res3.messageBody).to.not.include('Sent secretly with ');
     })
 })
 
@@ -197,6 +198,7 @@ describe('Use Case 4', () => { // (Test Cases 8, 9)
         expect(res.messageBody).to.include('[[Hidden by Jinnmail]]');
         expect(res.messageBody).to.include('Shielded by Jinnmail');
         expect(res.messageBody).to.include('Manage your Jinnmail account and aliases');
+        expect(res.messageBody).to.not.include('xxx@dev.jinnmail.com');
 
         var params2 = {
             to: res.replyTo, 
@@ -210,7 +212,7 @@ describe('Use Case 4', () => { // (Test Cases 8, 9)
         }
         var res2 = await parser.parse(params2)
         expect(res2.from).to.equal('George Burke <xxx@dev.jinnmail.com>');
-        expect(res2.to).to.equal('Silicon Valley Bitcoin Meetup <nonjinnmailuser2@gmail.com>');
+        expect(res2.to).to.equal('Silicon Valley Bitcoin Meetup <nonjinnmailuser3@gmail.com>');
         expect(res2.replyTo).to.equal('');
         expect(res2.headers).to.not.include('jinnmailuser2@gmail.com');
         expect(res2.subject).to.not.include('[𝕁𝕄] ');
