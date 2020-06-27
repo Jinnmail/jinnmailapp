@@ -124,7 +124,7 @@ async function usecases(params) {
         if (jinnmailUser && (jinnmailUser.email === fromEmail)) {
             params.to = jinnmailUser.email
             params.alias = alias
-            msg = bounceback2(params)
+            msg = bounceback2(params) // Use case 3, test case 6
         } else if (alias && alias.status) {
             params.alias = alias
             if (replyTo) {
@@ -143,7 +143,7 @@ async function usecases(params) {
         jinnmailUser = await userModel.findOne({email: fromEmail})
         if (jinnmailUser) {
             if (subject.includes("Re: [𝕁𝕄]")) {
-                msg = await userToNonUser(params);
+                msg = await userToNonUser(params); // Use case 5, test case 5
         } else if (subject.startsWith("[𝕁𝕄] ")) { 
                     msg = await userToNonUserOwnReplyTo(params);
             } else {
@@ -238,21 +238,20 @@ async function userToNonUser(params) {
         const user = await userModel.findOne({userId: alias.userId})
         subject = subject.replace(new RegExp(user.email, 'g'), '[[Hidden by Jinnmail]]')
         headers =  headers.replace(new RegExp(user.email, 'g'), '')
-        cc = cc.replace(new RegExp(alias.alias, 'g'), '')
+        // cc = cc.replace(new RegExp(alias.alias, 'g'), '')
         footerHtml = "Sent secretly with <a clicktracking=off href=\"https://emailclick.jinnmail.com/homepage-from-signature\">Jinnmail</a>"
         messageBody = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
         messageBody = messageBody.replace(/<div id="(.*)jinnmail-footer">(.*)<\/div><div id="(.*)jinnmail-footer-end"><\/div>/, '')
         messageBody = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
         messageBody = messageBody.replace(new RegExp(`mailto:${proxyMail.proxyMail}`, 'g'), "[[Hidden by Jinnmail]]")
         messageBody = messageBody.replace(new RegExp(proxyMail.proxyMail, 'g'), "[[Hidden by Jinnmail]]")
-        html += `${messageBody}${footerHtml}`
-
+        html += `${messageBody}<br />${footerHtml}`
         msg = {
             to: `${toName} <${senderAlias.alias}>`, 
             from: `${fromName} <${alias.alias}>`, 
             replyTo: '',  
             subject: subject, 
-            cc: cc, 
+            cc: '', 
             headers: headers, 
             messageBody: html, 
             attachments: attachments
@@ -295,8 +294,10 @@ async function nonUserToUser2(params) {
         headerHtml = '<div id="jinnmail-header"><table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a><a clicktracking=off href="https://jinnmail.com/account">Spam?</a></td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a><a clicktracking=off href="https://jinnmail.com/account">Turn on/off this alias</a></td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br></div><div id="jinnmail-header-end"></div>'
         footerHtml = '<div id="jinnmail-footer"><br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a clicktracking=off href="https://jinnmail.com/account">👤</a> <a clicktracking=off href="https://jinnmail.com/account">Manage your Jinnmail account and aliases</a></p></span></div><div id="jinnmail-footer-end"></div>'
         html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, jinnmailUser.email)
-        html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
-        html = `${headerHtml}${html}${footerHtml}`
+        // html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
+        html = html.replace(new RegExp(`mailto:${alias.alias}`, 'g'), "[[Hidden by Jinnmail]]")
+        html = html.replace(new RegExp(alias.alias, 'g'), "[[Hidden by Jinnmail]]")
+        html = `${headerHtml}${html}<br />${footerHtml}`
         msg = {
             to: (toName ? `${toName} <${jinnmailUser.email}>` : jinnmailUser.email), 
             from: from, 
@@ -343,10 +344,11 @@ async function userToNonUser2(params) {
         const user = await userModel.findOne({userId: alias.userId})
         headers =  headers.replace(new RegExp(user.email, 'g'), '')
         footerHtml = "Sent secretly with <a clicktracking=off href='https://emailclick.jinnmail.com/homepage-from-signature'>Jinnmail</a>"
-        html = messageBody.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
+        html = messageBody.replace(new RegExp(`mailto:${jinnmailUser.email}`, 'g'), "[[Hidden by Jinnmail]]")
+        html = html.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
+        html = html.replace(new RegExp(`mailto:${proxyMail.proxyMail}`, 'g'), "[[Hidden by Jinnmail]]")
         html = html.replace(new RegExp(proxyMail.proxyMail, 'g'), '[[Hidden by Jinnmail]]')
-        html += footerHtml
-
+        html += `<br />${footerHtml}`
         msg = {
             to: senderAlias.alias, 
             from: alias.alias,
@@ -484,9 +486,6 @@ function bounceback(to, from, headers) {
         <tr><td style="padding-top:20px;color:#757575;font-size:16px;font-weight:normal;text-align:left">
         Your message wasn't delivered to <a style="color:#212121;text-decoration:none"><b>${to}</b></a> because the address couldn't be found, or is unable to receive mail.
         </td></tr>
-        <tr><td style="padding-top:24px;color:#4285f4;font-size:14px;font-weight:bold;text-align:left">
-        <a style="text-decoration:none" href="https://support.google.com/mail/?p=NoSuchUser" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://support.google.com/mail/?p%3DNoSuchUser&amp;source=gmail&amp;ust=1592078515825000&amp;usg=AFQjCNGsuA_1C95-GMCuiloboi3wnZl95w">LEARN MORE</a>
-        </td></tr>
         </tbody></table>
         </td></tr>
         </tbody></table>
@@ -495,7 +494,7 @@ function bounceback(to, from, headers) {
         <td align="left" style="padding:48px 10px">
         The response was:<br>
         <p style="font-family:monospace">
-        550 5.1.1 The email account that you tried to reach does not exist. Please try double-checking the recipient's email address for typos or unnecessary spaces. Learn more at <a href="https://support.google.com/mail/?p=NoSuchUser" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://support.google.com/mail/?p%3DNoSuchUser&amp;source=gmail&amp;ust=1592078515825000&amp;usg=AFQjCNGsuA_1C95-GMCuiloboi3wnZl95w">https://support.google.com/<wbr>mail/?p=NoSuchUser</a> h5sor3867356ejl.12 - gsmtp
+        550 5.1.1 The email account that you tried to reach does not exist. Please try double-checking the recipient's email address for typos or unnecessary spaces.
         </p>
         </td>
         </tr>
@@ -503,7 +502,7 @@ function bounceback(to, from, headers) {
         </div>`
     var msg = {
         to: from, 
-        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        from: "Mail Deivery Subsystem <mailer-daemon@jinnmail.com>", 
         subject: "Delivery Status Notification (Failure)", 
         headers: headers, 
         messageBody: html
@@ -521,7 +520,7 @@ function bounceback2(params) {
 
     var msg = {
         to: to, 
-        from: "Mail Deivery Subsystem <mailer-daemon@googlemail.com>", 
+        from: "Mail Deivery Subsystem <mailer-daemon@jinnmail.com>", 
         subject: "Delivery Status Notification (Failure)", 
         cc: '', 
         headers: headers, 

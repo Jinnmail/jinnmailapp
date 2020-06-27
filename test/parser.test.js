@@ -163,7 +163,7 @@ describe('Use Case 3', () => { // (Test Case 6)
         }
         let res = await parser.parse(params)
         expect(res.to).to.equal('jinnmailuser2@gmail.com')
-        expect(res.from).to.equal('Mail Deivery Subsystem <mailer-daemon@googlemail.com>') 
+        expect(res.from).to.equal('Mail Deivery Subsystem <mailer-daemon@jinnmail.com>') 
         expect(res.subject).to.equal('Delivery Status Notification (Failure)')
         expect(res.messageBody).to.include('You attempted to send this message from your own mailbox "jinnmailuser2@gmail.com" to your own alias "xxx@dev.jinnmail.com".')
         expect(res.messageBody).to.include('Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.')
@@ -248,7 +248,7 @@ describe('Use Case 5', () => { // (Test Case 5)
             to: res.replyTo, 
             from: `George Burke <${res.to}>`,
             reply_to: '',  
-            cc: '', 
+            cc: 'email@server.com', 
             headers: 'jinnmailuser2@gmail.com', 
             subject: `Re: ${res.subject} jinnmailuser2@gmail.com`, 
             messageBody: res.messageBody, 
@@ -258,6 +258,7 @@ describe('Use Case 5', () => { // (Test Case 5)
         expect(res2.from).to.equal('George Burke <xxx@dev.jinnmail.com>');
         expect(res2.to).to.equal('Mike Burke <nonjinnmailuser@gmail.com>');
         expect(res2.replyTo).to.equal('');
+        expect(res2.cc).to.equal('');
         expect(res2.subject).to.include('[[Hidden by Jinnmail]]');
         expect(res2.subject).to.not.include('jinnmailuser2@gmail.com');
     })
