@@ -131,7 +131,7 @@ describe('Use Case 2', () => { // (Test Case 4)
             reply_to: '', 
             cc: '', 
             headers: 'jinnmailuser2@gmail.com', 
-            subject: 'jinnmailuser2@gmail.com', 
+            subject: '[[Hidden by Jinnmail]]', 
             messageBody: '', 
             attachments: []
         }
@@ -140,7 +140,6 @@ describe('Use Case 2', () => { // (Test Case 4)
         expect(res2.from).to.equal('xxx@dev.jinnmail.com')
         expect(res2.replyTo).to.equal('')
         expect(res2.headers).to.not.include('jinnmailuser2@gmail.com')
-        expect(res2.subject).to.include('[[Hidden by Jinnmail]]')
         expect(res2.messageBody).that.includes('Sent secretly with ');
         expect(res2.messageBody).to.not.includes('Shielded by Jinnmail');
         expect(res2.messageBody).to.not.includes('Manage your Jinnmail account and aliases');
