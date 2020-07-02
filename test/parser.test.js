@@ -33,7 +33,7 @@ describe('Use Case 1', () => { // (Test Cases 1, 2, 3)
         const params = {
             to: 'xxx@dev.jinnmail.com',  
             from: 'Mike Burke <nonjinnmailuser@gmail.com>', 
-            reply_to: '', 
+            replyTo: '', 
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
@@ -55,7 +55,7 @@ describe('Use Case 1', () => { // (Test Cases 1, 2, 3)
         const params2 = {
             to: res.replyTo, 
             from: `George Burke <${res.to}>`,
-            reply_to: '',  
+            replyTo: '',  
             cc: '', 
             headers: 'jinnmailuser2@gmail.com', 
             subject: `Re: ${res.subject}`, 
@@ -78,7 +78,7 @@ describe('Use Case 1', () => { // (Test Cases 1, 2, 3)
         const params3 = {
             to: 'George Burke <xxx@dev.jinnmail.com>', 
             from: 'Mike Burke <nonjinnmailuser@gmail.com>',
-            reply_to: '',  
+            replyTo: '',  
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'Re: xxx@dev.jinnmail.com', 
@@ -107,7 +107,7 @@ describe('Use Case 2', () => { // (Test Case 4)
         const params = {
             to: 'xxx@dev.jinnmail.com',  
             from: 'Mike Burke <nonjinnmailuser@gmail.com>', 
-            reply_to: '', 
+            replyTo: '', 
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
@@ -128,7 +128,7 @@ describe('Use Case 2', () => { // (Test Case 4)
         const params2 = {
             to: res.replyTo,  
             from: 'jinnmailuser2@gmail.com', 
-            reply_to: '', 
+            replyTo: '', 
             cc: '', 
             headers: 'jinnmailuser2@gmail.com', 
             subject: '[[Hidden by Jinnmail]]', 
@@ -154,7 +154,7 @@ describe('Use Case 3', () => { // (Test Case 6)
         params = {
             to: 'xxx@dev.jinnmail.com',  
             from: 'jinnmailuser2@gmail.com', 
-            reply_to: '', 
+            replyTo: '', 
             cc: '', 
             headers: '', 
             subject: '', 
@@ -163,7 +163,7 @@ describe('Use Case 3', () => { // (Test Case 6)
         }
         let res = await parser.parse(params)
         expect(res.to).to.equal('jinnmailuser2@gmail.com')
-        expect(res.from).to.equal('Mail Deivery Subsystem <mailer-daemon@jinnmail.com>') 
+        expect(res.from).to.equal('Mail Delivery Subsystem <mailer-daemon@jinnmail.com>') 
         expect(res.subject).to.equal('Delivery Status Notification (Failure)')
         expect(res.messageBody).to.include('You attempted to send this message from your own mailbox "jinnmailuser2@gmail.com" to your own alias "xxx@dev.jinnmail.com".')
         expect(res.messageBody).to.include('Jinnmail aliases shield your real address when sending to and receiving mail from others. Aliases are not needed when sending to your own address and will be stripped when included in TO/CC/BCC sent by you.')
@@ -180,7 +180,7 @@ describe('Use Case 4', () => { // (Test Cases 8, 9)
         var params = {
             to: 'xxx@dev.jinnmail.com', 
             from: 'Silicon Valley Bitcoin Meetup <nonjinnmailuser2@gmail.com>',
-            reply_to: 'Silicon Valley Bitcoin Meetup <nonjinnmailuser3@gmail.com>',  
+            replyTo: 'Silicon Valley Bitcoin Meetup <nonjinnmailuser3@gmail.com>',  
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
@@ -233,7 +233,7 @@ describe('Use Case 5', () => { // (Test Case 5)
         const params = {
             to: 'xxx@dev.jinnmail.com, somoneelse@gmail.com',  
             from: 'Mike Burke <nonjinnmailuser@gmail.com>', 
-            reply_to: '', 
+            replyTo: '', 
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
@@ -248,7 +248,7 @@ describe('Use Case 5', () => { // (Test Case 5)
         const params2 = {
             to: res.replyTo, 
             from: `George Burke <${res.to}>`,
-            reply_to: '',  
+            replyTo: '',  
             cc: 'email@server.com', 
             headers: 'jinnmailuser2@gmail.com', 
             subject: `Re: ${res.subject} jinnmailuser2@gmail.com`, 
@@ -274,7 +274,7 @@ describe('Use Case 6', () => { // (Test Case 7)
         const params = {
             to: 'George Burke <xxx@dev.jinnmail.com>',  
             from: 'Mike Burke <nonjinnmailuser@gmail.com>', 
-            reply_to: '', 
+            replyTo: '', 
             cc: '', 
             headers: 'xxx@dev.jinnmail.com', 
             subject: 'xxx@dev.jinnmail.com', 
@@ -289,7 +289,7 @@ describe('Use Case 6', () => { // (Test Case 7)
         const params2 = {
             to: `${res.replyTo}, George Burke <xxx@dev.jinnmail.com>`, 
             from: res.to,
-            reply_to: '',  
+            replyTo: '',  
             cc: 'George Burke <xxx@dev.jinnmail.com>', 
             headers: '', 
             subject: 'Re: [𝕁𝕄]', 

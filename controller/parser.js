@@ -6,23 +6,34 @@ const mail = require('../services/mail');
 const userModel = require('../models/user');
 const aliasModel = require('../models/alias');
 const proxymailModel = require('../models/proxymail');
-const user = require('../models/user');
-const Mail = require('nodemailer/lib/mailer');
+const { simpleParser } = require("mailparser");
 require('dotenv');
 
 module.exports = { 
 
     inbound: async function(data) {
-        var attachments = data.files
-        var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'headers', 'envelope', 'reply_to']};
+        var attachments = data.files; // inbound parse does not have attachements, go another way
+        const mailParserParts = await simpleParser(data.body.email); // inbound parse lib does not include reply-to, go another way
+        var headers = ''; // inbound parse does not have headers if we check send raw in webhook header, go another way 
+        var newline = '';
+
+        for(var i=0; i < mailParserParts.headerLines.length; i++) {
+            if (headers) 
+                newline = '\n';
+            headers += newline + mailParserParts.headerLines[i].line
+        }
+
+        var config = {keys: ['to', 'from', 'subject', 'cc', 'html']};
+        // var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'headers', 'envelope', 'reply_to']};
         var parsing = new mailParse(config, data);
         var parts = parsing.keyValues();
 
         var params = {
             to: parts.to, 
             from: parts.from, 
+            replyTo: (mailParserParts.replyTo ? mailParserParts.replyTo.text : ''), 
             cc: parts.cc, 
-            headers: parts.headers, 
+            headers: headers, 
             subject: parts.subject, 
             messageBody: parts.html, 
             attachments: attachments
@@ -40,11 +51,11 @@ module.exports = {
 
         var to = params.to.replace(/"/g, '').split(', ')[0]; // outlook email addresses have double quotes '"emailaddress", "x", "y"'
         var from = params.from.replace(/"/g, '');
-        var replyTo = params.reply_to;
-        var subject = (params.subject ? params.subject : " "); // subject is required in sendgrid
-        var messageBody = (params.messageBody ? params.messageBody : " ");
+        var replyTo = params.replyTo;
+        var subject = (params.subject ? params.subject : ' '); // subject is required in sendgrid
+        var messageBody = (params.messageBody ? params.messageBody : ' ');
         var headers = params.headers.toString();
-        var cc = (params.cc ? params.cc : "")
+        var cc = (params.cc ? params.cc : '')
     
         var params2 = {
             to: to, 
@@ -158,7 +169,7 @@ async function usecases(params) {
     return msg;
 }
 
-async function nonUserToUser(params) {
+async function nonUserToUser(params) { // test case 1
     var html = ''
     var headerHtml = ''
     var footerHtml = ''
@@ -210,7 +221,7 @@ async function nonUserToUser(params) {
     return msg
 }
 
-async function userToNonUser(params) {
+async function userToNonUser(params) { // test case 2
     var footerHtml = ''
     var html = ''
     var msg = {}
@@ -266,7 +277,7 @@ async function userToNonUser(params) {
     return msg
 }
 
-async function nonUserToUser2(params) {
+async function nonUserToUser2(params) { // test case 3
     var html = ''
     var headerHtml = ''
     var footerHtml = ''
@@ -375,7 +386,7 @@ async function userToNonUser2(params) { // test case 4
     return msg
 }
 
-async function nonUserOwnReplyToToUser(params) {
+async function nonUserOwnReplyToToUser(params) { // test case 8
     var html = ''
     var headerHtml = ''
     var footerHtml = ''
@@ -428,7 +439,7 @@ async function nonUserOwnReplyToToUser(params) {
     return msg
 }
 
-async function userToNonUserOwnReplyTo(params)  {
+async function userToNonUserOwnReplyTo(params) { // test case 9
     var html = ''
     var headerHtml = ''
     var footerHtml = ''
@@ -515,7 +526,7 @@ function bounceback(to, from, headers) {
         </div>`
     var msg = {
         to: from, 
-        from: "Mail Deivery Subsystem <mailer-daemon@jinnmail.com>", 
+        from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
         subject: "Delivery Status Notification (Failure)", 
         headers: headers, 
         messageBody: html
@@ -533,7 +544,7 @@ function bounceback2(params) {
 
     var msg = {
         to: to, 
-        from: "Mail Deivery Subsystem <mailer-daemon@jinnmail.com>", 
+        from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
         subject: "Delivery Status Notification (Failure)", 
         cc: '', 
         headers: headers, 
