@@ -12,10 +12,14 @@ require('dotenv');
 module.exports = { 
 
     inbound: async function(data) {
-        var attachments = data.files; // inbound parse does not have attachements, go another way
-        const mailParserParts = await simpleParser(data.body.email); // inbound parse lib does not include reply-to, go another way
-        var headers = ''; // inbound parse does not have headers if we check send raw in webhook header, go another way 
+        var headers = '';  
         var newline = '';
+        
+        // sendgroid inbound parse node.js library does not include attachements or reply-to
+        // even though the docs say it does, and it is inconsistent, sometimes it does, 
+        // so we are using MailParser instead
+        
+        const mailParserParts = await simpleParser(data.body.email); 
 
         for(var i=0; i < mailParserParts.headerLines.length; i++) {
             if (headers) 
@@ -23,20 +27,21 @@ module.exports = {
             headers += newline + mailParserParts.headerLines[i].line
         }
 
-        var config = {keys: ['to', 'from', 'subject', 'cc', 'html']};
+        // var attachments = data.files; 
+        // var config = {keys: ['to', 'from', 'subject']};
         // var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'headers', 'envelope', 'reply_to']};
-        var parsing = new mailParse(config, data);
-        var parts = parsing.keyValues();
+        // var parsing = new mailParse(config, data);
+        // var parts = parsing.keyValues();
 
         var params = {
-            to: parts.to, 
-            from: parts.from, 
+            to: mailParserParts.to.text, 
+            from: mailParserParts.from.text, 
             replyTo: (mailParserParts.replyTo ? mailParserParts.replyTo.text : ''), 
-            cc: parts.cc, 
+            cc: (mailParserParts.cc ? mailParserParts.cc.text : ''), 
             headers: headers, 
-            subject: parts.subject, 
-            messageBody: parts.html, 
-            attachments: attachments
+            subject: (mailParserParts.subject ? mailParserParts.subject : ' '), 
+            messageBody: mailParserParts.html, 
+            attachments: mailParserParts.attachments
         }
 
         const msg = await module.exports.parse(params)
@@ -154,7 +159,7 @@ async function usecases(params) {
         jinnmailUser = await userModel.findOne({email: fromEmail})
         if (jinnmailUser) {
             if (subject.includes("Re: [𝕁𝕄]")) {
-                msg = await userToNonUser(params); // Use case 5, test case 5
+                msg = await userToNonUser(params); // Use case 5, test cases 2 and 5
         } else if (subject.startsWith("[𝕁𝕄] ")) { 
                     msg = await userToNonUserOwnReplyTo(params); // Use case 4, test case 9
             } else {

@@ -81,15 +81,24 @@ module.exports = {
             msg.reply_to = replyTo
         } 
 
-        for (let i=0; i < attachments.length; i++) { 
-            const {fieldname, originalname, encoding, mimetype, buffer} = attachments[i]
+        // msg.attachments = attachments;
+        for (let i=0; i < attachments.length; i++) {
+            const {filename, contentType, content} = attachments[i]
             attachment = {
-                content: buffer.toString("base64"), 
-                filename: originalname, 
-                type: mimetype, 
+                content: content.toString("base64"), 
+                filename: filename, 
+                type: contentType, 
                 disposition: "attachment"
             }
-            msg.attachments.push(attachment)
+            msg.attachments.push(attachment) 
+            // const {fieldname, originalname, encoding, mimetype, buffer} = attachments[i]
+            // attachment = {
+            //     content: buffer.toString("base64"), 
+            //     filename: originalname, 
+            //     type: mimetype, 
+            //     disposition: "attachment"
+            // }
+            // msg.attachments.push(attachment)
         }
 
         sgNew.send(msg)
