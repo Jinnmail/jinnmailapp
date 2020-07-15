@@ -235,8 +235,17 @@ module.exports = {
 
     userSearch: async function(data) {
         const users = await userModel.find({userId: new RegExp(data, 'i')});
+        const users2 = await userModel.find({email: new RegExp(data, 'i')});
 
-        return users;
+        const users3 = users.concat(users2);
+
+        const uniqueUsers = Array.from(new Set(users3.map(a => a.userId)))
+            .map(userId => {
+                return users3.find(a => a.userId === userId)
+            })
+
+
+        return uniqueUsers;
     }
 
 }
