@@ -258,8 +258,20 @@ module.exports = {
                 return combinedUsers.find(a => a.userId === userId)
             })
 
-
         return uniqueUsers;
+    }, 
+
+    aliasSearch: async function(userId, data) {
+        const aliases = await Alias.find({userId: userId, alias: new RegExp(data, 'i')});
+        const aliases2 = await Alias.find({userId: userId, aliasId: new RegExp(data, 'i')});
+        var combinedAliases = aliases.concat(aliases2);
+
+        const uniqueAliases = Array.from(new Set(combinedAliases.map(a => a.aliasId)))
+            .map(aliasId => {
+                return combinedAliases.find(a => a.aliasId === aliasId)
+            })
+
+        return uniqueAliases;
     }
 
 }

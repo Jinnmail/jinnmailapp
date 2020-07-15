@@ -67,6 +67,16 @@ function userSearch(req, res){
         })
 }
 
+function aliasSearch(req, res){
+    admin.aliasSearch(req.query.userId, req.query.query)
+        .then((data) => {
+            reqRes.responseHandler('fetched successfully', data, res);
+        }).catch((err) => {
+            reqRes.httpErrorHandler(err, res);
+            res.end();
+        })
+}
+
 // The first developer thought we were hosting an inbox for the user, but that is now a deprecated feature.
 
 // function getInboxDetails(req, res){
@@ -97,6 +107,7 @@ router.get('/alias/:aid', userAuth.validateUser, getAliasDetails);
 router.get('/search/:key/:value', userAuth.validateUser, getSearchedContent);
 router.get('/getMailDetails/:uid', userAuth.validateUser, getMailDetails);
 router.get('/userSearch', userAuth.validateUser, userSearch)
+router.get('/aliasSearch', userAuth.validateUser, aliasSearch)
 
 // The first developer thought we were hosting an inbox for the user, but that is now a deprecated feature.
 
