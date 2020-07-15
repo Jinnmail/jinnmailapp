@@ -91,29 +91,29 @@ async function replyToOwnAlias(params) {
     } = params
     
     var toArr = to.replace(/"/g, '').split(', ')
-    if (toArr.length > 1) {
-        var firstTo = toArr[0];
-        if (firstTo.includes(process.env.JM_REPLY_EMAIL_SUBDOMAIN)) {
-            var restTo = toArr.slice(1)
-            var flattenedRestTo = restTo.toString()
+    // if (toArr.length > 1) {
+    var firstTo = toArr[0];
+    if (firstTo.includes(process.env.JM_REPLY_EMAIL_SUBDOMAIN)) {
+        var restTo = toArr.slice(1)
+        var flattenedRestTo = restTo.toString()
 
-            var toName = extractName(firstTo)
-            var toEmail = extractEmailAddress(firstTo)
-            var fromName = extractName(from)
-            var fromEmail = extractEmailAddress(from)
+        var toName = extractName(firstTo)
+        var toEmail = extractEmailAddress(firstTo)
+        var fromName = extractName(from)
+        var fromEmail = extractEmailAddress(from)
+    
+        const jinnmailUser = await userModel.findOne({email: fromEmail})
+        const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
+        const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias'})
         
-            const jinnmailUser = await userModel.findOne({email: fromEmail})
-            const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
-            const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias'})
-            
-            if (flattenedRestTo.includes(alias.alias) || cc.includes(alias.alias)) {
-                params.to = jinnmailUser.email 
-                params.alias = alias
-                msg = bounceback2(params)
-                mail.send_mail(msg)
-            }
+        if (flattenedRestTo.includes(alias.alias) || cc.includes(alias.alias)) {
+            params.to = jinnmailUser.email 
+            params.alias = alias
+            msg = bounceback2(params)
+            mail.send_mail(msg)
         }
     }
+    // }
 }
 
 async function usecases(params) {
