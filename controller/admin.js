@@ -231,5 +231,12 @@ module.exports = {
             }
             // resolve(data)
         }) 
+    }, 
+
+    userSearch: async function(data) {
+        const users = await userModel.find({userId: new RegExp(data, 'i')});
+
+        return users;
     }
+
 }

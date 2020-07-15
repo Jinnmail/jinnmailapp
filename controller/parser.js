@@ -161,10 +161,10 @@ async function usecases(params) {
             if (subject.includes("Re: [𝕁𝕄]")) {
                 msg = await userToNonUser(params); // Use case 5, test cases 2 and 5
         } else if (subject.startsWith("[𝕁𝕄] ")) { 
-                    msg = await userToNonUserOwnReplyTo(params); // Use case 4, test case 9
+            msg = await userToNonUserOwnReplyTo(params); // Use case 4, test case 9
             } else {
-                    params.jinnmailUser = jinnmailUser
-                    msg = userToNonUser2(params) // Use case 2, test case 4
+                params.jinnmailUser = jinnmailUser
+                msg = userToNonUser2(params) // Use case 2, test case 4
             }
         } else {
             msg = bounceback(to, from, headers)
