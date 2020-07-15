@@ -234,14 +234,28 @@ module.exports = {
     }, 
 
     userSearch: async function(data) {
-        const users = await userModel.find({userId: new RegExp(data, 'i')});
-        const users2 = await userModel.find({email: new RegExp(data, 'i')});
+        const users = await User.find({userId: new RegExp(data, 'i')});
+        const users2 = await User.find({email: new RegExp(data, 'i')});
+        const aliases = await Alias.find({alias: new RegExp(data, 'i')});
+        const aliases2 = await Alias.find({aliasId: new RegExp(data, 'i')})
+        const users3 = []
+        const users4 = []
 
-        const users3 = users.concat(users2);
+        for(var i = 0; i < aliases.length; i++) {
+            var user = await userModel.findOne({userId: aliases[i].userId});
+            users3.push(user);
+        }
 
-        const uniqueUsers = Array.from(new Set(users3.map(a => a.userId)))
+        for(var i = 0; i < aliases2.length; i++) {
+            var user2 = await userModel.findOne({userId: aliases2[i].userId});
+            users4.push(user2);
+        }
+
+        var combinedUsers = users.concat(users2).concat(users3).concat(users4);
+
+        const uniqueUsers = Array.from(new Set(combinedUsers.map(a => a.userId)))
             .map(userId => {
-                return users3.find(a => a.userId === userId)
+                return combinedUsers.find(a => a.userId === userId)
             })
 
 
