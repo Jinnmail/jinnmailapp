@@ -4,6 +4,8 @@ const logger = require('heroku-logger')
 const userModel = require('../models/user');
 const aliasModel = require('../models/alias');
 const proxymailModel = require('../models/proxymail');
+const adminModel = require('../models/admin');
+const uuidv4 = require('uuid/v4');
 
 mongoose.connect(process.env.DB_HOST, {
     auth: {
@@ -30,17 +32,20 @@ async function main() {
     const userPwds = process.env.USER_PASSWORDS.split(', ');
     const userCodes = process.env.USER_CODES.split(', ');
     const aliasAliases = process.env.ALIAS_ALIASES.split(', ');
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
     const user = await userModel.deleteMany({});
     const alias = await aliasModel.deleteMany({});
     const proxymail = await proxymailModel.deleteMany({});
+    const admin = await adminModel.deleteMany({});
 
+    uids = [uuidv4(), uuidv4(), uuidv4()]
     const users = await userModel.insertMany([
         {
             verified: true,
             resetPasswordToken: userResetPwdTokens[0],
             aliasesCount: 0,
-            userId: "7dea2c9e-a6f6-40f2-b24d-d0c29b757493",
+            userId: uids[0],
             email: userEmails[0],
             password: userPwds[0],
             verificationCode: userCodes[0]
@@ -49,7 +54,7 @@ async function main() {
             verified: true,
             resetPasswordToken: userResetPwdTokens[1],
             aliasesCount: 0,
-            userId: "bf116d63-1d2d-48ae-8692-5e4602a959a5",
+            userId: uids[1],
             email: userEmails[1],
             password: userPwds[1],
             verificationCode: userCodes[1]
@@ -58,7 +63,7 @@ async function main() {
             verified: true,
             resetPasswordToken: userResetPwdTokens[2],
             aliasesCount: 0,
-            userId: "bf116d63-1d2d-48ae-8692-5e4602a959a6",
+            userId: uids[2],
             email: userEmails[2],
             password: userPwds[2],
             verificationCode: userCodes[2]
@@ -68,8 +73,8 @@ async function main() {
     const aliases = await aliasModel.insertMany([
         {
             status: true,
-            userId: "7dea2c9e-a6f6-40f2-b24d-d0c29b757493",
-            aliasId: "9bcf6057-0a96-4182-89ac-b9555ee0dd4a",
+            userId: uids[0],
+            aliasId: uuidv4(),
             alias: aliasAliases[0],
             type: "alias", 
             mailCount: 0,
@@ -77,8 +82,8 @@ async function main() {
         }, 
         {
             status: true,
-            userId: "bf116d63-1d2d-48ae-8692-5e4602a959a5",
-            aliasId: "8df12e8a-f4fc-4473-a094-6259632ddae4",
+            userId: uids[1],
+            aliasId: uuidv4(),
             alias: aliasAliases[1],
             type: "alias", 
             mailCount: 0,
@@ -86,14 +91,26 @@ async function main() {
         }, 
         {
             status: true,
-            userId: "bf116d63-1d2d-48ae-8692-5e4602a959a6",
-            aliasId: "8df12e8a-f4fc-4473-a094-6259632ddae6",
+            userId: uids[2],
+            aliasId: uuidv4(),
             alias: aliasAliases[2],
             type: "alias", 
             mailCount: 0,
             refferedUrl: "xxx.com"
         } 
     ]);
+
+    try {
+        const admins = await adminModel.insertMany([
+            {
+                adminId: uuidv4(), 
+                username: 'admin',
+                password: adminPassword
+            }
+        ]);
+    } catch(e) {
+        console.log(e);
+    }
 
     console.log("seed complete")
     process.exit()
