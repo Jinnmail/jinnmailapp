@@ -44,7 +44,7 @@ async function main() {
         {
             verified: true,
             resetPasswordToken: userResetPwdTokens[0],
-            aliasesCount: 0,
+            aliasesCount: 1,
             userId: uids[0],
             email: userEmails[0],
             password: userPwds[0],
@@ -53,7 +53,7 @@ async function main() {
         {
             verified: true,
             resetPasswordToken: userResetPwdTokens[1],
-            aliasesCount: 0,
+            aliasesCount: 1,
             userId: uids[1],
             email: userEmails[1],
             password: userPwds[1],
@@ -62,7 +62,7 @@ async function main() {
         {
             verified: true,
             resetPasswordToken: userResetPwdTokens[2],
-            aliasesCount: 0,
+            aliasesCount: 1,
             userId: uids[2],
             email: userEmails[2],
             password: userPwds[2],
