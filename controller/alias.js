@@ -261,6 +261,8 @@ module.exports = {
             await proxyMailModel.deleteOne({proxyMailId: proxymails[i].proxyMailId});
         }
 
+        const tempAlias = await aliasModel.findOne({aliasId: data.params.aliasId})
+        await userModel.findOneAndUpdate({userId: tempAlias.userId}, {$inc: {aliasesCount: -1}});
         const alias = await aliasModel.deleteOne({aliasId: data.params.aliasId})
 
         if (alias.deletedCount > 0) { 

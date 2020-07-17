@@ -38,14 +38,8 @@ const aliasSchema = mongoose.Schema({
     }
 });
 
-aliasSchema.post('deleteOne', async function(doc){
-  const user = await userModel.findOneAndUpdate({userId: doc.userId}, {$inc: {aliasesCount: -1}});
-  console.log(user);
-});
-
 aliasSchema.post('save', async function(doc){
   const user = await userModel.findOneAndUpdate({userId: doc.userId}, {$inc: {aliasesCount: 1}});
-  console.log(user)
 });
 
 module.exports = mongoose.model('alias', aliasSchema);
