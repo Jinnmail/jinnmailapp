@@ -44,7 +44,8 @@
     "request-promise": "4.2.2",
     "sendgrid": "5.2.3",
     "uuid": "3.3.2",
-    "uuid-v4": "0.1.0"
+    "uuid-v4": "0.1.0",
+    "lodash": "4.17.19"
   },
   "devDependencies": {
     "chai": "4.2.0",

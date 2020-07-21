@@ -5,6 +5,15 @@ https://expressjs.com/en/starter/generator.html
 
 
 
+Data Model:
+This is the center of the data model, 
+proxyMail
+    aliasId: 
+    senderAliasId:
+
+
+
+
 Deployment:
 https://devcenter.heroku.com/articles/getting-started-with-nodejs?singlepage=true
 
