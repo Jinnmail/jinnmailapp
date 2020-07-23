@@ -15,7 +15,8 @@ proxyMail
 ### Docker
 ```
 Install docker locally, however you do that.
-
+docker build . --tag jinnmailapp
+docker run --publish 3000:3000 --detach jinnmailapp
 ```
 
 ### Testing
