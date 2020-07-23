@@ -23,12 +23,12 @@ JM_EMAIL_DOMAIN=@dev.jinnmail.com
 JM_REPLY_EMAIL_SUBDOMAIN=@reply.dev.jinnmail.com
 GOOGLE_SERVICE_ACCOUNT_EMAIL=abcd-111@groovy-dued-66666.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nNKE...extemelylongprivatekeygoesherelakjsdjf==\n-----END PRIVATE KEY-----\n
-USER_EMAILS=comma space seperated list of jinnmail user addresses
-USER_RESET_PASSWORD_TOKENS=comma space separated
-USER_PASSWORDS=comma space separated list of hashed passwords
-USER_CODES=comman space separated list of verification codes
-ALIAS_ALIASES=comma space separated list of aliases
-ADMIN_PASSWORD=adminHASHEDpasswordhere
+USER_EMAILS=comma space seperated list of jinnmail user addresses for testing
+USER_RESET_PASSWORD_TOKENS=comma space separated for testing
+USER_PASSWORDS=comma space separated list of hashed passwords for testing
+USER_CODES=comman space separated list of verification codes for testing
+ALIAS_ALIASES=comma space separated list of aliases for testing
+ADMIN_PASSWORD=adminHASHEDpasswordhere for testing
 ```
 
 ### Docker
