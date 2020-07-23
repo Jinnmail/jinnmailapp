@@ -36,7 +36,6 @@ npm test -- -f "Use Case 1"
 ## Prod
 
 ### First Deployment
-
 ```
 create ubuntu 20.04 instance
 install docker:
@@ -64,8 +63,6 @@ sudo service apache2 restart
 ```
 
 ### Subsequent Deployments
-<br>
-<br>
 ```
 To do.
 
@@ -93,7 +90,7 @@ mongorestore -d newdbname .
 ## OLD BEYOND THIS POINT
 ```
 Deployment:
-[https://devcenter.heroku.com/articles/getting-started-with-nodejs?singlepage=true](https://devcenter.heroku.com/articles/getting-started-with-nodejs?singlepage=true)
+https://devcenter.heroku.com/articles/getting-started-with-nodejs?singlepage=true
 Open papertrail logs quickly from command:
 heroku addons:open papertrail
 Turn heroku off:
