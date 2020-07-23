@@ -54,8 +54,8 @@ ServerAdmin webmaster@localhost
 DocumentRoot /var/www/html
 ErrorLog ${APACHE_LOG_DIR}/error.log
 CustomLog ${APACHE_LOG_DIR}/access.log combined
-ProxyPass /[http://127.0.0.1:3000/](http://127.0.0.1:3000/)<------------------------------ new don't include arrows won't run with them even if they are comments
-ProxyPassReverse /[http://127.0.0.1:3000/](http://127.0.0.1:3000/)<----------------------- new
+ProxyPass /[http://127.0.0.1:3000/](http://127.0.0.1:3000/) <------------------------------ new don't include arrows won't run with them even if they are comments
+ProxyPassReverse /[http://127.0.0.1:3000/](http://127.0.0.1:3000/) <----------------------- new
 now enable proxy mode also
 sudo a2enmod ssl
 sudo a2enmod proxy
