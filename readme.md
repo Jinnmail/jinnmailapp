@@ -18,6 +18,7 @@ proxyMail
 DASHBOARD_URL=http://localhost:8000
 DB_HOST=mongodb://host.docker.internal:27017/dev
 # DB_HOST=mongodb://localhost/dev
+# DB_HOST=mongodb+srv://username:password@xxxxlong...connectionstringxx.net/proddbnamegoeshere?retryWrites=true&w=majority
 DB_USER=username
 DB_PASSWORD=password
 JM_EMAIL_DOMAIN=@dev.jinnmail.com
