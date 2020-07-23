@@ -25,10 +25,6 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
 var mongoose = require('mongoose');
 
 mongoose.connect(process.env.DB_HOST, {
@@ -52,16 +48,16 @@ mongoose.connect(process.env.DB_HOST, {
 
 var db = mongoose.connection
 
-// db.on('error', () => {
-//     console.error('Error occured in db connection');
-// });
+db.on('error', () => {
+    console.error('Error occured in db connection');
+});
 
-// db.on('open', () => {
-//     console.log('DB Connection established successfully');
-//     server.listen(port);
-//     server.on('error', onError);
-//     server.on('listening', onListening);
-// });
+db.on('open', () => {
+    console.log('DB Connection established successfully');
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
+});
 
 /**
  * Normalize a port into a number, string, or false.

@@ -13,6 +13,7 @@ proxyMail
 ```
 
 ## Environment Variables
+
 ```
 DASHBOARD_URL=http://localhost:8000
 DB_HOST=mongodb://host.docker.internal:27017/dev
@@ -32,6 +33,7 @@ ADMIN_PASSWORD=adminHASHEDpasswordhere for testing
 ```
 
 ### Docker
+
 ```
 Install docker locally, however you do that.
 docker build . --tag jinnmailapp
@@ -40,7 +42,14 @@ docker container ls
 docker stop feca94bd374f
 ```
 
+### Mongo
+```
+install mongo
+https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+```
+
 ### Testing
+
 ```
 npm install mocha -g
 ...and/or... for debugging tests
@@ -58,12 +67,21 @@ npm test -- -f "Use Case 1"
 ## Prod
 
 ### First Deployment
+
 ```
 create ubuntu 20.04 instance
-install docker:
-https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+git clone
+cd jinnmailapp
+vim .env
+set environmental variables similar to dev but with prod values
 npm run blacklist
 npm run seed
+install docker:
+https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+docker build . --tag jinnmailapp
+docker run --publish 3000:3000 --detach jinnmailapp
+docker container ls
+docker stop feca94bd374f
 install and configure apache port forwarding:
 port forwarding to 3000 from 80:
 add these two lines to existing
@@ -85,31 +103,40 @@ sudo service apache2 restart
 ```
 
 ### Subsequent Deployments
-```
-To do.
 
+```
+cd jinnmailapp 
+git pull
+docker container ls
+docker stop feca94bd374f
+docker build . --tag jinnmailapp
+docker run --publish 3000:3000 --detach jinnmailapp
 ```
 
 ## Database Backups
 
 ### Database backup to local
+
 ```
 Go to Atlas Web interface and they generate a command from the command line tools
 execute the command, downloads a dump folder to your local
 ```
 
 ### Database restore to remote
+
 ```
 Same reverse process as backup
 ```
 
 ### Database restore to local
+
 ```
 cd to innermost directory of dump folder
 mongorestore -d newdbname .
 ```
 
 ## OLD BEYOND THIS POINT
+
 ```
 Deployment:
 https://devcenter.heroku.com/articles/getting-started-with-nodejs?singlepage=true
