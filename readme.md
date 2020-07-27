@@ -31,6 +31,9 @@ USER_PASSWORDS=comma space separated list of hashed passwords for testing
 USER_CODES=comman space separated list of verification codes for testing
 ALIAS_ALIASES=comma space separated list of aliases for testing
 ADMIN_PASSWORD=adminHASHEDpasswordhere for testing
+JWT_SECRET=x
+SENDGRID_API_KEY=SG._...
+SENDGRID_WEBHOOK_API_STRING=x...
 ```
 
 ### Docker
@@ -74,16 +77,22 @@ create ubuntu 20.04 instance
 git clone
 cd jinnmailapp
 vim .env
-set environmental variables similar to dev but with prod values
+set environmental variables similar to dev but with prod values and you don't need the ones used for testing.
+when setting google variables make sure the blacklist sheets has programmatic access setup and use the associated values.
+configure sendgrid inbound parse for both hosts
+hosts: jinnmail.com, reply.jinnmail.com 
+url: https://<api>/api/v1/parser/inbound?sendgrid_webhook_api_string=<x>
+POST the raw, full MIME message  
 npm run blacklist
 npm run seed
 install docker:
 https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
-docker build . --tag jinnmailapp
-docker run --publish 3000:3000 --detach jinnmailapp
-docker container ls
-docker stop feca94bd374f
+sudo docker build . --tag jinnmailapp
+sudo docker run --publish 3000:3000 --detach jinnmailapp
 install and configure apache port forwarding:
+sudo apt install apache2
+cd /var/www/html
+sudo rm index.html
 port forwarding to 3000 from 80:
 add these two lines to existing
 /etc/apache2/sites-available/000-default.conf
@@ -100,18 +109,26 @@ sudo a2enmod ssl
 sudo a2enmod proxy
 sudo a2enmod proxy_balancer
 sudo a2enmod proxy_http
-sudo service apache2 restart
+sudo service apache2 restart 
+```
+
+### Troubleshoot
+
+```
+To debug for some error, you probably have to work outside of the docker container, 
+which means you have to stop the docker container and install node on the remote server and do console.log().
+https://cloud.google.com/nodejs/docs/setup
 ```
 
 ### Subsequent Deployments
 
 ```
 cd jinnmailapp 
-git pull
-docker container ls
-docker stop feca94bd374f
-docker build . --tag jinnmailapp
-docker run --publish 3000:3000 --detach jinnmailapp
+sudo git pull
+sudo docker container ls
+sudo docker stop feca94bd374f
+sudo docker build . --tag jinnmailapp
+sudo docker run --publish 3000:3000 --detach jinnmailapp
 ```
 
 ## Database Backups

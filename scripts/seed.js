@@ -88,7 +88,16 @@ async function main() {
             type: "alias", 
             mailCount: 0,
             refferedUrl: "yyy.com"
-        }, 
+        },
+        {
+            status: true,
+            userId: uids[1],
+            aliasId: uuidv4(),
+            alias: aliasAliases[3],
+            type: "alias", 
+            mailCount: 0,
+            refferedUrl: "zzz.com"
+        },  
         {
             status: true,
             userId: uids[2],
@@ -97,7 +106,7 @@ async function main() {
             type: "alias", 
             mailCount: 0,
             refferedUrl: "xxx.com"
-        } 
+        }
     ]);
 
     try {
