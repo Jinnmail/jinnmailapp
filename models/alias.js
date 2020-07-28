@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+const userModel = require('./user');
 
 const aliasSchema = mongoose.Schema({
     aliasId: {
