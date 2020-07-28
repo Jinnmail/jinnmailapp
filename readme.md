@@ -89,6 +89,7 @@ install docker:
 https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
 sudo docker build . --tag jinnmailapp
 sudo docker run --publish 3000:3000 --detach jinnmailapp
+if you cannot use docker (requires server has 4GB memory) use screen and npm start
 install and configure apache port forwarding:
 sudo apt install apache2
 cd /var/www/html
