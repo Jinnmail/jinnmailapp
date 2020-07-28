@@ -79,7 +79,7 @@ cd jinnmailapp
 vim .env
 set environmental variables similar to dev but with prod values and you don't need the ones used for testing.
 when setting google variables make sure the blacklist sheets has programmatic access setup and use the associated values.
-configure sendgrid inbound parse for both hosts
+configure sendgrid inbound parse webhooks for both hosts
 hosts: jinnmail.com, reply.jinnmail.com 
 url: https://<api>/api/v1/parser/inbound?sendgrid_webhook_api_string=<x>
 POST the raw, full MIME message  
@@ -109,7 +109,24 @@ sudo a2enmod ssl
 sudo a2enmod proxy
 sudo a2enmod proxy_balancer
 sudo a2enmod proxy_http
-sudo service apache2 restart 
+disable apache2 cache
+sudo vim /var/www/html/.htaccess
+#disable cache
+#Initialize mod_rewrite
+RewriteEngine On
+<FilesMatch "\.(html|htm|js|css)$">
+  FileETag None
+  <IfModule mod_headers.c>
+    Header unset ETag
+    Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "Wed, 12 Jan 1980 05:00:00 GMT"
+  </IfModule>
+</FilesMatch>
+sudo service apache2 restart
+follow certbot instructions for using https
+https://certbot.eff.org/lets-encrypt/ubuntufocal-apache
+exit
 ```
 
 ### Troubleshoot
