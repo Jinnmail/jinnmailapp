@@ -14,8 +14,16 @@ This is the center of the data model,
 
 ```
 proxyMail
-    aliasId: 
-    senderAliasId:
+    aliasId: 1
+    senderAliasId: 2
+
+alias
+    aliasId: 1
+    type: 'alias'
+
+alias 
+    aliasId: 2
+    type: 'sender'
 ```
 
 ## Environment Variables
@@ -136,14 +144,6 @@ https://certbot.eff.org/lets-encrypt/ubuntufocal-apache
 exit
 ```
 
-### Troubleshoot
-
-```
-To debug for some error, you probably have to work outside of the docker container, 
-which means you have to stop the docker container and install node on the remote server and do console.log().
-https://cloud.google.com/nodejs/docs/setup
-```
-
 ### Subsequent Deployments
 
 ```
@@ -153,6 +153,16 @@ sudo docker container ls
 sudo docker stop feca94bd374f
 sudo docker build . --tag jinnmailapp
 sudo docker run --publish 3000:3000 --detach jinnmailapp
+or if not using docker
+use screen and npm start
+```
+
+### Troubleshoot Deployment
+
+```
+To debug for some error, you probably have to work outside of the docker container, 
+which means you have to stop the docker container and install node on the remote server and do console.log().
+https://cloud.google.com/nodejs/docs/setup
 ```
 
 ## Database Backups
