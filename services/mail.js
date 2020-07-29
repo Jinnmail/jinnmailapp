@@ -1,8 +1,9 @@
 var helper = require('sendgrid').mail;
 const async = require('async');
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
-const logger = require('heroku-logger')
+const logger = require('heroku-logger'); // still use heroku logger
 const dotenv = require("dotenv").config()
+const aliasModel = require('../models/alias');
 const sgNew = require('@sendgrid/mail');
 sgNew.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -64,7 +65,7 @@ module.exports = {
         });
     }, 
 
-    send_mail: function(params) {
+    send_mail: async function(params, origTo = '') {
         var {to, from, replyTo, subject, cc, headers, messageBody, attachments} = params
 
         const msg = {
@@ -81,7 +82,6 @@ module.exports = {
             msg.reply_to = replyTo
         } 
 
-        // msg.attachments = attachments;
         for (let i=0; i < attachments.length; i++) {
             const {filename, contentType, content} = attachments[i]
             attachment = {
@@ -91,21 +91,19 @@ module.exports = {
                 disposition: "attachment"
             }
             msg.attachments.push(attachment) 
-            // const {fieldname, originalname, encoding, mimetype, buffer} = attachments[i]
-            // attachment = {
-            //     content: buffer.toString("base64"), 
-            //     filename: originalname, 
-            //     type: mimetype, 
-            //     disposition: "attachment"
-            // }
-            // msg.attachments.push(attachment)
         }
-
         sgNew.send(msg)
         .then(() => {
             logger.info("to: " + msg.to)
             logger.info("from: " + msg.from)
             logger.info("subject: " + msg.subject)
+            aliasModel.findOneAndUpdate({alias: origTo}, {$inc: {mailCount: 1}})
+            .then(r => {
+              console.log(r)
+            })
+            .catch(e => {
+              console.log(e)
+            })
         })
         .catch(err => {
             logger.error(err, {code: 500})

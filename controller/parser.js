@@ -27,12 +27,6 @@ module.exports = {
             headers += newline + mailParserParts.headerLines[i].line
         }
 
-        // var attachments = data.files; 
-        // var config = {keys: ['to', 'from', 'subject']};
-        // var config = {keys: ['to', 'from', 'subject', 'cc', 'html', 'headers', 'envelope', 'reply_to']};
-        // var parsing = new mailParse(config, data);
-        // var parts = parsing.keyValues();
-
         var params = {
             to: mailParserParts.to.text, 
             from: mailParserParts.from.text, 
@@ -46,7 +40,7 @@ module.exports = {
 
         const msg = await module.exports.parse(params)
 
-        mail.send_mail(msg)
+        mail.send_mail(msg, mailParserParts.to.text)
 
         return
     }, 

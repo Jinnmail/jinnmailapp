@@ -4,6 +4,12 @@
 
 ## Dev
 
+```
+npm install
+set environment variables below
+npm start
+```
+
 This is the center of the data model,
 
 ```

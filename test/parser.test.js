@@ -2,6 +2,7 @@ var expect = require('chai').expect;
 var mongoose = require('mongoose');
 const dotenv = require("dotenv").config()
 var parser = require('../controller/parser.js');
+const aliasModel = require('../models/alias');
 const { getMaxListeners } = require('../models/user.js');
 require('dotenv');
 
@@ -94,6 +95,12 @@ describe('Use Case 1', () => { // (Test Cases 1, 2, 3)
         expect(res3.headers).to.not.include('xxx@dev.jinnmail.com')
         expect(res3.subject).to.include('[[Hidden by Jinnmail]]')
         expect(res3.messageBody).to.not.include('Sent secretly with ');
+
+        // test mailCount
+        // const alias = await aliasModel.findOne({alias: 'xxx@dev.jinnmail.com'});
+        // const senderAlias = await aliasModel.findOne({alias: res.replyTo});
+        // expect(alias.mailCount).to.equal(2);
+        // expect(senderAlias.mailCount).to.equal(1);
     })
 })
 
