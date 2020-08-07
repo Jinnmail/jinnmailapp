@@ -82,6 +82,17 @@ function resetPasswordChange(req,res){
         });
 }
 
+function getRegisteredUser(req, res) {
+    user.getUser(req)
+    .then((data) => {
+        res.status(200).send(data);
+    })
+    .catch((err) => {
+        reqRes.httpErrorHandler(err, res);
+        res.end();
+    })
+}
+
 function getRegisteredUsers(req, res) {
     // return res.json({"name": "james"});
     user.getUsers(req)
@@ -101,7 +112,7 @@ router.post('/code/verify', codeVerification);
 router.post('/code/resend', resendCode);
 router.post('/forgot/password', forgetPassword);
 router.post('/forgot/password/reset', resetPasswordChange);
-
+router.get('/:userId', userAuth.validateUser, getRegisteredUser);
 router.get('/', userAuth.validateUser, getRegisteredUsers);
 
 module.exports = router;

@@ -257,6 +257,11 @@ module.exports = {
         })    
     }, 
 
+    getUser: async function(data) {
+        const res = await userModel.findOne({userId: data.userId});
+        return res;
+    }, 
+
     getUsers: function(data){
         return new Promise((resolve, reject) => {
             userModel.aggregate([

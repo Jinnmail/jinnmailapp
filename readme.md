@@ -39,15 +39,16 @@ JM_EMAIL_DOMAIN=@dev.jinnmail.com
 JM_REPLY_EMAIL_SUBDOMAIN=@reply.dev.jinnmail.com
 GOOGLE_SERVICE_ACCOUNT_EMAIL=abcd-111@groovy-dued-66666.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nNKE...extemelylongprivatekeygoesherelakjsdjf==\n-----END PRIVATE KEY-----\n
+JWT_SECRET=x
+SENDGRID_API_KEY=SG._...
+SENDGRID_WEBHOOK_API_STRING=x...
+# Below this line for testing - not required
 USER_EMAILS=comma space seperated list of jinnmail user addresses for testing
 USER_RESET_PASSWORD_TOKENS=comma space separated for testing
 USER_PASSWORDS=comma space separated list of hashed passwords for testing
 USER_CODES=comman space separated list of verification codes for testing
 ALIAS_ALIASES=comma space separated list of aliases for testing
 ADMIN_PASSWORD=adminHASHEDpasswordhere for testing
-JWT_SECRET=x
-SENDGRID_API_KEY=SG._...
-SENDGRID_WEBHOOK_API_STRING=x...
 ```
 
 ### Docker
@@ -90,16 +91,16 @@ npm test -- -f "Use Case 1"
 create ubuntu 20.04 instance
 git clone
 cd jinnmailapp
-vim .env
+sudo vim .env
 set environmental variables similar to dev but with prod values and you don't need the ones used for testing.
 when setting google variables make sure the blacklist sheets has programmatic access setup and use the associated values.
 configure sendgrid inbound parse webhooks for both hosts
-hosts: jinnmail.com, reply.jinnmail.com 
+hosts: jinnmail.com, reply.jinnmail.com ..or.. for testing instance: test.jinnmail.com, reply.test.jinnmail.com, similar for dev
 url: https://<api>/api/v1/parser/inbound?sendgrid_webhook_api_string=<x>
 POST the raw, full MIME message  
 npm run blacklist
 npm run seed
-install docker:
+install docker (optional, otherwise you have to install node 12.17.0 (https://cloud.google.com/nodejs/docs/setup)):
 https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
 sudo docker build . --tag jinnmailapp
 sudo docker run --publish 3000:3000 --detach jinnmailapp
