@@ -43,7 +43,8 @@ const userSchema = mongoose.Schema({
     aliasesCount: {
         type: Number,
         default: 0
-    }
+    },
+    invites: {type: Number, min: 0, max: 5, default: 5}
 });
 /*
  * Encrypt the password before saving it to DB

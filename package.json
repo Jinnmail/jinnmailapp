@@ -10,6 +10,7 @@
     "blacklist": "node ./scripts/blacklist.js",
     "seed": "node ./scripts/seed.js",
     "aliasesCount": "node ./scripts/aliasesCount.js", 
+    "invites": "node ./scripts/invites.js", 
     "test": "mocha"
   },
   "dependencies": {

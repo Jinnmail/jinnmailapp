@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 const userModel = require('./user');
+const { isInteger } = require('lodash');
 
 const aliasSchema = mongoose.Schema({
     aliasId: {
