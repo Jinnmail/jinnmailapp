@@ -60,6 +60,17 @@ function changeAliasStatus(req, res) {
         })
 }
 
+function changeAlias(req, res) {
+    req.body.userId = req.userId;
+    alias.changeAlias(req.body)
+    .then((data) => {
+        reqRes.responseHandler('updated successfully', data, res);
+    }).catch((err) => {
+        reqRes.httpErrorHandler(err, res);
+       res.end();
+    })
+}
+
 async function deleteAlias(req, res) {
     try {
         const data = await alias.deleteAlias(req)
@@ -79,16 +90,15 @@ async function deleteAlias(req, res) {
     }
 }
 
-// function deleteAlias(req, res) {
-//     console.log('delete', req.params.aliasId);
-//     alias.deleteAlias(req)
-//     .then((data) => {
-//         reqRes.responseHandler('deleted successfully', data, res);
-//     }).catch((err) => {
-//         reqRes.httpErrorHandler(err, res);
-//         res.end();
-//     })
-// }
+function readAlias(req, res) {
+  alias.readAlias(req)
+  .then((data) => {
+      reqRes.responseHandler('updated successfully', data, res);
+  }).catch((err) => {
+      reqRes.httpErrorHandler(err, res);
+      res.end();
+  })
+}
 
 function getAliasUser(req,res) {
     alias.getAliasUser(req)
@@ -102,9 +112,11 @@ function getAliasUser(req,res) {
 
 router.post('/', userAuth.validateUser, registerAlias);
 router.get('/', userAuth.validateUser, getRegisteredAlias);
+router.get('/:aliasId', userAuth.validateUser, readAlias);
 router.get('/checkAlias', userAuth.validateUser, getAlias);
 router.post('/avail', userAuth.validateUser, checkAvailability);
 router.put('/status', userAuth.validateUser, changeAliasStatus);
+router.put('/:aliasId', userAuth.validateUser, changeAlias);
 router.delete('/:aliasId', userAuth.validateUser, deleteAlias);
 router.get('/linkedUser', getAliasUser)
 

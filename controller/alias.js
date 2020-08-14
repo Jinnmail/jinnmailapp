@@ -243,7 +243,7 @@ module.exports = {
     changeStatusOfAlias: function(data) {
         return new Promise((resolve, reject) => {
             // console.log(data.aliasId, data.status)
-                aliasModel.findOneAndUpdate({ aliasId: data.aliasId }, { status: data.status })
+            aliasModel.findOneAndUpdate({ aliasId: data.aliasId }, { status: data.status })
                     .then((alias) => {
                         // console.log(alias)
                         resolve(null)
@@ -251,6 +251,19 @@ module.exports = {
                         reject({ code: 500, msg: 'something went wrong' });
                     })
         })
+    }, 
+
+    changeAlias: async function(data) {
+      // params.aliasId not working, something with app.js, go thru body
+      const res = await aliasModel.findOneAndUpdate({aliasId: data.aliasId}, {refferedUrl: data.name});
+
+      return res;
+    }, 
+
+    readAlias: async function(data) {
+      const res = await aliasModel.findOne({aliasId: data.params.aliasId});
+
+      return res;
     }, 
 
     deleteAlias: async function(data) {
