@@ -9,8 +9,8 @@
     "start": "node ./bin/www",
     "blacklist": "node ./scripts/blacklist.js",
     "seed": "node ./scripts/seed.js",
-    "aliasesCount": "node ./scripts/aliasesCount.js", 
-    "invites": "node ./scripts/invites.js", 
+    "aliasesCount": "node ./scripts/aliasesCount.js",
+    "invites": "node ./scripts/invites.js",
     "test": "mocha"
   },
   "dependencies": {
@@ -47,7 +47,8 @@
     "sendgrid": "5.2.3",
     "uuid": "3.3.2",
     "uuid-v4": "0.1.0",
-    "lodash": "4.17.19"
+    "lodash": "4.17.19",
+    "stripe": "8.69.0"
   },
   "devDependencies": {
     "chai": "4.2.0",

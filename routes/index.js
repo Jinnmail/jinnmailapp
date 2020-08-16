@@ -4,11 +4,13 @@ const userRoutes = require("./user")
 const aliasRoutes = require("./alias")
 const adminRoutes = require("./admin")
 const parserRoutes = require("./parser")
+const paymentRoutes = require("./payment")
 
 router.use("/api/v1/user", userRoutes);
 router.use("/api/v1/alias", aliasRoutes);
 router.use("/api/v1/admin", adminRoutes)
 router.use("/api/v1/parser", parserRoutes)
+router.use("/api/v1/payment", paymentRoutes);
 router.all('/*', (req, res) => {
     res.status(400).send('are you supposed to be here?');
 })

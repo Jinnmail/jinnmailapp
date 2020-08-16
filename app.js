@@ -18,7 +18,13 @@ app.set('view engine', 'jade');
 app.use(validator());
 app.use(cors());
 app.use(logger('dev'));
-app.use(express.json());
+app.use(express.json({
+  verify: function (req, res, buf) {
+    if (req.originalUrl.includes('webhook')) {
+      req.rawBody = buf.toString();
+    }
+  },
+}));
 app.use(express.urlencoded({
   extended: false
 }));
