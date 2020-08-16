@@ -112,8 +112,8 @@ function getAliasUser(req,res) {
 
 router.post('/', userAuth.validateUser, registerAlias);
 router.get('/', userAuth.validateUser, getRegisteredAlias);
-router.get('/:aliasId', userAuth.validateUser, readAlias);
 router.get('/checkAlias', userAuth.validateUser, getAlias);
+router.get('/alias/:aliasId', userAuth.validateUser, readAlias);
 router.post('/avail', userAuth.validateUser, checkAvailability);
 router.put('/status', userAuth.validateUser, changeAliasStatus);
 router.put('/:aliasId', userAuth.validateUser, changeAlias);
