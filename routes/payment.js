@@ -12,16 +12,11 @@ router.get('/config', async (req, res) => {
   });
 });
 
-router.get('/checkout-session', async (req, res) => {
-  const { sessionId } = req.query;
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
-  res.send(session);
-});
-
 router.post('/create-checkout-session', async (req, res) => {
   const domainURL = process.env.DOMAIN;
   const { quantity, locale } = req.body;
   const session = await stripe.checkout.sessions.create({
+    // customer: 'cus_123', 
     payment_method_types: process.env.PAYMENT_METHODS.split(', '),
     mode: 'payment',
     locale: locale,
@@ -40,6 +35,12 @@ router.post('/create-checkout-session', async (req, res) => {
   });
 });
 
+router.get('/checkout-session', async (req, res) => {
+  const { sessionId } = req.query;
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  res.send(session);
+});
+
 router.post('/webhook', async (req, res) => {
   let data;
   let eventType;
@@ -47,16 +48,15 @@ router.post('/webhook', async (req, res) => {
   if (process.env.STRIPE_WEBHOOK_SECRET) {
     let event;
     let signature = req.headers['stripe-signature'];
-
     try {
-    event = stripe.webhooks.constructEvent(
-      req.rawBody,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+      event = stripe.webhooks.constructEvent(
+        req.rawBody,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
     } catch (err) {
-    console.log(`⚠️  Webhook signature verification failed.`);
-    return res.sendStatus(400);
+      console.log(`⚠️  Webhook signature verification failed.`);
+      return res.sendStatus(400);
     }
     data = event.data;
     eventType = event.type;

@@ -44,7 +44,8 @@ const userSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
-    invites: {type: Number, min: 0, max: 5, default: 5}
+    invites: {type: Number, min: 0, max: 5, default: 5}, 
+    customerId: {type: String}
 });
 /*
  * Encrypt the password before saving it to DB

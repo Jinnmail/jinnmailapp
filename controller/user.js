@@ -7,7 +7,8 @@ const uuidv3 = require('uuid/v3');
 const mail = require('../services/mail');
 // const {callbackify} = require ('util');
 const async = require('async');
-const btoa = require('btoa')
+const btoa = require('btoa');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 let SALT_WORK_FACTOR = 10;
 
@@ -145,10 +146,14 @@ module.exports = {
         return new Promise((resolve,reject)=>{
             userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
                 if(data.code===code.verificationCode){
-                    userModel.findOneAndUpdate({email:data.email},{verified:true}).then((ok)=>{
-                        console.log(ok);
-                        mail.send_welcome(data.email);
-                        resolve('ok')
+                    stripe.customers.create({email: data.email})
+                    .then(res => res.id)
+                    .then(customerId => {
+                      userModel.findOneAndUpdate({email:data.email},{verified:true, customerId: customerId}).then((ok)=>{
+                          console.log(ok);
+                          mail.send_welcome(data.email);
+                          resolve('ok')
+                      })
                     })
                 }else{
                     reject({code:401,msg:'invalid code.'})
