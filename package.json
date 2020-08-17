@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "blacklist": "node ./scripts/blacklist.js",
-    "dropDatabase": "node ./scripts/dropDatabase.js", 
+    "dropDatabase": "node ./scripts/dropDatabase.js",
     "seed": "node ./scripts/seed.js",
     "aliasesCount": "node ./scripts/aliasesCount.js",
     "invites": "node ./scripts/invites.js",
@@ -49,7 +49,8 @@
     "uuid": "3.3.2",
     "uuid-v4": "0.1.0",
     "lodash": "4.17.19",
-    "stripe": "8.69.0"
+    "stripe": "8.69.0",
+    "serialize-javascript": "3.1.0"
   },
   "devDependencies": {
     "chai": "4.2.0",
