@@ -46,7 +46,7 @@ const userSchema = mongoose.Schema({
     },
     invites: {type: Number, min: 0, max: 5, default: 5}, 
     customerId: {type: String}, 
-    premium: {type: Boolean}
+    premium: {type: Boolean, default: false}
 });
 /*
  * Encrypt the password before saving it to DB
