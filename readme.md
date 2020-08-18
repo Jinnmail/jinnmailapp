@@ -29,7 +29,7 @@ alias
 ## Environment Variables
 
 ```
-DASHBOARD_URL=http://localhost:8000
+DASHBOARD_URL=http://localhost:3001
 DB_HOST=mongodb://host.docker.internal:27017/dev
 # DB_HOST=mongodb://localhost/dev
 # DB_HOST=mongodb+srv://username:password@xxxxlong...connectionstringxx.net/proddbnamegoeshere?retryWrites=true&w=majority
@@ -39,6 +39,11 @@ JM_EMAIL_DOMAIN=@dev.jinnmail.com
 JM_REPLY_EMAIL_SUBDOMAIN=@reply.dev.jinnmail.com
 GOOGLE_SERVICE_ACCOUNT_EMAIL=abcd-111@groovy-dued-66666.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nNKE...extemelylongprivatekeygoesherelakjsdjf==\n-----END PRIVATE KEY-----\n
+STRIPE_PUBLISHABLE_KEY=pk_test_x
+STRIPE_SECRET_KEY=sk_test_xx
+DOMAIN=http://localhost:3001
+PRICE=price_x
+PAYMENT_METHODS=card
 JWT_SECRET=x
 SENDGRID_API_KEY=SG._...
 SENDGRID_WEBHOOK_API_STRING=x...
