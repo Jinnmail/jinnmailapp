@@ -146,7 +146,7 @@ module.exports = {
         return new Promise((resolve,reject)=>{
             userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
                 if(data.code===code.verificationCode){
-                    stripe.customers.create({email: data.email})
+                    stripe.customers.create({email: data.email, balance: 900})
                     .then(res => res.id)
                     .then(customerId => {
                       userModel.findOneAndUpdate({email:data.email},{verified:true, customerId: customerId}).then((ok)=>{
@@ -284,6 +284,13 @@ module.exports = {
             })
 
         })
-    }
+    }, 
+
+    changeUserPremium: async function(data) {
+      // params.userId not making it to here, something with app.js is wrong, go thru body instead
+      const res = await userModel.findOneAndUpdate({customerId: data.customerId}, {premium: data.premium});
+
+      return res;
+    }, 
 
 }

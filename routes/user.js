@@ -105,6 +105,17 @@ function getRegisteredUsers(req, res) {
         })
 }
 
+function changeUserPremium(req, res) {
+  req.body.userId = req.userId;
+  user.changeUserPremium(req.body)
+  .then((data) => {
+      reqRes.responseHandler('updated successfully', data, res);
+  }).catch((err) => {
+      reqRes.httpErrorHandler(err, res);
+     res.end();
+  })
+}
+
 router.post('/', validator.registerValidator, register);
 router.post('/session', validator.loginValidator, login);
 router.post('/reset/password', userAuth.validateUser, resetPassword);
@@ -113,6 +124,7 @@ router.post('/code/resend', resendCode);
 router.post('/forgot/password', forgetPassword);
 router.post('/forgot/password/reset', resetPasswordChange);
 router.get('/:userId', userAuth.validateUser, getRegisteredUser);
+router.put('/:customerId', userAuth.validateUser, changeUserPremium);
 router.get('/', userAuth.validateUser, getRegisteredUsers);
 
 module.exports = router;

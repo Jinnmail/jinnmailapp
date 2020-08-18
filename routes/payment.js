@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+const userAuth = require('../middlewares/userAuth');
+const userModel = require('../models/user');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
@@ -12,11 +14,16 @@ router.get('/config', async (req, res) => {
   });
 });
 
-router.post('/create-checkout-session', async (req, res) => {
+router.post('/create-checkout-session', userAuth.validateUser, async (req, res) => {
   const domainURL = process.env.DOMAIN;
   const { quantity, locale } = req.body;
+  
+  const userId = req.userId
+  const user = await userModel.findOne({userId: userId});
+  const customerId = user.customerId;
+
   const session = await stripe.checkout.sessions.create({
-    // customer: 'cus_123', 
+    customer: customerId, 
     payment_method_types: process.env.PAYMENT_METHODS.split(', '),
     mode: 'payment',
     locale: locale,
@@ -59,6 +66,7 @@ router.post('/webhook', async (req, res) => {
       return res.sendStatus(400);
     }
     data = event.data;
+    console.log(data);
     eventType = event.type;
   } else {
     data = req.body.data;
@@ -71,5 +79,8 @@ router.post('/webhook', async (req, res) => {
 
   res.sendStatus(200);
 });
+
+// todo: call middleware to verify token and also to get userId
+
 
 module.exports = router;
