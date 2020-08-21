@@ -48,7 +48,10 @@ async function main() {
             userId: uids[0],
             email: userEmails[0],
             password: userPwds[0],
-            verificationCode: userCodes[0]
+            verificationCode: userCodes[0], 
+            premium: true, 
+            invites: 5, 
+            aliasesCount: 1
         }, 
         {
             verified: true,
@@ -57,7 +60,10 @@ async function main() {
             userId: uids[1],
             email: userEmails[1],
             password: userPwds[1],
-            verificationCode: userCodes[1]
+            verificationCode: userCodes[1], 
+            premium: true,  
+            invites: 5, 
+            aliasesCount: 2
         }, 
         {
             verified: true,
@@ -66,7 +72,10 @@ async function main() {
             userId: uids[2],
             email: userEmails[2],
             password: userPwds[2],
-            verificationCode: userCodes[2]
+            verificationCode: userCodes[2], 
+            premium: true, 
+            invites: 5, 
+            aliasesCount: 1
         }
     ]);
 

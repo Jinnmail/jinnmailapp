@@ -15,8 +15,8 @@ mongoose.connect(process.env.DB_HOST, {
 var db = mongoose.connection
 
 async function main() {
-  users = await userModel.updateMany({}, {$set: {invites: 5}});
-  console.log("invites complete")
+  users = await userModel.updateMany({}, {$set: {premium: true, invites: 5}});
+  console.log("premiums and invites complete")
   process.exit()
 }
 
