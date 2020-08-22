@@ -53,7 +53,9 @@ module.exports = {
                                 data.alias = email_address;
                                 data.type = "alias";
                                 data.mailCount = 0;
-                                data.refferedUrl = data.url;
+                                data.refferedUrl = data.domainAlias 
+                                  ? data.domainAlias.substring(0, data.domainAlias.lastIndexOf('@')) 
+                                  : domain;
                                 let alias = new aliasModel(data);
                                 alias.save((err, saved) => {
                                     console.log(err)
