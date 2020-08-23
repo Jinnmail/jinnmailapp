@@ -1,4 +1,5 @@
 var inviteModel = require('../models/invite.js');
+const mail = require('../services/mail.js');
 
 /**
  * inviteController.js
@@ -47,10 +48,13 @@ module.exports = {
      * inviteController.create()
      */
     create: function (req, res) {
+        const inviteCode = Math.floor(100000 + Math.random() * 900000);
+        const email = req.body.email; 
+        
         var invite = new inviteModel({
-			userId : req.body.userId,
-			email : req.body.email
-
+          userId : req.body.userId,
+          email : email, 
+          inviteCode: inviteCode
         });
 
         invite.save(function (err, invite) {
@@ -60,6 +64,17 @@ module.exports = {
                     error: err
                 });
             }
+
+            var msg = {
+                to: email, 
+                from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
+                subject: "You've GOT a Jinn-For-Life Invite", 
+                cc: '',  
+                messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
+                attachments: []
+            }
+            mail.send_mail(msg);
+
             return res.status(201).json(invite);
         });
     },
