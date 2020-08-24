@@ -1,5 +1,8 @@
 var inviteModel = require('../models/invite.js');
+const userModel = require('../models/user.js');
 const mail = require('../services/mail.js');
+const { nextTick } = require('async');
+var createError = require('http-errors');
 
 /**
  * inviteController.js
@@ -47,36 +50,50 @@ module.exports = {
     /**
      * inviteController.create()
      */
-    create: function (req, res) {
-        const inviteCode = Math.floor(100000 + Math.random() * 900000);
+    create: async function (req, res) {
+        const userId = req.body.userId
         const email = req.body.email; 
-        
+        const inviteCode = Math.floor(100000 + Math.random() * 900000);
+
         var invite = new inviteModel({
-          userId : req.body.userId,
+          userId : userId,
           email : email, 
           inviteCode: inviteCode
         });
 
-        invite.save(function (err, invite) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when creating invite',
-                    error: err
-                });
-            }
+        const user = await userModel.findOne({userId: userId});
+        const userInviteCount = await inviteModel.find({userId: userId}).countDocuments();
 
-            var msg = {
-                to: email, 
-                from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
-                subject: "You've GOT a Jinn-For-Life Invite", 
-                cc: '',  
-                messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
-                attachments: []
-            }
-            mail.send_mail(msg);
+        const x = await user.updateOne({$inc: {invites: -1}})
 
-            return res.status(201).json(invite);
-        });
+        if (userInviteCount < user.invites) {
+          invite.save(function (err, invite) {
+              if (err) {
+                  return res.status(500).json({
+                      message: 'Error when creating invite',
+                      error: err
+                  });
+              }
+
+              var msg = {
+                  to: email, 
+                  from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
+                  subject: "You've GOT a Jinn-For-Life Invite", 
+                  cc: '',  
+                  messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
+                  attachments: []
+              }
+              mail.send_mail(msg);
+              user.updateOne({$inc: {invites: -1}})
+
+              return res.status(201).json(invite);
+          });
+        } else {
+          return res.status(500).json({
+            message: 'Error when creating invite',
+            error: createError(500, 'Max number of invites exceeded')
+          });
+        }
     },
 
     /**
