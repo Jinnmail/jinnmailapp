@@ -6,6 +6,11 @@ const userAuth = require('../middlewares/userAuth')
 /*
  * GET
  */
+router.get('/user/:userId', userAuth.validateUser, inviteController.userList);
+
+/*
+ * GET
+ */
 router.get('/', userAuth.validateUser, inviteController.list);
 
 /*

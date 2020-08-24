@@ -12,6 +12,15 @@ var createError = require('http-errors');
 module.exports = {
 
     /**
+     * inviteController.userList()
+     */
+    userList: async function (req, res) {
+      const userInvites = await inviteModel.find({userId: req.params.userId});
+
+      return res.json(userInvites);
+  },
+
+    /**
      * inviteController.list()
      */
     list: function (req, res) {
