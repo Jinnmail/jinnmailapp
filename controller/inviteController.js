@@ -64,9 +64,10 @@ module.exports = {
         const user = await userModel.findOne({userId: userId});
         const userInviteCount = await inviteModel.find({userId: userId}).countDocuments();
 
-        const x = await user.updateOne({$inc: {invites: -1}})
+        // const x = await user.updateOne({$inc: {invites: -1}})
 
-        if (userInviteCount < user.invites) {
+        if (user.invites > 0) {
+          await user.updateOne({$inc: {invites: -1}})
           invite.save(function (err, invite) {
               if (err) {
                   return res.status(500).json({
@@ -84,7 +85,6 @@ module.exports = {
                   attachments: []
               }
               mail.send_mail(msg);
-              user.updateOne({$inc: {invites: -1}})
 
               return res.status(201).json(invite);
           });
