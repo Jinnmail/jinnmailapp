@@ -16,7 +16,7 @@ module.exports = {
                 from: `Jinnmail <hello${process.env.JM_EMAIL_DOMAIN}>`,
                 reply_to: 'Jinnmail Support <help@jinnmail.org>', 
                 subject: 'Verification code for Jinnmail',
-                html: `Almost there!<br><br>Before you can use your new Jinnmail account, enter this code into the CODE textbox inside your Jinnmail extension window and click "Verify". Once confirmed, your Jinnmail account will be activated and ready to use.<br><br><h2>${code}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`
+                html: `Almost there!<br><br>Before you can use your new Jinnmail account, enter this code into the CODE textbox inside your browser/Jinnmail extension window and click "Verify". Once confirmed, your Jinnmail account will be activated and ready to use.<br><br><h2>${code}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`
             };
             sgNew.send(params).catch(err => {
                 logger.error(err, {code: 500})
