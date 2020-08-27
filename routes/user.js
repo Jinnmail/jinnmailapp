@@ -60,6 +60,16 @@ function resendCode(req, res){
         })
 }
 
+function forgotPassword(req,res){
+  user.forgotPassword(req.body)
+      .then((data) => {
+          reqRes.responseHandler('', data, res); //Handle Response
+      }).catch((err) => {
+          reqRes.httpErrorHandler(err, res)
+          res.end()
+      })
+}
+
 function forgetPassword(req,res){
         
     user.forgetPassword(req.body)
@@ -121,6 +131,7 @@ router.post('/session', validator.loginValidator, login);
 router.post('/reset/password', userAuth.validateUser, resetPassword);
 router.post('/code/verify', codeVerification);
 router.post('/code/resend', resendCode);
+router.post('/forgot/password2', forgotPassword);
 router.post('/forgot/password', forgetPassword);
 router.post('/forgot/password/reset', resetPasswordChange);
 router.get('/:userId', userAuth.validateUser, getRegisteredUser);
