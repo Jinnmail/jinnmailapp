@@ -39,8 +39,14 @@ module.exports = {
         }
     }, 
     
-    send_welcome(to) {
-        let html = `Welcome to Jinnmail, the tool that keeps your email address private and spam-free by using aliases that mask your real email address.<br /> \
+    send_welcome(to, tempPassword = '') {
+      let tempPasswordHtml = '';
+      
+      if (tempPassword) {
+        tempPasswordHtml = `<br /> <font size="+2">Temporary Password: <mark>${tempPassword}</mark></font> <br />`
+      } 
+      
+      let html = `Welcome to Jinnmail, the tool that keeps your email address private and spam-free by using aliases that mask your real email address.<br /> ${tempPasswordHtml} \
             <br /> \
             A message sent by anyone to one of your aliases will arrive in this ${to} inbox like normal, but when you reply it is sent by your alias; the recipient never knows your real address. We recommend generating a new alias for every new form. Or create a custom alias at your <a clicktracking=off href='https://jinnmail.com/account'>Account Dashboard</a> to use for mobile apps. (Mobile support soon). Emails are never stored or read by any human beings.<br /> \
             <br /> \

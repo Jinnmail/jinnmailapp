@@ -33,4 +33,9 @@ router.put('/:id', userAuth.validateUser, inviteController.update);
  */
 router.delete('/:id', userAuth.validateUser, inviteController.remove);
 
+/*
+ * REDEEM
+ */
+router.post('/redeem', inviteController.redeem);
+
 module.exports = router;

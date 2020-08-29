@@ -3,6 +3,8 @@ const userModel = require('../models/user.js');
 const mail = require('../services/mail.js');
 const { nextTick } = require('async');
 var createError = require('http-errors');
+const uuidv4 = require('uuid/v4');
+const { send_mail } = require('../services/mail.js');
 
 /**
  * inviteController.js
@@ -73,8 +75,6 @@ module.exports = {
         const user = await userModel.findOne({userId: userId});
         const userInviteCount = await inviteModel.find({userId: userId}).countDocuments();
 
-        // const x = await user.updateOne({$inc: {invites: -1}})
-
         if (user.invites > 0) {
           await user.updateOne({$inc: {invites: -1}})
           invite.save(function (err, invite) {
@@ -90,7 +90,7 @@ module.exports = {
                   from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
                   subject: "You've GOT a Jinn-For-Life Invite", 
                   cc: '',  
-                  messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
+                  messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite@e=${Buffer.from(email).toString('base64')}">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
                   attachments: []
               }
               mail.send_mail(msg);
@@ -153,5 +153,49 @@ module.exports = {
             }
             return res.status(204).json();
         });
+    }, 
+
+    /**
+     * inviteController.redeem()
+     */
+    redeem: async function (req, res) {
+      const email = req.body.email;
+      const inviteCode = req.body.inviteCode;
+
+      const invite = await inviteModel.findOne({email: email, inviteCode: inviteCode});
+      if (invite) {
+        const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11);
+        const user = await userModel.findOne({ email: email })
+        if (!user) {
+          let newUser = new userModel();
+          newUser.userId = uuidv4();
+          newUser.email = email;
+          newUser.password = tempPassword;
+          newUser.verificationCode = Math.floor(100000 + Math.random() * 900000);
+          newUser.verified = true;
+          newUser.premium = true;
+          newUser.invites = 0;
+          const savedUser = await newUser.save();
+          if (savedUser === newUser) {
+            mail.send_welcome(email, tempPassword)
+            return res.status(201).json(savedUser);
+          } else {
+            return res.status(500).json({
+              message: 'Error when redeeming invite', 
+              error: createError(500, 'failed to create new user')
+            }) 
+          }
+        } else {
+          return res.status(500).json({
+            message: 'Error when redeeming invite',
+            error: createError(500, 'user already exists')
+          });
+        }
+      } else {
+        return res.status(500).json({
+          message: 'Error when redeeming invite',
+          error: createError(500, 'invite does not exists')
+        });
+      }
     }
 };
