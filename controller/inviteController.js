@@ -90,7 +90,7 @@ module.exports = {
                   from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
                   subject: "You've GOT a Jinn-For-Life Invite", 
                   cc: '',  
-                  messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite@e=${Buffer.from(email).toString('base64')}">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
+                  messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite?e=${Buffer.from(email).toString('base64')}">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
                   attachments: []
               }
               mail.send_mail(msg);
