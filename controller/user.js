@@ -299,6 +299,35 @@ module.exports = {
         })    
     }, 
 
+    resetPasswordChangeNoResetPasswordToken: function(data) {
+      return new Promise((resolve, reject) => {
+          if (data.password) {
+            userModel.findOne({ email: data.email }, (err, obj) => {
+              if (err) reject({ code: 500, msg: 'something went wrong.' })
+              else {
+                bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
+                  if (err)
+                    reject({ code: 500, msg: 'something went wrong.' })
+                  bcrypt.hash(data.password, salt, null, (err, hash) => {
+                    if (err)
+                      reject({ code: 500, msg: 'something went wrong.' });
+                    userModel.findOneAndUpdate({email: data.email}, { $set: { password: hash, resetPasswordToken: null}}, (err, obj) => {
+                      if(err){
+                        reject({ code: 500, msg: "something went wrong."})
+                      }else{
+                        resolve("Password Changed.")
+                      }
+                    })
+                  });
+                });
+              }
+            })        
+        } else {
+          reject({ code: 422, msg: 'new password is required.' })
+        }
+      })    
+  }, 
+
     getUser: async function(data) {
         const res = await userModel.findOne({userId: data.userId});
         return res;

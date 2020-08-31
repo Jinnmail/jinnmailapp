@@ -92,6 +92,17 @@ function resetPasswordChange(req,res){
         });
 }
 
+function resetPasswordChangeNoResetPasswordToken(req,res){
+  user.resetPasswordChangeNoResetPasswordToken(req.body)
+      .then( data => {
+          reqRes.responseHandler('',data, res);
+      })
+      .catch( err => {
+          reqRes.httpErrorHandler(err, res);
+          res.end();
+      });
+}
+
 function getRegisteredUser(req, res) {
     user.getUser(req)
     .then((data) => {
@@ -134,6 +145,7 @@ router.post('/code/resend', resendCode);
 router.post('/forgot/password2', forgotPassword);
 router.post('/forgot/password', forgetPassword);
 router.post('/forgot/password/reset', resetPasswordChange);
+router.post('/forgot/password/reset2', resetPasswordChangeNoResetPasswordToken);
 router.get('/:userId', userAuth.validateUser, getRegisteredUser);
 router.put('/:customerId', userAuth.validateUser, changeUserPremium);
 router.get('/', userAuth.validateUser, getRegisteredUsers);
