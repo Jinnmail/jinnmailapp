@@ -3,7 +3,7 @@ var router = express.Router();
 var user = require('../controller/user.js');
 const userAuth = require('../middlewares/userAuth')
 const validator = require('../middlewares/validator')
-const reqRes = require('../middlewares/reqRes')
+const reqRes = require('../middlewares/reqRes');
 
 function login(req, res) {
     user.login(req.body)
@@ -49,9 +49,40 @@ function codeVerification(req,res){
         })
 }
 
+function resetPasswordTokenVerification(req,res){    
+  user.resetPasswordTokenVerification(req.body)
+  .then((data) => {
+    reqRes.responseHandler('', data, res); //Handle Response
+  }).catch((err) => {
+    reqRes.httpErrorHandler(err, res)
+    res.end()
+  })
+}
+
+// function codeVerificationNoWelcome(req,res){   
+//   user.codeVerificationNoWelcome(req.body)
+//       .then((data) => {
+//           reqRes.responseHandler('', data, res); //Handle Response
+//       }).catch((err) => {
+//           reqRes.httpErrorHandler(err, res)
+//           res.end()
+//       })
+// }
+
 function resendCode(req, res){
     
     user.resendCode(req.body)
+        .then((data) => {
+            reqRes.responseHandler('', data, res); //Handle Response
+        }).catch((err) => {
+            reqRes.httpErrorHandler(err, res)
+            res.end()
+        })
+}
+
+function forgetPassword(req,res){
+        
+    user.forgetPassword(req.body)
         .then((data) => {
             reqRes.responseHandler('', data, res); //Handle Response
         }).catch((err) => {
@@ -68,17 +99,6 @@ function forgotPassword(req,res){
           reqRes.httpErrorHandler(err, res)
           res.end()
       })
-}
-
-function forgetPassword(req,res){
-        
-    user.forgetPassword(req.body)
-        .then((data) => {
-            reqRes.responseHandler('', data, res); //Handle Response
-        }).catch((err) => {
-            reqRes.httpErrorHandler(err, res)
-            res.end()
-        })
 }
 
 function resetPasswordChange(req,res){
@@ -141,11 +161,13 @@ router.post('/', validator.registerValidator, register);
 router.post('/session', validator.loginValidator, login);
 router.post('/reset/password', userAuth.validateUser, resetPassword);
 router.post('/code/verify', codeVerification);
+router.post('/code/resetPasswordTokenVerify', resetPasswordTokenVerification)
+// router.post('/code/verifyNoWelcome', codeVerificationNoWelcome);
 router.post('/code/resend', resendCode);
-router.post('/forgot/password2', forgotPassword);
 router.post('/forgot/password', forgetPassword);
+router.post('/forgot/passwordResetPasswordToken', forgotPassword);
 router.post('/forgot/password/reset', resetPasswordChange);
-router.post('/forgot/password/reset2', resetPasswordChangeNoResetPasswordToken);
+router.post('/forgot/password/resetNoResetPasswordToken', resetPasswordChangeNoResetPasswordToken);
 router.get('/:userId', userAuth.validateUser, getRegisteredUser);
 router.put('/:customerId', userAuth.validateUser, changeUserPremium);
 router.get('/', userAuth.validateUser, getRegisteredUsers);

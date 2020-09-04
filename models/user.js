@@ -18,8 +18,8 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, 'password field is Required'],
         validate: [function (v) {
-            return v.length >= 8;
-        }, 'Password min length is 8 chars']
+            return v.length >= 11;
+        }, 'Password min length is 12 chars']
     },
     verificationCode: {
         type: String

@@ -165,7 +165,7 @@ module.exports = {
       const invite = await inviteModel.findOne({email: email, inviteCode: inviteCode});
       if (invite) {
         const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11);
-        const user = await userModel.findOne({ email: email })
+        const user = await userModel.findOne({email: email})
         if (!user) {
           let newUser = new userModel();
           newUser.userId = uuidv4();

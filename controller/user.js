@@ -163,6 +163,54 @@ module.exports = {
         })
     }, 
 
+    resetPasswordTokenVerification: function(data) {
+      return new Promise((resolve, reject) => {
+        userModel.findOne({ 
+          email: data.email, 
+          resetPasswordExpires: { 
+            $gt: Date.now() 
+          } 
+        }, 
+        (err, obj) => {
+          if (err){
+            reject({code: 500, msg: 'something went wrong'});
+          }
+          else {
+            if (obj == null) {
+              reject({code: 403, msg: 'Password reset token is invalid or has expired.'});
+            } else {
+              userModel.findOne({email: data.email}, (err, obj) => {
+                if (err) reject({code: 500, msg: 'something went wrong.'})
+                else {
+                  if (obj.resetPasswordToken === data.token) {
+                    resolve('ok')
+                  } else {
+                    reject({code: 500, msg: 'Link Expired'})
+                  }
+                }
+              })
+            }
+          }
+        })
+      })
+    }, 
+
+  //   codeVerificationNoWelcome: function(data){
+  //     return new Promise((resolve,reject)=>{
+  //         userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
+  //             if(data.code===code.verificationCode){
+  //                 var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
+  //                 userModel.findOneAndUpdate({email: data.email}, {resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000}).then((ok)=>{
+  //                     console.log(ok);
+  //                     resolve('ok')
+  //                 })
+  //             } else{
+  //                 reject({code:401,msg:'invalid code.'})
+  //             }
+  //         })
+  //     })
+  // }, 
+
     resendCode(data){
         return new Promise((resolve,reject)=>{
             userModel.findOne({email:data.email})
@@ -175,42 +223,6 @@ module.exports = {
                         reject({code:401,msg:'invalid code.'})
                     })
         })
-    }, 
-
-    forgotPassword: function(data){
-      return new Promise((resolve,reject)=>{
-          async.waterfall([
-              function (done) {
-                  var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
-                  done(null, token);                    
-              },
-              function (token, done) {
-                  userModel.findOne({ email: data.email }, function (err, user) {
-                      if (!user) {
-                          reject({ code: 403, 'msg': 'No account with that email address exists.' });
-      
-                      }
-                      userModel.findOneAndUpdate({ email: data.email }, { $set: { resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000 } }, function (err, obj) {
-                          done(err, token, user);
-                      })
-                    
-                  });
-              },
-              function (token, user, done) {
-                // <a clicktracking=off href='+ process.env.DASHBOARD_URL + '/forgetpassword.html?t='+btoa(token) +'&e='+btoa(data.email)+ '>click here</a>
-                let html = `You are receiving this because you (or someone else) have requested the reset of the password for your account.<br><br>Please click on the following link:<br><br><a clicktracking=off href="${process.env.DASHBOARD_URL}/forgot-password-set?t=${btoa(token)}&e=${btoa(data.email)}">click here</a><br><br><span style="opacity:0.4">Do nothing and your password will remain unchanged.</span><br><br><span style="opacity:0.4">If you DID NOT request this, there may be an attacker trying to gain access. Change your password immediately and reply to this message to let us know.</span>`
-                // let text= 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-                      // 'Please click on the following link:\n\n' +
-                      // '<a click href='+ process.env.DASHBOARD_URL + '/forgetpassword.html?t='+btoa(token) +'&e='+btoa(data.email)+ '>click here</a>\n\n' +
-                      // 'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-                mail.forget_mail([data.email], html)
-                resolve('email is sent')
-              }
-          ], function (err) {
-              console.log(err)
-              if (err) reject({ code: 500, msg: 'something went wrong.' })
-          });
-      })
     }, 
 
     forgetPassword: function(data){
@@ -246,6 +258,40 @@ module.exports = {
                 if (err) reject({ code: 500, msg: 'something went wrong.' })
             });
         })
+    }, 
+
+    forgotPassword: function(data){
+      return new Promise((resolve,reject)=>{
+          async.waterfall([
+              function (done) {
+                  var token = Math.floor(Math.random() * (999999 - 100000) + 1000);
+                  done(null, token);                    
+              },
+              function (token, done) {
+                  userModel.findOne({ email: data.email }, function (err, user) {
+                      if (!user) {
+                          reject({ code: 403, 'msg': 'No account with that email address exists.' });
+      
+                      }
+                      userModel.findOneAndUpdate({ email: data.email }, { $set: { resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000 } }, function (err, obj) {
+                          done(err, token, user);
+                      })
+                    
+                  });
+              },
+              function (token, user, done) {
+                // resetPasswordToken send to email
+                let html = `<font size="+2">Reset Password Token: <mark>${token}</mark></font>`
+                // let html = `You are receiving this because you (or someone else) have requested the reset of the password for your account.<br><br>Please click on the following link:<br><br><a clicktracking=off href="${process.env.DASHBOARD_URL}/forgot-password-set?t=${btoa(token)}&e=${btoa(data.email)}">click here</a><br><br><span style="opacity:0.4">Do nothing and your password will remain unchanged.</span><br><br><span style="opacity:0.4">If you DID NOT request this, there may be an attacker trying to gain access. Change your password immediately and reply to this message to let us know.</span>`
+                // mail.forget_mail([data.email], html)
+                mail.forget_mail([data.email], html)
+                resolve('email is sent')
+              }
+          ], function (err) {
+              console.log(err)
+              if (err) reject({ code: 500, msg: 'something went wrong.' })
+          });
+      })
     }, 
 
     resetPasswordChange: function(data) {
