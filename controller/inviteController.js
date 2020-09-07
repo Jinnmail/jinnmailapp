@@ -62,47 +62,56 @@ module.exports = {
      * inviteController.create()
      */
     create: async function (req, res) {
-        const userId = req.body.userId
-        const email = req.body.email; 
-        const inviteCode = Math.floor(100000 + Math.random() * 900000);
+      const userId = req.body.userId
+      const email = req.body.email; 
+      const inviteCode = Math.floor(100000 + Math.random() * 900000);
 
+      var msg = {
+        to: email, 
+        from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
+        subject: "You've GOT a Jinn-For-Life Invite", 
+        cc: '',  
+        messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite?e=${Buffer.from(email).toString('base64')}">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
+        attachments: []
+      }
+
+      const user = await userModel.findOne({userId: userId});
+
+      const existingInvite = await inviteModel.findOne({userId: userId, email: email});
+      if (existingInvite) { // resend the email don't decrement invites
+        await existingInvite.updateOne({inviteCode: inviteCode})
+        mail.send_mail(msg);
+        const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11) + 'j';
+        const invitedUser = await userModel.findOne({email: email});
+        invitedUser.password = tempPassword;
+        const res = await invitedUser.save();
+        mail.send_welcome(email, tempPassword);
+        return res.status(201).json(existingInvite);
+      } 
+
+      if (user.invites > 0) { 
         var invite = new inviteModel({
           userId : userId,
           email : email, 
           inviteCode: inviteCode
         });
-
-        const user = await userModel.findOne({userId: userId});
-        const userInviteCount = await inviteModel.find({userId: userId}).countDocuments();
-
-        if (user.invites > 0) {
-          await user.updateOne({$inc: {invites: -1}})
-          invite.save(function (err, invite) {
-              if (err) {
-                  return res.status(500).json({
-                      message: 'Error when creating invite',
-                      error: err
-                  });
-              }
-
-              var msg = {
-                  to: email, 
-                  from: "Mail Delivery Subsystem <mailer-daemon@jinnmail.com>", 
-                  subject: "You've GOT a Jinn-For-Life Invite", 
-                  cc: '',  
-                  messageBody: `Go to <a clicktracking=off href="${process.env.DASHBOARD_URL}/redeem-invite?e=${Buffer.from(email).toString('base64')}">Redeem</a> and enter your invite code to get free Jinnmail for Life <br /><br /><h2>${inviteCode}</h2><br><br><br><br>Any issues? Reply here or email help${process.env.JM_EMAIL_DOMAIN}.`, 
-                  attachments: []
-              }
-              mail.send_mail(msg);
-
-              return res.status(201).json(invite);
-          });
+        await user.updateOne({$inc: {invites: -1}})
+        const savedInvite = await invite.save();
+        if (savedInvite === invite) {
+          mail.send_mail(msg);
+          return res.status(201).json(invite);
         } else {
           return res.status(500).json({
             message: 'Error when creating invite',
-            error: createError(500, 'Max number of invites exceeded')
-          });
+            error: err
+          });  
         }
+      } else {
+        return res.status(500).json({
+          message: 'Error when creating invite',
+          error: createError(500, 'Max number of invites exceeded')
+        });
+      }
     },
 
     /**
@@ -164,7 +173,7 @@ module.exports = {
 
       const invite = await inviteModel.findOne({email: email, inviteCode: inviteCode});
       if (invite) {
-        const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11);
+        const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11) + 'j';
         const user = await userModel.findOne({email: email})
         if (user) {
           // mail.email_sender([email], user.verificationCode);
