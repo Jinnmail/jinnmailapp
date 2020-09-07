@@ -84,33 +84,33 @@ module.exports = {
         const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11) + 'j';
         const invitedUser = await userModel.findOne({email: email});
         invitedUser.password = tempPassword;
-        const res = await invitedUser.save();
+        await invitedUser.save();
         mail.send_welcome(email, tempPassword);
-        return res.status(201).json(existingInvite);
-      } 
-
-      if (user.invites > 0) { 
-        var invite = new inviteModel({
-          userId : userId,
-          email : email, 
-          inviteCode: inviteCode
-        });
-        await user.updateOne({$inc: {invites: -1}})
-        const savedInvite = await invite.save();
-        if (savedInvite === invite) {
-          mail.send_mail(msg);
-          return res.status(201).json(invite);
+        res.status(200).json({existingInvite});
+      } else {
+        if (user.invites > 0) { 
+          var invite = new inviteModel({
+            userId : userId,
+            email : email, 
+            inviteCode: inviteCode
+          });
+          await user.updateOne({$inc: {invites: -1}})
+          const savedInvite = await invite.save();
+          if (savedInvite === invite) {
+            mail.send_mail(msg);
+            return res.status(201).json(invite);
+          } else {
+            return res.status(500).json({
+              message: 'Error when creating invite',
+              error: err
+            });  
+          }
         } else {
           return res.status(500).json({
             message: 'Error when creating invite',
-            error: err
-          });  
+            error: createError(500, 'Max number of invites exceeded')
+          });
         }
-      } else {
-        return res.status(500).json({
-          message: 'Error when creating invite',
-          error: createError(500, 'Max number of invites exceeded')
-        });
       }
     },
 
