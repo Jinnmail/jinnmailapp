@@ -166,7 +166,10 @@ module.exports = {
       if (invite) {
         const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11);
         const user = await userModel.findOne({email: email})
-        if (!user) {
+        if (user) {
+          // mail.email_sender([email], user.verificationCode);
+          return res.status(201).json(user);
+        } else {
           let newUser = new userModel();
           newUser.userId = uuidv4();
           newUser.email = email;
@@ -185,11 +188,6 @@ module.exports = {
               error: createError(500, 'failed to create new user')
             }) 
           }
-        } else {
-          return res.status(500).json({
-            message: 'Error when redeeming invite',
-            error: createError(500, 'user already exists')
-          });
         }
       } else {
         return res.status(500).json({

@@ -34,7 +34,7 @@ module.exports = {
         } else {
           return res.status(500).json({
             message: 'Error when creating user',
-            error: createError(500, 'Error when creating user')
+            error: createError(500, 'failed to create new user')
           });
         }
       }
