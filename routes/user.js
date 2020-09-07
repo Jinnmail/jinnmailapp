@@ -59,16 +59,6 @@ function resetPasswordTokenVerification(req,res){
   })
 }
 
-// function codeVerificationNoWelcome(req,res){   
-//   user.codeVerificationNoWelcome(req.body)
-//       .then((data) => {
-//           reqRes.responseHandler('', data, res); //Handle Response
-//       }).catch((err) => {
-//           reqRes.httpErrorHandler(err, res)
-//           res.end()
-//       })
-// }
-
 function resendCode(req, res){
     
     user.resendCode(req.body)
@@ -162,7 +152,6 @@ router.post('/session', validator.loginValidator, login);
 router.post('/reset/password', userAuth.validateUser, resetPassword);
 router.post('/code/verify', codeVerification);
 router.post('/code/resetPasswordTokenVerify', resetPasswordTokenVerification)
-// router.post('/code/verifyNoWelcome', codeVerificationNoWelcome);
 router.post('/code/resend', resendCode);
 router.post('/forgot/password', forgetPassword);
 router.post('/forgot/passwordResetPasswordToken', forgotPassword);
@@ -173,3 +162,15 @@ router.put('/:customerId', userAuth.validateUser, changeUserPremium);
 router.get('/', userAuth.validateUser, getRegisteredUsers);
 
 module.exports = router;
+
+// function codeVerificationNoWelcome(req,res){   
+//   user.codeVerificationNoWelcome(req.body)
+//       .then((data) => {
+//           reqRes.responseHandler('', data, res); //Handle Response
+//       }).catch((err) => {
+//           reqRes.httpErrorHandler(err, res)
+//           res.end()
+//       })
+// }
+
+// router.post('/code/verifyNoWelcome', codeVerificationNoWelcome);

@@ -195,22 +195,6 @@ module.exports = {
       })
     }, 
 
-  //   codeVerificationNoWelcome: function(data){
-  //     return new Promise((resolve,reject)=>{
-  //         userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
-  //             if(data.code===code.verificationCode){
-  //                 var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
-  //                 userModel.findOneAndUpdate({email: data.email}, {resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000}).then((ok)=>{
-  //                     console.log(ok);
-  //                     resolve('ok')
-  //                 })
-  //             } else{
-  //                 reject({code:401,msg:'invalid code.'})
-  //             }
-  //         })
-  //     })
-  // }, 
-
     resendCode(data){
         return new Promise((resolve,reject)=>{
             userModel.findOne({email:data.email})
@@ -406,3 +390,19 @@ module.exports = {
     }, 
 
 }
+
+//   codeVerificationNoWelcome: function(data){
+//     return new Promise((resolve,reject)=>{
+//         userModel.findOne({email:data.email},{verificationCode:1}).then((code)=>{
+//             if(data.code===code.verificationCode){
+//                 var token = Math.floor(Math.random() * (9999 - 1000) + 1000);
+//                 userModel.findOneAndUpdate({email: data.email}, {resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000}).then((ok)=>{
+//                     console.log(ok);
+//                     resolve('ok')
+//                 })
+//             } else{
+//                 reject({code:401,msg:'invalid code.'})
+//             }
+//         })
+//     })
+// }, 
