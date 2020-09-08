@@ -81,11 +81,6 @@ module.exports = {
       if (existingInvite) { // resend the email don't decrement invites
         await existingInvite.updateOne({inviteCode: inviteCode})
         mail.send_mail(msg);
-        const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11) + 'j';
-        const invitedUser = await userModel.findOne({email: email});
-        invitedUser.password = tempPassword;
-        await invitedUser.save();
-        mail.send_welcome(email, tempPassword);
         res.status(200).json({existingInvite});
       } else {
         if (user.invites > 0) { 
@@ -173,12 +168,31 @@ module.exports = {
 
       const invite = await inviteModel.findOne({email: email, inviteCode: inviteCode});
       if (invite) {
-        const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11) + 'j';
         const user = await userModel.findOne({email: email})
         if (user) {
-          // mail.email_sender([email], user.verificationCode);
+          const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11) + 'j';
+          user.password = tempPassword;
+          await user.save();
+          mail.send_welcome(email, tempPassword);
           return res.status(201).json(user);
         } else {
+          const invitingUser = await userModel.findOne({userId: invite.userId});
+          let maxInvites;
+          switch (invitingUser.maxInvites) {
+            case 5: 
+              maxInvites = 3;
+              break;
+            case 3: 
+              maxInvites = 2;
+              break;
+            case 2: 
+              maxInvites = 1;
+              break;
+            default: 
+              maxInvites = 0;
+              break;
+          }
+          const tempPassword = new Array(12).fill().map(() => String.fromCharCode(Math.random()*86+40)).join("") + Math.floor(Math.random() * 11) + 'j';
           let newUser = new userModel();
           newUser.userId = uuidv4();
           newUser.email = email;
@@ -186,7 +200,8 @@ module.exports = {
           newUser.verificationCode = Math.floor(100000 + Math.random() * 900000);
           newUser.verified = true;
           newUser.premium = true;
-          newUser.invites = 0;
+          newUser.maxInvites = maxInvites; 
+          newUser.invites = maxInvites;
           const savedUser = await newUser.save();
           if (savedUser === newUser) {
             mail.send_welcome(email, tempPassword)

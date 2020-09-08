@@ -50,6 +50,7 @@ async function main() {
             password: userPwds[0],
             verificationCode: userCodes[0], 
             premium: true, 
+            maxInvites: 5, 
             invites: 5, 
             aliasesCount: 1
         }, 
@@ -61,7 +62,8 @@ async function main() {
             email: userEmails[1],
             password: userPwds[1],
             verificationCode: userCodes[1], 
-            premium: true,  
+            premium: true, 
+            maxInvites: 5,  
             invites: 5, 
             aliasesCount: 2
         }, 
@@ -74,6 +76,7 @@ async function main() {
             password: userPwds[2],
             verificationCode: userCodes[2], 
             premium: true, 
+            maxInvites: 5, 
             invites: 5, 
             aliasesCount: 1
         }
