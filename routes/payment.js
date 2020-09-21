@@ -48,39 +48,38 @@ router.get('/checkout-session', async (req, res) => {
   res.send(session);
 });
 
-router.post('/webhook', async (req, res) => {
-  let data;
-  let eventType;
+module.exports = router;
+
+// router.post('/webhook', async (req, res) => {
+//   let data;
+//   let eventType;
  
-  if (process.env.STRIPE_WEBHOOK_SECRET) {
-    let event;
-    let signature = req.headers['stripe-signature'];
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.rawBody,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
-    } catch (err) {
-      console.log(`⚠️  Webhook signature verification failed.`);
-      return res.sendStatus(400);
-    }
-    data = event.data;
-    console.log(data);
-    eventType = event.type;
-  } else {
-    data = req.body.data;
-    eventType = req.body.type;
-  }
+//   if (process.env.STRIPE_WEBHOOK_SECRET) {
+//     let event;
+//     let signature = req.headers['stripe-signature'];
+//     try {
+//       event = stripe.webhooks.constructEvent(
+//         req.rawBody,
+//         signature,
+//         process.env.STRIPE_WEBHOOK_SECRET
+//       );
+//     } catch (err) {
+//       console.log(`⚠️  Webhook signature verification failed.`);
+//       return res.sendStatus(400);
+//     }
+//     data = event.data;
+//     console.log(data);
+//     eventType = event.type;
+//   } else {
+//     data = req.body.data;
+//     eventType = req.body.type;
+//   }
 
-  if (eventType === 'checkout.session.completed') {
-    console.log(`🔔  Payment received!`);
-  }
+//   if (eventType === 'checkout.session.completed') {
+//     console.log(`🔔  Payment received!`);
+//   }
 
-  res.sendStatus(200);
-});
+//   res.sendStatus(200);
+// });
 
 // todo: call middleware to verify token and also to get userId
-
-
-module.exports = router;

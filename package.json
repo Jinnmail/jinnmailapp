@@ -9,7 +9,7 @@
     "start": "node ./bin/www",
     "blacklist": "node ./scripts/blacklist.js",
     "dropDatabase": "node ./scripts/dropDatabase.js",
-    "seed": "node ./scripts/seed.js",
+    "seed": "node ./scripts/seed.js", 
     "aliasesCount": "node ./scripts/aliasesCount.js",
     "invites": "node ./scripts/invites.js",
     "test": "mocha"
