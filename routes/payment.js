@@ -33,8 +33,8 @@ router.post('/create-checkout-session', userAuth.validateUser, async (req, res) 
         quantity: quantity
       },
     ],
-    success_url: `${domainURL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${domainURL}/canceled.html`,
+    success_url: `${domainURL}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${domainURL}/canceled`,
   });
 
   res.send({
