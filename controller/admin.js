@@ -272,6 +272,15 @@ module.exports = {
             })
 
         return uniqueAliases;
-    }
+    }, 
+
+    /**
+     * adminController.aliasList()
+     */
+    aliasList: async function () {
+      const aliases = await Alias.find().sort({created: -1});
+
+      return aliases;
+    },
 
 }

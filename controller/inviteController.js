@@ -20,7 +20,7 @@ module.exports = {
       const userInvites = await inviteModel.find({userId: req.params.userId});
 
       return res.json(userInvites);
-  },
+    },
 
     /**
      * inviteController.list()

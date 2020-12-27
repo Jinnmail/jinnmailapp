@@ -77,6 +77,25 @@ function aliasSearch(req, res){
         })
 }
 
+async function aliasList(req, res) {
+  try {
+    const data = await admin.aliasList();
+    let response = {
+      status: 200,
+      message: 'aliases',
+      data: data,
+      error: ''
+    };
+    res.status(200).send(response);
+  } catch (err) {
+    let error = {};
+    error.status = 500;
+    error.error = err.msg;
+    error.result = "";
+    res.status(err.status).send(error);
+  }
+}
+
 // The first developer thought we were hosting an inbox for the user, but that is now a deprecated feature.
 
 // function getInboxDetails(req, res){
@@ -108,6 +127,7 @@ router.get('/search/:key/:value', userAuth.validateUser, getSearchedContent);
 router.get('/getMailDetails/:uid', userAuth.validateUser, getMailDetails);
 router.get('/userSearch', userAuth.validateUser, userSearch)
 router.get('/aliasSearch', userAuth.validateUser, aliasSearch)
+router.get('/aliases', userAuth.validateUser, aliasList)
 
 // The first developer thought we were hosting an inbox for the user, but that is now a deprecated feature.
 
