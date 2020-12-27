@@ -11,7 +11,7 @@
     "dropDatabase": "node ./scripts/dropDatabase.js",
     "seed": "node ./scripts/seed.js", 
     "aliasesCount": "node ./scripts/aliasesCount.js",
-    "invites": "node ./scripts/invites.js",
+    "invites": "node ./scripts/existingUsersPremiumAndInvites.js",
     "test": "mocha"
   },
   "dependencies": {
