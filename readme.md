@@ -109,7 +109,7 @@ install docker (optional, otherwise you have to install node 12.17.0 (https://cl
 https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
 sudo docker build . --tag jinnmailapp
 sudo docker run --publish 3000:3000 --detach jinnmailapp
-if you cannot use docker (requires server has 4GB memory) use screen and npm start
+if you cannot use docker (requires server has 4GB memory) use screen and npm start or if using pm2, $ pm2 start bin/www and to restart $ pm2 restart www
 install and configure apache port forwarding:
 sudo apt install apache2
 cd /var/www/html

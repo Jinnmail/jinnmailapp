@@ -9,7 +9,7 @@
     "start": "node ./bin/www",
     "blacklist": "node ./scripts/blacklist.js",
     "dropDatabase": "node ./scripts/dropDatabase.js",
-    "seed": "node ./scripts/seed.js", 
+    "seed": "node ./scripts/seed.js",
     "aliasesCount": "node ./scripts/aliasesCount.js",
     "invites": "node ./scripts/existingUsersPremiumAndInvites.js",
     "test": "mocha"
@@ -17,6 +17,7 @@
   "dependencies": {
     "@sendgrid/inbound-mail-parser": "7.2.0",
     "@sendgrid/mail": "6.3.1",
+    "axios": "0.21.1",
     "async": "2.6.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "1.18.3",
@@ -52,7 +53,8 @@
     "stripe": "8.69.0",
     "serialize-javascript": "3.1.0",
     "bl": "2.2.1",
-    "node-forge": "0.10.0"
+    "node-forge": "0.10.0",
+    "mquery": "3.2.3"
   },
   "devDependencies": {
     "chai": "4.2.0",
