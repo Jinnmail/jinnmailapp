@@ -6,7 +6,7 @@
     "node": "12.17.0"
   },
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "pm2 start ./bin/www --watch",
     "blacklist": "node ./scripts/blacklist.js",
     "dropDatabase": "node ./scripts/dropDatabase.js",
     "seed": "node ./scripts/seed.js",
