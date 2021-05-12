@@ -42,7 +42,7 @@
     "mailparser": "2.7.7",
     "mongoose": "5.9.18",
     "morgan": "1.9.1",
-    "nodemailer": "4.6.5",
+    "nodemailer": "6.4.16",
     "rand-token": "0.4.0",
     "request": "2.85.0",
     "request-promise": "4.2.2",
