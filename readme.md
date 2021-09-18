@@ -175,6 +175,12 @@ or if not using docker
 use screen and npm start
 ... or don't use screen and use 
 $ npm start
+... or if using pm2
+git pull
+pm2 ls
+pm2 stop www
+pm2 start bin/www
+no need for screen with pm2
 ```
 
 ### Troubleshoot Deployment
