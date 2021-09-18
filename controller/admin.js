@@ -274,13 +274,15 @@ module.exports = {
         return uniqueAliases;
     }, 
 
-    /**
-     * adminController.aliasList()
-     */
     aliasList: async function () {
       const aliases = await Alias.find().sort({created: -1});
 
       return aliases;
     },
 
+    paidList: async function () {
+      const paidCustomers = await User.find({ customerId: { $exists: true }, premium: true})
+
+      return paidCustomers;
+    }
 }

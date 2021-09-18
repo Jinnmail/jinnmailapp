@@ -26,6 +26,14 @@ alias
     type: 'sender'
 ```
 
+for local dev don't have to use pm2, so toggle
+
+"start": "node ./bin/www",
+
+// "start": "pm2 start ./bin/www --watch",
+
+don't forget to put back to pm2 when deploy!!!!
+
 ## Environment Variables
 
 ```
@@ -111,6 +119,9 @@ sudo docker build . --tag jinnmailapp
 sudo docker run --publish 3000:3000 --detach jinnmailapp
 if you cannot use docker (requires server has 4GB memory) use screen and npm start 
 or if using pm2, $ pm2 start bin/www and to restart $ pm2 restart www, no screen is required with pm2
+to stop pm2 app
+$ pm2 ls
+$ pm2 stop 
 install and configure apache port forwarding:
 sudo apt install apache2
 cd /var/www/html
@@ -163,7 +174,7 @@ sudo docker run --publish 3000:3000 --detach jinnmailapp
 or if not using docker
 use screen and npm start
 ... or don't use screen and use 
-$ pm2 start bin/www
+$ npm start
 ```
 
 ### Troubleshoot Deployment

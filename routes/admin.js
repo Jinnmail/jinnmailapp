@@ -5,7 +5,7 @@ const mail = require("../controller/mailDetails")
 const reqRes = require('../middlewares/reqRes')
 const userAuth = require('../middlewares/userAuth')
 
-function getAdminDetails(req, res){
+function getAdminDetails(req, res) {
     // console.log("REQ BODY: "+req.body)
     admin.getAdmin(req.body)
         .then((data) => {
@@ -16,7 +16,7 @@ function getAdminDetails(req, res){
         })
 }
 
-function getUserDetails(req, res){
+function getUserDetails(req, res) {
     admin.getUser(req.params)
         .then((data) => {
             reqRes.responseHandler('fetched successfully', data, res);
@@ -26,7 +26,7 @@ function getUserDetails(req, res){
         })
 }
 
-function getAliasDetails(req, res){
+function getAliasDetails(req, res) {
     admin.getAlias(req.params)
         .then((data) => {
             reqRes.responseHandler('fetched successfully', data, res);
@@ -36,7 +36,7 @@ function getAliasDetails(req, res){
         })
 }
 
-function getSearchedContent(req, res){
+function getSearchedContent(req, res) {
     // console.log(req.params)
     admin.getSearched(req.params)
         .then((data) => {
@@ -47,7 +47,7 @@ function getSearchedContent(req, res){
         })
 }
 
-function getMailDetails(req, res){
+function getMailDetails(req, res) {
     mail.getDetails(req.params)
         .then((data) => {
             reqRes.responseHandler('fetched successfully', data, res);
@@ -57,7 +57,7 @@ function getMailDetails(req, res){
         })
 }
 
-function userSearch(req, res){
+function userSearch(req, res) {
     admin.userSearch(req.query.query)
         .then((data) => {
             reqRes.responseHandler('fetched successfully', data, res);
@@ -67,7 +67,7 @@ function userSearch(req, res){
         })
 }
 
-function aliasSearch(req, res){
+function aliasSearch(req, res) {
     admin.aliasSearch(req.query.userId, req.query.query)
         .then((data) => {
             reqRes.responseHandler('fetched successfully', data, res);
@@ -78,13 +78,32 @@ function aliasSearch(req, res){
 }
 
 async function aliasList(req, res) {
+    try {
+        const data = await admin.aliasList();
+        let response = {
+            status: 200,
+            message: 'aliases',
+            data: data,
+            error: ''
+        };
+        res.status(200).send(response);
+    } catch (err) {
+        let error = {};
+        error.status = 500;
+        error.error = err.msg;
+        error.result = "";
+        res.status(err.status).send(error);
+    }
+}
+
+async function paidList(req, res) {
   try {
-    const data = await admin.aliasList();
+    const data = await admin.paidList();
     let response = {
-      status: 200,
-      message: 'aliases',
-      data: data,
-      error: ''
+        status: 200,
+        message: 'paid customers',
+        data: data,
+        error: ''
     };
     res.status(200).send(response);
   } catch (err) {
@@ -128,6 +147,7 @@ router.get('/getMailDetails/:uid', userAuth.validateUser, getMailDetails);
 router.get('/userSearch', userAuth.validateUser, userSearch)
 router.get('/aliasSearch', userAuth.validateUser, aliasSearch)
 router.get('/aliases', userAuth.validateUser, aliasList)
+router.get('/paid', userAuth.validateUser, paidList);
 
 // The first developer thought we were hosting an inbox for the user, but that is now a deprecated feature.
 
