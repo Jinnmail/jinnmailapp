@@ -110,6 +110,25 @@ function getAliasUser(req,res) {
         })
 }
 
+async function getMasterAlias(req, res) {
+    try {
+        const data = await alias.getMasterAlias(req);
+        let response = {
+            status: 200,
+            message: 'master alias',
+            data: data,
+            error: ''
+        };
+        res.status(200).send(response);
+    } catch (err) {
+        let error = {};
+        error.status = 500;
+        error.error = err.msg;
+        error.result = "";
+        res.status(err.status).send(error);
+    }
+}
+
 router.post('/', userAuth.validateUser, registerAlias);
 router.get('/', userAuth.validateUser, getRegisteredAlias);
 router.get('/checkAlias', userAuth.validateUser, getAlias);
@@ -118,6 +137,7 @@ router.post('/avail', userAuth.validateUser, checkAvailability);
 router.put('/status', userAuth.validateUser, changeAliasStatus);
 router.put('/:aliasId', userAuth.validateUser, changeAlias);
 router.delete('/:aliasId', userAuth.validateUser, deleteAlias);
-router.get('/linkedUser', getAliasUser)
+router.get('/linkedUser', getAliasUser);
+router.get('/master/:userId', userAuth.validateUser, getMasterAlias);
 
 module.exports = router;

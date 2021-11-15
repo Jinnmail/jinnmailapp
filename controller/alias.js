@@ -486,8 +486,9 @@ module.exports = {
             })
         })
 
+    },
+
+    getMasterAlias: async function(data) {
+        return await aliasModel.findOne({ userId: data.params.aliasId, type: 'master' });
     }
-        
-
-
 }

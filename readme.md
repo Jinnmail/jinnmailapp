@@ -34,6 +34,12 @@ for local dev don't have to use pm2, so toggle
 
 don't forget to put back to pm2 when deploy!!!!
 
+or...
+
+$ pm2 ls
+
+$ pm2 stop www
+
 ## Environment Variables
 
 ```
