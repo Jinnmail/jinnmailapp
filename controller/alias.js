@@ -140,7 +140,47 @@ module.exports = {
                 })  
             }
         });
-    }, 
+    },
+
+    registerMasterAlias: function (data) {
+        console.log("\nRegister Master Alias Data:", data);
+        return new Promise((resolve, reject) => {
+            let myCustUrl = new URL(data.url);
+            let str = myCustUrl.hostname;
+            let domain = str.substr(0, str.lastIndexOf('.'));
+            let email_address = domain + process.env.JM_EMAIL_DOMAIN
+            blacklistModel.findOne({ localPart: domain, domain: process.env.JM_EMAIL_DOMAIN }).then((blacklist) => {
+                if (blacklist) {
+                    reject({ code: 403, msg: 'Not available' })
+                } else {
+                    aliasModel.findOne({ alias: email_address }).then((isAvail) => {
+                        if (isAvail) {
+                            reject({ code: 403, msg: 'Not available' })
+                        } else {
+                            data.aliasId = uuidv4();
+                            data.alias = email_address;
+                            data.type = "master";
+                            data.mailCount = 0;
+                            data.refferedUrl = domain;
+                            let alias = new aliasModel(data);
+                            alias.save((err, saved) => {
+                                console.log(err)
+                                if (err) {
+                                    reject({ code: 500, msg: 'something went wrong' })
+                                } else {
+                                    resolve(saved)
+                                }
+                            })
+                        }
+                    }).catch((err) => {
+                        reject({ code: 500, msg: 'something went wrong' })
+                    })
+                }
+            }).catch((err) => {
+                reject({ code: 500, msg: 'something went wrong' })
+            })
+        });
+    },
 
     getRegisteredAlias: function(data) {
         return new Promise((resolve, reject) => {

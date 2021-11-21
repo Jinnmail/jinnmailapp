@@ -19,6 +19,20 @@ function registerAlias(req, res) {
         })
 }
 
+function registerMasterAlias(req, res) {
+    req.body.userId = req.userId;
+    alias.registerMasterAlias(req.body)
+        .then((data) => {
+            reqRes.responseHandler('master alias registered', data, res);
+            res.end();
+        })
+        .catch((err) => {
+            console.log(err)
+            reqRes.httpErrorHandler(err, res)
+            res.end()
+        })
+}
+
 function checkAvailability(req, res) {
     alias.checkAvailability(req.body)
         .then((data) => {
@@ -139,5 +153,6 @@ router.put('/:aliasId', userAuth.validateUser, changeAlias);
 router.delete('/:aliasId', userAuth.validateUser, deleteAlias);
 router.get('/linkedUser', getAliasUser);
 router.get('/master/:userId', userAuth.validateUser, getMasterAlias);
+router.post('/master', userAuth.validateUser, registerMasterAlias);
 
 module.exports = router;
