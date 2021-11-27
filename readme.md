@@ -100,6 +100,7 @@ npm test
 ...or...to run a certain test
 npm test -- -f "Use Case 1"
 1 passing
+for debugging tests have to debug one by one by changing launch.json args "Use Case 1"
 ```
 
 ## Prod

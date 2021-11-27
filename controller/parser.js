@@ -7,6 +7,7 @@ const userModel = require('../models/user');
 const aliasModel = require('../models/alias');
 const proxymailModel = require('../models/proxymail');
 const { simpleParser } = require("mailparser");
+const proxymail = require('../models/proxymail');
 require('dotenv');
 
 module.exports = { 
@@ -97,12 +98,14 @@ async function replyToOwnAlias(params) {
         var fromEmail = extractEmailAddress(from)
     
         const jinnmailUser = await userModel.findOne({email: fromEmail})
-        const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
-        const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias'})
-        
-        if (flattenedRestTo.includes(alias.alias) || cc.includes(alias.alias)) {
+        const senderAlias = await aliasModel.findOne({alias: toEmail})
+        // const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
+        // const alias = await aliasModel.findOne({ userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias' })
+
+        if (flattenedRestTo.includes(senderAlias.alias) || cc.includes(senderAlias.alias)) {
+        // if (flattenedRestTo.includes(alias.alias) || cc.includes(alias.alias)) {
             params.to = jinnmailUser.email 
-            params.alias = alias
+            params.alias = senderAlias
             msg = bounceback2(params)
             mail.send_mail(msg)
         }
@@ -154,8 +157,8 @@ async function usecases(params) {
         if (jinnmailUser) {
             if (subject.includes("Re: [𝕁𝕄]")) {
                 msg = await userToNonUser(params); // Use case 5, test cases 2 and 5
-        } else if (subject.startsWith("[𝕁𝕄] ")) { 
-            msg = await userToNonUserOwnReplyTo(params); // Use case 4, test case 9
+            } else if (subject.startsWith("[𝕁𝕄] ")) { 
+                msg = await userToNonUserOwnReplyTo(params); // Use case 4, test case 9
             } else {
                 params.jinnmailUser = jinnmailUser
                 msg = userToNonUser2(params) // Use case 2, test case 4
@@ -189,8 +192,10 @@ async function nonUserToUser(params) { // test case 1
     var fromName = extractName(from)
     var fromEmail = extractEmailAddress(from)
 
-    const senderAlias = await get_or_create_sender_alias(fromEmail, alias.userId)
-    const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
+    const proxyMail = await get_or_create_proxymail(fromEmail, alias.aliasId, alias.userId)
+    const senderAlias = await get_sender_alias(proxyMail.senderAliasId);
+    // const senderAlias = await get_or_create_sender_alias(fromEmail, alias.userId)
+    // const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
     const jinnmailUser = await userModel.findOne({userId: alias.userId})
 
     if (proxyMail && senderAlias && jinnmailUser) {
@@ -205,7 +210,7 @@ async function nonUserToUser(params) { // test case 1
         msg = {
             to: (toName ? `${toName} <${jinnmailUser.email}>` : jinnmailUser.email), 
             from: from,
-            replyTo: (fromName ? `${fromName} <${proxyMail.proxyMail}>` : proxyMail.proxyMail), 
+            replyTo: (fromName ? `${fromName} <${senderAlias.alias}>` : senderAlias.alias), 
             // replyTo: `${fromName} <${proxyMail.proxyMail}>`,  
             subject: subject, 
             cc: cc, 
@@ -239,9 +244,12 @@ async function userToNonUser(params) { // test case 2
     var fromName = extractName(from)
     var fromEmail = extractEmailAddress(from)
 
-    const proxyMail = await proxymailModel.findOne({proxyMail: toEmail});
-    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
-    const alias = await aliasModel.findOne({aliasId: proxyMail.aliasId});
+    const senderAlias = await aliasModel.findOne({alias: toEmail});
+    const proxyMail = await proxymailModel.findOne({senderAliasId: senderAlias.aliasId });
+    const alias = await aliasModel.findOne({ aliasId: proxyMail.aliasId });
+    // const proxyMail = await proxymailModel.findOne({proxyMail: toEmail});
+    // const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
+    // const alias = await aliasModel.findOne({aliasId: proxyMail.aliasId});
 
     if (proxyMail && senderAlias && (alias && alias.status)) {
         subject = subject.replace(/\[𝕁𝕄\] /g, "")
@@ -254,11 +262,11 @@ async function userToNonUser(params) { // test case 2
         messageBody = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
         messageBody = messageBody.replace(/<div id="(.*)jinnmail-footer">(.*)<\/div><div id="(.*)jinnmail-footer-end"><\/div>/, '')
         messageBody = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
-        messageBody = messageBody.replace(new RegExp(`mailto:${proxyMail.proxyMail}`, 'g'), "[[Hidden with Jinnmail]]")
-        messageBody = messageBody.replace(new RegExp(proxyMail.proxyMail, 'g'), "[[Hidden with Jinnmail]]")
+        messageBody = messageBody.replace(new RegExp(`mailto:${senderAlias.alias}`, 'g'), "[[Hidden with Jinnmail]]")
+        messageBody = messageBody.replace(new RegExp(senderAlias.alias, 'g'), "[[Hidden with Jinnmail]]")
         html += `${messageBody}<br />${footerHtml}`
         msg = {
-            to: (toName ? `${toName} <${senderAlias.alias}>` : senderAlias.alias), 
+            to: (toName ? `${toName} <${proxyMail.proxyMail}>` : proxyMail.proxyMail), 
             // to: `${toName} <${senderAlias.alias}>`, 
             from: (fromName ? `${fromName} <${alias.alias}>` : alias.alias), 
             // from: `${fromName} <${alias.alias}>`, 
@@ -297,8 +305,10 @@ async function nonUserToUser2(params) { // test case 3
     var fromName = extractName(from)
     var fromEmail = extractEmailAddress(from)
 
-    const senderAlias = await get_or_create_sender_alias(fromEmail, alias.userId)
-    const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
+    const proxyMail = await get_or_create_proxymail(fromEmail, alias.aliasId, alias.userId)
+    const senderAlias = await get_sender_alias(proxyMail.senderAliasId);
+    // const senderAlias = await get_or_create_sender_alias(fromEmail, alias.userId)
+    // const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
     const jinnmailUser = await userModel.findOne({userId: alias.userId})
 
     if (proxyMail && senderAlias && jinnmailUser) {
@@ -307,7 +317,7 @@ async function nonUserToUser2(params) { // test case 3
         headerHtml = '<div id="jinnmail-header"><table style="background-color:rgb(238,238,238);width:100%"><tbody><tr><td colspan="4" style="text-align:center"><h2 style="margin:0px"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/privacy.png?raw=true" height="30px"> Shielded by Jinnmail</h2></td></tr><tr><td style="width:25%;text-align:center"> </td><td style="width:25%;text-align:center"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/exclam.png?raw=true" height="30px"></a><a clicktracking=off href="https://jinnmail.com/account">Spam?</a></td><td style="width:5%;text-align:center"> </td><td style="width:45%;text-align:left"><a clicktracking=off href="https://jinnmail.com/account"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/toggles.png?raw=true" height="40px"></a><a clicktracking=off href="https://jinnmail.com/account">Turn on/off this alias</a></td></tr></tbody></table><div style="width:100%;text-align:center"><img style="vertical-align: middle;" src="https://github.com/Jinnmail/uxdesign/blob/master/Images/clearbackarrow.png?raw=true" height="30px"><span style="vertical-align:middle;opacity:0.4">Reply normally to HIDE your email address.</span></div><br><br></div><div id="jinnmail-header-end"></div>'
         footerHtml = '<div id="jinnmail-footer"><br><br><hr><hr><div style="text-align:center"><span style="vertical-align:middle;opacity:0.4">Note: Replying normally HIDES your email address. Forwarding REVEALS it.<p><a clicktracking=off href="https://jinnmail.com/account">👤</a> <a clicktracking=off href="https://jinnmail.com/account">Manage your Jinnmail account and aliases</a></p></span></div><div id="jinnmail-footer-end"></div>'
         html = messageBody.replace(/\[\[Hidden by Jinnmail\]\]/g, jinnmailUser.email)
-        html = messageBody.replace(/\[\[Hidden with Jinnmail\]\]/g, proxyMail.proxyMail)
+        html = messageBody.replace(/\[\[Hidden with Jinnmail\]\]/g, senderAlias.alias)
         // html = html.replace(new RegExp(alias.alias, 'g'), '[[Hidden by Jinnmail]]')
         html = html.replace(new RegExp(`mailto:${alias.alias}`, 'g'), "[[Hidden by Jinnmail]]")
         html = html.replace(new RegExp(alias.alias, 'g'), "[[Hidden by Jinnmail]]")
@@ -317,7 +327,7 @@ async function nonUserToUser2(params) { // test case 3
         msg = {
             to: (toName ? `${toName} <${jinnmailUser.email}>` : jinnmailUser.email), 
             from: from, 
-            replyTo: (fromName ? `${fromName} <${proxyMail.proxyMail}>` : proxyMail.proxyMail), 
+            replyTo: (fromName ? `${fromName} <${senderAlias.alias}>` : senderAlias.alias), 
             // replyTo: `${fromName} <${proxyMail.proxyMail}>`,  
             subject: subject, 
             cc: cc, 
@@ -352,23 +362,26 @@ async function userToNonUser2(params) { // test case 4
     var fromName = extractName(from)
     var fromEmail = extractEmailAddress(from)
 
-    const proxyMail = await proxymailModel.findOne({proxyMail: toEmail});
-    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
-    const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: "alias"});
+    const senderAlias = await aliasModel.findOne({alias: toEmail});
+    const proxyMail = await proxymail.findOne({senderAliasId: senderAlias.aliasId});
+    const alias = await aliasModel.findOne({ userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: "alias" });
+    // const proxyMail = await proxymailModel.findOne({proxyMail: toEmail});
+    // const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId, type: "sender"});
+    // const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: "alias"});
 
     if (proxyMail && senderAlias && (alias && alias.status)) {
-        subject = subject.replace(new RegExp(proxyMail.proxyMail, 'g'), '[[Hidden with Jinnmail]]')
+        subject = subject.replace(new RegExp(senderAlias.alias, 'g'), '[[Hidden with Jinnmail]]')
         // subject = subject.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
         const user = await userModel.findOne({userId: alias.userId})
         headers =  headers.replace(new RegExp(user.email, 'g'), '')
         footerHtml = '<div id="jinnmail-secretly">Sent secretly with <a clicktracking=off href="https://emailclick.jinnmail.com/homepage-from-signature">Jinnmail</a></div><div id="jinnmail-secretly-end"></div>'
         // html = messageBody.replace(new RegExp(`mailto:${jinnmailUser.email}`, 'g'), "[[Hidden by Jinnmail]]")
         // html = html.replace(new RegExp(jinnmailUser.email, 'g'), '[[Hidden by Jinnmail]]')
-        html = messageBody.replace(new RegExp(`mailto:${proxyMail.proxyMail}`, 'g'), "[[Hidden with Jinnmail]]")
-        html = html.replace(new RegExp(proxyMail.proxyMail, 'g'), '[[Hidden with Jinnmail]]')
+        html = messageBody.replace(new RegExp(`mailto:${senderAlias.alias}`, 'g'), "[[Hidden with Jinnmail]]")
+        html = html.replace(new RegExp(senderAlias.alias, 'g'), '[[Hidden with Jinnmail]]')
         html += `<br />${footerHtml}`
         msg = {
-            to: senderAlias.alias, 
+            to: proxyMail.proxyMail, 
             from: (fromName ? `${fromName} <${alias.alias}>` : alias.alias), 
             // from: `${fromName} <${alias.alias}>`,
             replyTo: '',  
@@ -408,8 +421,10 @@ async function nonUserOwnReplyToToUser(params) { // test case 8
     var fromEmail = extractEmailAddress(from)
     var replyToEmail = extractEmailAddress(replyTo);
 
-    const senderAlias = await get_or_create_sender_alias(replyToEmail, alias.userId)
-    const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
+    const proxyMail = await get_or_create_proxymail(replyToEmail, alias.aliasId, alias.userId)
+    const senderAlias = await get_sender_alias(proxyMail.senderAliasId);
+    // const senderAlias = await get_or_create_sender_alias(replyToEmail, alias.userId)
+    // const proxyMail = await get_or_create_proxymail(alias.aliasId, senderAlias.aliasId)
     const jinnmailUser = await userModel.findOne({userId: alias.userId})
 
     if (senderAlias && proxyMail && jinnmailUser) {
@@ -423,7 +438,7 @@ async function nonUserOwnReplyToToUser(params) { // test case 8
         var msg = {
             to: jinnmailUser.email, 
             from: from, 
-            replyTo: (fromName ? `${fromName} <${proxyMail.proxyMail}>` : proxyMail.proxyMail),
+            replyTo: (fromName ? `${fromName} <${senderAlias.alias}>` : senderAlias.alias),
             // replyTo: `${fromName} <${proxyMail.proxyMail}>`, 
             subject: subject, 
             cc: '', 
@@ -459,10 +474,14 @@ async function userToNonUserOwnReplyTo(params) { // test case 9
     var fromName = extractName(from)
     var fromEmail = extractEmailAddress(from)
 
-    const jinnmailUser = await userModel.findOne({email: fromEmail})
-    const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
+    const jinnmailUser = await userModel.findOne({email: fromEmail});
+    const senderAlias = await aliasModel.findOne({alias: toEmail});
+    const proxyMail = await proxymailModel.findOne({senderAliasId: senderAlias.aliasId});
     const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias'})
-    const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId})
+
+    // const proxyMail = await proxymailModel.findOne({proxyMail: toEmail})
+    // const alias = await aliasModel.findOne({userId: jinnmailUser.userId, aliasId: proxyMail.aliasId, type: 'alias'})
+    // const senderAlias = await aliasModel.findOne({aliasId: proxyMail.senderAliasId})
 
     if (jinnmailUser && alias && proxyMail && senderAlias) {
         subject = subject.replace(/\[𝕁𝕄\] /g, "")
@@ -472,11 +491,11 @@ async function userToNonUserOwnReplyTo(params) { // test case 9
         html = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
         html = html.replace(/<div id="(.*)jinnmail-footer">(.*)<\/div><div id="(.*)jinnmail-footer-end"><\/div>/, '')
         html = html.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
-        html = html.replace(new RegExp(`mailto:${proxyMail.proxyMail}`, 'g'), '[[Hidden with Jinnmail]]')
-        html = html.replace(new RegExp(proxyMail.proxyMail, 'g'), '[[Hidden with Jinnmail]]')
+        html = html.replace(new RegExp(`mailto:${senderAlias.alias}`, 'g'), '[[Hidden with Jinnmail]]')
+        html = html.replace(new RegExp(senderAlias.alias, 'g'), '[[Hidden with Jinnmail]]')
         html = `${html}${footerHtml}`
         msg = {
-            to: (toName ? `${toName} <${senderAlias.alias}>` : senderAlias.alias),
+            to: (toName ? `${toName} <${proxyMail.proxyMail}>` : proxyMail.proxyMail),
             // to: `${toName} <${senderAlias.alias}>`,
             from: (fromName ? `${fromName} <${alias.alias}>` : alias.alias), 
             // from: `${fromName} <${alias.alias}>`, 
@@ -554,36 +573,66 @@ function bounceback2(params) {
     return msg
 }
 
-async function get_or_create_sender_alias(sender, userId) {
-    senderAlias = await aliasModel.findOne({alias: sender})
-    if (senderAlias) {
-        return senderAlias
-    } else {
-        let newSenderAlias = new aliasModel();
-        newSenderAlias.aliasId = uuidv4();
-        newSenderAlias.userId = userId
-        newSenderAlias.alias = sender;
-        newSenderAlias.type = "sender";
-        newSenderAlias.mailCount = 0;
-        
-        return newSenderAlias.save();
-    }
+async function get_sender_alias(senderAliasId) {
+    const res = await aliasModel.findOne({ aliasId: senderAliasId });
+    return res;
 }
 
-async function get_or_create_proxymail(aliasId, senderAliasId) {
-    proxymail = await proxymailModel.findOne({aliasId: aliasId, senderAliasId: senderAliasId})
+async function create_sender_alias(userId) {
+    let newSenderAlias = new aliasModel();
+    newSenderAlias.aliasId = uuidv4();
+    newSenderAlias.userId = userId
+    newSenderAlias.alias = `${randomString(11)}${process.env.JM_REPLY_EMAIL_SUBDOMAIN}`;
+    newSenderAlias.type = "sender";
+    newSenderAlias.mailCount = 0;
+    return newSenderAlias.save();
+}
+
+async function get_or_create_proxymail(sender, aliasId, userId) {
+    const proxymail = await proxymailModel.findOne({ aliasId: aliasId, proxyMail: sender })
     if (proxymail) {
         return proxymail
     } else {
+        let senderAlias = await create_sender_alias(userId);
         let newproxymail = new proxymailModel();
         newproxymail.proxyMailId = uuidv4();
         newproxymail.aliasId = aliasId;
-        newproxymail.senderAliasId = senderAliasId
-        newproxymail.proxyMail = `${randomString(11)}${process.env.JM_REPLY_EMAIL_SUBDOMAIN}`;
-
+        newproxymail.senderAliasId = senderAlias.aliasId;
+        newproxymail.proxyMail = sender;
         return newproxymail.save();
     }
 }
+
+// async function get_or_create_sender_alias(sender, userId) {
+//     senderAlias = await aliasModel.findOne({alias: sender})
+//     if (senderAlias) {
+//         return senderAlias
+//     } else {
+//         let newSenderAlias = new aliasModel();
+//         newSenderAlias.aliasId = uuidv4();
+//         newSenderAlias.userId = userId
+//         newSenderAlias.alias = sender;
+//         newSenderAlias.type = "sender";
+//         newSenderAlias.mailCount = 0;
+
+//         return newSenderAlias.save();
+//     }
+// }
+
+// async function get_or_create_proxymail(aliasId, senderAliasId) {
+//     proxymail = await proxymailModel.findOne({aliasId: aliasId, senderAliasId: senderAliasId})
+//     if (proxymail) {
+//         return proxymail
+//     } else {
+//         let newproxymail = new proxymailModel();
+//         newproxymail.proxyMailId = uuidv4();
+//         newproxymail.aliasId = aliasId;
+//         newproxymail.senderAliasId = senderAliasId
+//         newproxymail.proxyMail = `${randomString(11)}${process.env.JM_REPLY_EMAIL_SUBDOMAIN}`;
+
+//         return newproxymail.save();
+//     }
+// }
 
 function extractEmailAddress(nameAndEmailAddress) {
     if (nameAndEmailAddress.includes('<')) {
