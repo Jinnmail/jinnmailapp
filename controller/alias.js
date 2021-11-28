@@ -256,21 +256,21 @@ module.exports = {
                 },
                 {
                     $project: {
-                        "aliasId":1,
-                        "userId":1,
+                        // "aliasId":1,
+                        // "userId":1,
                         "alias":1,
-                        "refferedUrl":1,
-                        "status":1,
-                        "created":1,
-                        "mailCount":1,
-                        "email":"$Details.email"
+                        // "refferedUrl":1,
+                        // "status":1,
+                        // "created":1,
+                        // "mailCount":1,
+                        // "email":"$Details.email" // don't reveal user by returning real email
                     }
                 },
-                {
-                    $sort: {
-                        "created": -1
-                    }
-                }
+                // {
+                //     $sort: {
+                //         "created": -1
+                //     }
+                // }
             ]).then(result => {
                 // console.log("Result is:========================== \n"+ (result)?JSON.stringify(result):"0"+"\n====================================================================");  
                 resolve(result);
