@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var alias = require('../controller/alias.js');
-const userAuth = require('../middlewares/userAuth')
-const validator = require('../middlewares/validator')
-const reqRes = require('../middlewares/reqRes')
+const userAuth = require('../middlewares/userAuth');
+const validator = require('../middlewares/validator');
+const reqRes = require('../middlewares/reqRes');
 
 function registerAlias(req, res) {
     req.body.userId = req.userId;
@@ -154,5 +154,6 @@ router.delete('/:aliasId', userAuth.validateUser, deleteAlias);
 router.get('/linkedUser', getAliasUser);
 router.get('/master/:userId', userAuth.validateUser, getMasterAlias);
 router.post('/master', userAuth.validateUser, registerMasterAlias);
+router.post('/receiver', userAuth.validateUser, alias.registerReceiverAlias);
 
 module.exports = router;

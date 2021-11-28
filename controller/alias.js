@@ -12,6 +12,8 @@ const { PromiseProvider } = require('mongoose');
 var URL = require('url').URL;
 const blacklistModel = require('../models/blacklist');
 const logger = require('heroku-logger')
+const parser = require("./parser")
+var createError = require('http-errors');
 
 // import logger from '../utils/logger';
 
@@ -34,7 +36,6 @@ module.exports = {
     registerAlias: function(data) {
         console.log("\nRegister Alias Data:",data);
         return new Promise((resolve, reject) => {
-            
             let source = data.source;
             if (source === 'cust') {
                 let myCustUrl = new URL(data.url);
@@ -180,6 +181,54 @@ module.exports = {
                 reject({ code: 500, msg: 'something went wrong' })
             })
         });
+    },
+
+    registerReceiverAlias: async function (req, res) {
+        const data = req.body;
+        console.log("\nRegister Receiver Alias Data:", data);
+        const masterAlias = await aliasModel.findOne({userId: data.userId, type: 'master'});
+        if (!masterAlias) {
+            return res.status(400).json({
+                message: 'Error no master alias',
+                error: createError(400, 'no master alias')
+            })
+        }
+        let myCustUrl = new URL(data.url);
+        let str = myCustUrl.hostname;
+        let domain = str.substr(0, str.lastIndexOf('.'));
+        let email_address = domain + process.env.JM_RECEIVER_DOMAIN
+        const blacklist = await blacklistModel.findOne({localPart: domain, domain: process.env.JM_RECEIVER_DOMAIN});
+        if (!blacklist) {
+            const isAvail = await aliasModel.findOne({ alias: email_address });
+            if (isAvail) {
+                data.aliasId = uuidv4();
+                data.alias = email_address;
+                data.type = "receiver";
+                data.mailCount = 0;
+                data.refferedUrl = domain;
+                const alias = new aliasModel(data);
+                const savedAlias = await alias.save();
+                if (savedAlias === alias) {
+                    const proxyMail = parser.create_proxymail(data.realEmail, masterAlias.aliasId, saved.aliasId);
+                    return res.status(201).json(savedAlias);
+                } else {
+                    return res.status(500).json({
+                        message: 'Something went wrong',
+                        error: createError(500, 'something went wrong')
+                    });
+                }
+            } else {
+                return res.status(403).json({
+                    message: 'Not available',
+                    error: createError(403, 'not available')
+                });
+            }
+        } else {
+            return res.status(403).json({
+                message: 'Not available',
+                error: createError(403, 'not available')
+            });
+        }
     },
 
     getRegisteredAlias: function(data) {

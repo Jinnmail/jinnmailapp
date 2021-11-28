@@ -11,6 +11,14 @@ const proxymail = require('../models/proxymail');
 require('dotenv');
 
 module.exports = { 
+    create_proxymail: async function(proxyMail, aliasId, senderAliasId) {
+        let newproxymail = new proxymailModel();
+        newproxymail.proxyMailId = uuidv4();
+        newproxymail.aliasId = aliasId;
+        newproxymail.senderAliasId = senderAliasId;
+        newproxymail.proxyMail = proxyMail;
+        return newproxymail.save();
+    },
 
     inbound: async function(data) {
         var headers = '';  
@@ -593,13 +601,8 @@ async function get_or_create_proxymail(sender, aliasId, userId) {
     if (proxymail) {
         return proxymail
     } else {
-        let senderAlias = await create_sender_alias(userId);
-        let newproxymail = new proxymailModel();
-        newproxymail.proxyMailId = uuidv4();
-        newproxymail.aliasId = aliasId;
-        newproxymail.senderAliasId = senderAlias.aliasId;
-        newproxymail.proxyMail = sender;
-        return newproxymail.save();
+        const senderAlias = await create_sender_alias(userId);
+        return await module.exports.create_proxymail(sender, aliasId, senderAlias.aliasId);
     }
 }
 
