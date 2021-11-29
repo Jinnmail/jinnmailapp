@@ -186,7 +186,7 @@ module.exports = {
     registerReceiverAlias: async function (req, res) {
         const data = req.body;
         console.log("\nRegister Receiver Alias Data:", data);
-        const masterAlias = await aliasModel.findOne({userId: data.userId, type: 'master'});
+        const masterAlias = await aliasModel.findOne({userId: req.userId, type: 'master'});
         if (!masterAlias) {
             return res.status(400).json({
                 message: 'Error no master alias',
@@ -199,9 +199,10 @@ module.exports = {
         let email_address = domain + process.env.JM_RECEIVER_DOMAIN
         const blacklist = await blacklistModel.findOne({localPart: domain, domain: process.env.JM_RECEIVER_DOMAIN});
         if (!blacklist) {
-            const isAvail = await aliasModel.findOne({ alias: email_address });
-            if (isAvail) {
+            const alias = await aliasModel.findOne({ alias: email_address });
+            if (!alias) {
                 data.aliasId = uuidv4();
+                data.userId = req.userId;
                 data.alias = email_address;
                 data.type = "receiver";
                 data.mailCount = 0;
@@ -209,7 +210,7 @@ module.exports = {
                 const alias = new aliasModel(data);
                 const savedAlias = await alias.save();
                 if (savedAlias === alias) {
-                    const proxyMail = parser.create_proxymail(data.realEmail, masterAlias.aliasId, saved.aliasId);
+                    const proxyMail = await parser.create_proxymail(data.realEmail, masterAlias.aliasId, savedAlias.aliasId);
                     return res.status(201).json(savedAlias);
                 } else {
                     return res.status(500).json({
