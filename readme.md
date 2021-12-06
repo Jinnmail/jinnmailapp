@@ -32,8 +32,6 @@ for local dev don't have to use pm2, so toggle
 
 // "start": "pm2 start ./bin/www --watch",
 
-don't forget to put back to pm2 when deploy!!!!
-
 or...
 
 $ pm2 ls
