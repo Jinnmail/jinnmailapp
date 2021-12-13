@@ -356,7 +356,7 @@ module.exports = {
       const res = await aliasModel.findOne({aliasId: data.params.aliasId});
 
       return res;
-    }, 
+    },
 
     deleteAlias: async function(data) {
         const proxymails = await proxyMailModel.find({aliasId: data.params.aliasId})

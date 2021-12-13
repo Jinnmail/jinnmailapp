@@ -107,7 +107,7 @@ async function deleteAlias(req, res) {
 function readAlias(req, res) {
   alias.readAlias(req)
   .then((data) => {
-      reqRes.responseHandler('updated successfully', data, res);
+      reqRes.responseHandler('retrieved successfully', data, res);
   }).catch((err) => {
       reqRes.httpErrorHandler(err, res);
       res.end();

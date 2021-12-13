@@ -16,21 +16,34 @@ This is the center of the data model,
 proxyMail
     aliasId: 1
     senderAliasId: 2
-
 alias
     aliasId: 1
     type: 'alias'
-
 alias 
     aliasId: 2
     type: 'sender'
+
+proxyMail
+    aliasId: 3 <-------master alias
+    senderAliasId: 4 <--------sender alias
+    proxymail: a@a.com
+alias
+    aliasId: 3
+    type: 'master'
+    alias: 'iv67ff@jinnmail.com'
+alias
+    aliasId: 4
+    type: 'receiver'
+    alias: 'a@recipient.jinnmail.com'
 ```
 
-for local dev don't have to use pm2, so toggle
+for local dev don't have to use pm2
 
-"start": "node ./bin/www",
+$ npm start
 
-// "start": "pm2 start ./bin/www --watch",
+for remote env
+
+$ pm2 start ./bin/www --watch
 
 or...
 

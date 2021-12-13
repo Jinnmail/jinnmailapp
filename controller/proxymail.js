@@ -3,7 +3,7 @@ const proxymailModel = require('../models/proxymail');
 module.exports = {
   getProxymail: async function(req, res) {
     try {
-      const data = await proxymailModel.find({aliasId: req.body.aliasId})
+      const data = await proxymailModel.find({aliasId: req.params.aliasId})
       let response = {
         status: 200,
         message: 'proxymail',
