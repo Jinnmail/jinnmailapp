@@ -24,7 +24,7 @@ module.exports = {
         var headers = '';  
         var newline = '';
         
-        // sendgroid inbound parse node.js library does not include attachements or reply-to
+        // sendgrid inbound parse node.js library does not include attachements or reply-to
         // even though the docs say it does, and it is inconsistent, sometimes it does, 
         // so we are using MailParser instead
         
@@ -160,6 +160,13 @@ async function usecases(params) {
         } else {
             msg = bounceback(to, from, headers)
         }
+    } else if (toEmail.includes(process.env.JM_RECEIVER_DOMAIN)) {
+        jinnmailUser = await userModel.findOne({ email: fromEmail })
+        if (jinnmailUser) {
+            msg = await userToReceiver(params);
+        } else {
+            msg = bounceback(to, from, headers)
+        }
     } else if (toEmail.includes(process.env.JM_REPLY_EMAIL_SUBDOMAIN)) {
         jinnmailUser = await userModel.findOne({email: fromEmail})
         if (jinnmailUser) {
@@ -264,7 +271,7 @@ async function userToNonUser(params) { // test case 2
         subject = subject.replace(/\[\[Hidden by Jinnmail\]\]/g, alias.alias)
         const user = await userModel.findOne({userId: alias.userId})
         subject = subject.replace(new RegExp(user.email, 'g'), '[[Hidden by Jinnmail]]')
-        headers =  headers.replace(new RegExp(user.email, 'g'), '')
+        headers = headers.replace(new RegExp(user.email, 'g'), '')
         // cc = cc.replace(new RegExp(alias.alias, 'g'), '')
         footerHtml = '<div id="jinnmail-secretly">Sent secretly with <a clicktracking=off href="https://emailclick.jinnmail.com/homepage-from-signature">Jinnmail</a></div><div id="jinnmail-secretly-end"></div>'
         messageBody = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
@@ -290,6 +297,53 @@ async function userToNonUser(params) { // test case 2
     }
 
     return msg
+}
+
+async function userToReceiver(params) {
+    var footerHtml = ''
+    var html = ''
+    var msg = {}
+    let {
+        to: to, 
+        from: from,
+        headers: headers,
+        subject: subject,
+        messageBody: messageBody,
+        attachments: attachments
+     } = params;
+
+    var toName = extractName(to)
+    var toEmail = extractEmailAddress(to)
+    var fromName = extractName(from)
+    var fromEmail = extractEmailAddress(from)
+
+    const receiverAlias = await aliasModel.findOne({alias: toEmail, type: 'receiver'});
+    if (receiverAlias) {
+        const masterAlias = await aliasModel.findOne({userId: receiverAlias.userId, type: 'master'});
+        if (masterAlias) {
+            const proxymail = await proxymailModel.findOne({aliasId: masterAlias.aliasId, senderAliasId: receiverAlias.aliasId});
+            if (proxymail) {
+                const user = await userModel.findOne({userId: masterAlias.userId})
+                headers = headers.replace(new RegExp(user.email, 'g'), '')
+                footerHtml = '<div id="jinnmail-secretly">Sent secretly with <a clicktracking=off href="https://emailclick.jinnmail.com/homepage-from-signature">Jinnmail</a></div><div id="jinnmail-secretly-end"></div>'
+                messageBody = messageBody.replace(/<div id="(.*)jinnmail-header">(.*)<\/div><div id="(.*)jinnmail-header-end"><\/div>/, '')
+                messageBody = messageBody.replace(/<div id="(.*)jinnmail-footer">(.*)<\/div><div id="(.*)jinnmail-footer-end"><\/div>/, '')
+                html += `${messageBody}<br />${footerHtml}`
+                msg = {
+                    to: (toName ? `${toName} <${proxymail.proxyMail}>` : proxymail.proxyMail),
+                    from: (fromName ? `${fromName} <${masterAlias.alias}>` : masterAlias.alias),
+                    replyTo: '',
+                    subject: subject,
+                    cc: '',
+                    headers: headers,
+                    messageBody: messageBody,
+                    attachments: attachments
+                }
+            }
+        }
+    }
+
+    return msg;
 }
 
 async function nonUserToUser2(params) { // test case 3

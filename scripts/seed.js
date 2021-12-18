@@ -133,6 +133,40 @@ async function main() {
         console.log(e);
     }
 
+    // todo: james s left off here
+    // create master alias, receiver alias, proxymail
+    // need user
+    try {
+        const masterAlias = await aliasModel.insertMany([{
+            status: true,
+            userId: users[1].userId,
+            aliasId: uuidv4(),
+            alias: 'ytf91t@dev.jinnmail.com',
+            type: "master",
+            mailCount: 0,
+            refferedUrl: "ytf91t"
+        }])
+        const receiverAlias = await aliasModel.insertMany([{
+            status: true,
+            userId: users[1].userId,
+            aliasId: uuidv4(),
+            alias: 'a@receiver.dev.jinnmail.com',
+            type: 'receiver',
+            mailCount: 0,
+            referredUrl: 'a'
+
+        }]);
+        const proxymail = await proxymailModel.insertMany([{
+            proxyMailId: uuidv4(),
+            aliasId: masterAlias[0].aliasId,
+            senderAliasId: receiverAlias[0].aliasId,
+            proxyMail: 'a@a.com'
+        }]);
+        console.log();
+    } catch(e) {
+        console.log(e);
+    }
+
     console.log("seed complete")
     process.exit()
 }

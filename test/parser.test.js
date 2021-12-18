@@ -309,6 +309,49 @@ describe('Use Case 6', () => { // (Test Case 7)
     })
 })
 
+describe('receiver aliases', () => {
+    
+    // jinnmail user -> receiver alias -> receiver real email address
+
+    let params;
+
+    beforeEach(() => {
+        params = {
+            to: 'a@receiver.dev.jinnmail.com',
+            from: 'Mike Burke <jinnmailuser2@gmail.com>',
+            replyTo: '',
+            cc: '',
+            headers: 'xxx@dev.jinnmail.com',
+            subject: 'xxx@dev.jinnmail.com',
+            messageBody: 'mailto:xxx@dev.jinnmail.com',
+            attachments: []
+        }
+    });
+
+    it.only('sends email to receiver real address', async () => {
+        // const params = {
+        //     to: 'x@receiver.dev.jinnmail.com',
+        //     from: 'Mike Burke <jinnmailuser2@gmail.com>',
+        //     replyTo: '',
+        //     cc: '',
+        //     headers: 'xxx@dev.jinnmail.com',
+        //     subject: 'xxx@dev.jinnmail.com',
+        //     messageBody: 'mailto:xxx@dev.jinnmail.com',
+        //     attachments: []
+        // }
+
+        const res = await parser.parse(params)
+        expect(res.to).to.equal('a@a.com')
+        expect(res.from).to.equal('Mike Burke <ytf91t@dev.jinnmail.com>');
+        expect(res.headers).to.not.include('xxx@dev.jinnmail.com')
+        expect(res.messageBody).to.include('[[Hidden by Jinnmail]]')
+        expect(res.messageBody).to.include('[[Hidden by Jinnmail]]')
+        expect(res.subject.startsWith('[𝕁𝕄] ')).to.equal(true);
+        expect(res.messageBody).that.includes('Shielded by Jinnmail');
+        expect(res.messageBody).that.includes('Manage your Jinnmail account and aliases');
+    });
+});
+
 // describe('Math', function() {
 //     describe('#abs()', function() {
 //         it('should return positive value of given negative number', function() {
