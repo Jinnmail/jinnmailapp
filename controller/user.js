@@ -35,14 +35,14 @@ module.exports = {
                             })
                         })
                     } else {
-                        reject({ code: 400, msg: 'No User found' });
+                        reject({ code: 400, msg: 'No Email/Password Matched' });
                     }
                 })
                 .then((equal) => {
                     if (equal) {
                         return true
                     } else {
-                        reject({ code: 400, msg: 'No Password matched' });
+                        reject({ code: 400, msg: 'No Email/Password Matched' });
                     }
                 })
                 .then((isMatch) => {
