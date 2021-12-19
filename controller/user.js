@@ -24,7 +24,7 @@ module.exports = {
                 .then((userData) => {
                     if (userData) {
                         if(!userData.verified){
-                            reject({ code: 403, msg: 'user not verified' });
+                            reject({ code: 403, msg: 'No Email/Password Matched' });
                         }
                         userObj = userData;
                         return new Promise((resolve, reject) => {
