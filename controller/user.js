@@ -24,7 +24,7 @@ module.exports = {
                 .then((userData) => {
                     if (userData) {
                         if(!userData.verified){
-                            reject({ code: 403, msg: 'No Email/Password Matched' });
+                            reject({ code: 403, msg: 'Unable to Verify Account' });
                         }
                         userObj = userData;
                         return new Promise((resolve, reject) => {
@@ -35,14 +35,14 @@ module.exports = {
                             })
                         })
                     } else {
-                        reject({ code: 400, msg: 'No Email/Password Matched' });
+                        reject({ code: 400, msg: 'Unable to Verify Account' });
                     }
                 })
                 .then((equal) => {
                     if (equal) {
                         return true
                     } else {
-                        reject({ code: 400, msg: 'No Email/Password Matched' });
+                        reject({ code: 400, msg: 'Unable to Verify Account' });
                     }
                 })
                 .then((isMatch) => {
