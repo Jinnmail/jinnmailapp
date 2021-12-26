@@ -4,10 +4,11 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
-const routes = require("./routes");
-require("dotenv").config()
 const validator = require('express-validator');
-const {fileParser} = require('express-multipart-file-parser')
+const { fileParser } = require('express-multipart-file-parser');
+const routes = require("./routes");
+const rateLimit = require('express-rate-limit')
+require("dotenv").config()
 
 var app = express();
 
@@ -17,6 +18,14 @@ app.set('view engine', 'jade');
 
 app.use(validator());
 app.use(cors());
+app.set('trust proxy', 1);
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use(limiter); // Apply the rate limiting middleware to all requests
 app.use(logger('dev'));
 app.use(express.json({
   verify: function (req, res, buf) {
