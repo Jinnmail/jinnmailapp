@@ -162,7 +162,6 @@ async function main() {
             senderAliasId: receiverAlias[0].aliasId,
             proxyMail: 'a@a.com'
         }]);
-        console.log();
     } catch(e) {
         console.log(e);
     }
