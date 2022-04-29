@@ -17,7 +17,7 @@
   "dependencies": {
     "@sendgrid/inbound-mail-parser": "7.2.0",
     "@sendgrid/mail": "6.3.1",
-    "async": "2.6.1",
+    "async": "2.6.4",
     "axios": "0.21.2",
     "bcrypt-nodejs": "0.0.3",
     "bl": "2.2.1",
